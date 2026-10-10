@@ -1,0 +1,302 @@
+{
+  "validatedAt": "2026-10-10T23:05:17.599Z",
+  "health": {
+    "status": "ready",
+    "indexedChunks": 24,
+    "llm": "qwen3:4b-instruct-2507-q4_K_M",
+    "embedding": "embeddinggemma:300m"
+  },
+  "cpu": true,
+  "limitations": "Four prepared real local LLM HTTP probes, not broad factual accuracy. Responses require manual review. No source URL fetched.",
+  "results": [
+    {
+      "question": "Pourquoi le FPS de lecture de Long Autonomous Drive ne donne-t-il pas la cadence de capture ?",
+      "expectedStatus": "answered",
+      "expectedFile": "nasa-video-cadence.md",
+      "seconds": 89.356,
+      "statusMatches": true,
+      "citationMatches": true,
+      "result": {
+        "status": "answered",
+        "answer": "Le FPS de lecture de la vidéo de Long Autonomous Drive ne donne pas la cadence de capture parce que les images sont prises à intervalles de distance (environ tous les 5 mètres), pas à intervalles de temps, et sans les horaires d'acquisition, on ne peut pas déduire l'intervalle temporel [S1]. L'amélioration du contraste des images ne modifie pas la fréquence d'acquisition, et la calibration spatiale ne détermine pas la cadence temporelle [S1]. Ainsi, le FPS mesuré dans le fichier MP4 reflète la fréquence de lecture, pas la fréquence d'acquisition originelle.",
+        "sources": [
+          {
+            "path": "nasa-video-cadence.md",
+            "lineStart": 1,
+            "lineEnd": 7,
+            "digest": "6dd06c19becd1cb858749d96eaa909cefbb42cb762c055fff0dec9aa1c69cf46",
+            "text": "# NASA — cadence de la vidéo de conduite du sol 130\nSource URL: https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/\nVerified on: 2026-10-10\n\nRésumé relu de la notice NASA. La séquence montre la conduite autonome de Perseverance du 1er juillet 2021, sol 130. Une caméra de navigation a pris les images environ tous les cinq mètres de déplacement. Leur contraste a été amélioré.\n\nConséquence pour nos essais : cinq mètres est un intervalle de distance, pas de temps. Sans les horaires d'acquisition, nous ne connaissons pas l'intervalle temporel entre ces images. Le FPS de lecture du MP4 ne donne donc pas la fréquence d'acquisition originale. L'amélioration du contraste change l'apparence des images ; elle n'explique pas cette différence de cadence. La calibration spatiale sert à la géométrie et ne détermine pas la cadence temporelle. Le tracking entre captures rapprochées reste à tester avec une autre séquence.",
+            "sourceUrl": "https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/",
+            "verifiedOn": "2026-10-10",
+            "sourceId": "S1",
+            "score": 0.46218922455349043
+          },
+          {
+            "path": "nasa-autonav.md",
+            "lineStart": 1,
+            "lineEnd": 8,
+            "digest": "9d9f82e5391545d706e8baf40e02bd06673fdab3d23faa78f661b4826a0d16e5",
+            "text": "# NASA — navigation autonome de Perseverance\nSource URL: https://science.nasa.gov/resource/how-perseverance-drives-on-mars/\nVerified on: 2026-10-10\n\nRésumé relu de la présentation NASA du 8 avril 2022, pas une copie intégrale.\nAutoNav construit des cartes 3D du terrain devant Perseverance, détecte des dangers et choisit un trajet pour contourner les obstacles. Les opérateurs terrestres définissent des étapes ; le rover choisit comment les atteindre. Les dangers évoqués comprennent les rochers, le sable, les cratères et les falaises. Perseverance peut analyser des images pendant son déplacement.\n\nLimite pour C.R.A.T.E.R. : cette description de Mars sert de contexte. Elle ne fournit ni la pose de notre rover, ni la calibration de nos vidéos, ni une validation de notre détection lunaire. Notre assistant explique ; il ne commande pas la navigation.",
+            "sourceUrl": "https://science.nasa.gov/resource/how-perseverance-drives-on-mars/",
+            "verifiedOn": "2026-10-10",
+            "sourceId": "S2",
+            "score": 0.24252290891854267
+          },
+          {
+            "path": "esa-rover-field-tests.md",
+            "lineStart": 1,
+            "lineEnd": 7,
+            "digest": "4168a31074c58d8fc0e0421bd8f5650d3bab59caef5ebbffdeb4dbe6912de15f",
+            "text": "# ESA — essais de rover dans l'obscurité\nSource URL: https://www.esa.int/ESA_Multimedia/Images/2017/06/Rover_test_in_darkness\nVerified on: 2026-10-10\n\nRésumé de la publication ESA du 7 juin 2017. GMV a testé le Rover Autonomy Testbed presque dans l'obscurité pour représenter les faibles angles du Soleil aux pôles lunaires. Ces essais de laboratoire relevaient du projet Lucid. Deux rovers ont ensuite été envoyés à Tenerife pour des essais de jour et de nuit en terrain volcanique analogue.\n\nApplication C.R.A.T.E.R. : varier l'éclairage et le terrain dans les essais est pertinent. Les essais Lucid décrits sont terrestres, en laboratoire puis à Tenerife, pas sur la Lune. Cette page ne dit pas qu'ils valident une alimentation laser. Un analogue terrestre ne valide pas une mission lunaire réelle. Distinguer images de simulation, observations ONNX réelles et détections simulées ; documenter séparément calibration et vérité terrain.",
+            "sourceUrl": "https://www.esa.int/ESA_Multimedia/Images/2017/06/Rover_test_in_darkness",
+            "verifiedOn": "2026-10-10",
+            "sourceId": "S3",
+            "score": 0.24078606986839143
+          },
+          {
+            "path": "m2-design.md",
+            "lineStart": 45,
+            "lineEnd": 60,
+            "digest": "0fffa30492e2c9fa1411b820e0d5adaa8753189a5bccb7ebd91e7e5fe46423b5",
+            "text": "Stop-and-wait et file FIFO bornée conservent l'ordre attendu par M3. Les ACK perdus\nprovoquent des doublons radio supprimés à la station. Après limite d'essais,\nle paquet est abandonné avec une métrique explicite ; file pleine : refus du\nnouveau paquet. Un blackout conserve la file, sans diffuser de fausses réceptions.\n\n## Localisation\n\nCaméra pinhole rectifiée : fx/fy/cx/cy, résolution, centre ENU et rotation\ncaméra-vers-ENU connus. Axes caméra : x droite, y bas, z avant.\nUn pixel de contact produit un rayon ; intersection avec le plan z=ground_z_m.\nRefuser les rayons parallèles, derrière la caméra ou hors portée et les pixels\ninvalides. Pour un rover mobile, la pose doit être fournie à chaque observation.\nUn rayon ne mesure pas la hauteur d'un obstacle ni la profondeur d'un cratère.\nL'incertitude est une estimation documentée basée sur perturbation du pixel et\nincertitude de pose, pas une probabilité garantie ou un substitut à calibration.",
+            "sourceId": "S4",
+            "score": 0.2387553223400411
+          }
+        ],
+        "citedSourceIds": [
+          "S1"
+        ],
+        "facts": null,
+        "models": {
+          "embedding": "embeddinggemma:300m",
+          "llm": "qwen3:4b-instruct-2507-q4_K_M"
+        },
+        "roles": [
+          "retriever",
+          "report_analyst",
+          "explainer",
+          "citation_verifier"
+        ],
+        "limitations": "Les citations sont vérifiées, pas la vérité de chaque phrase. Aucun contrôle du rover."
+      }
+    },
+    {
+      "question": "Pourquoi ESA et GMV ont-ils testé le rover presque dans l’obscurité dans le projet Lucid ?",
+      "expectedStatus": "answered",
+      "expectedFile": "esa-rover-field-tests.md",
+      "seconds": 78.929,
+      "statusMatches": true,
+      "citationMatches": true,
+      "result": {
+        "status": "answered",
+        "answer": "ESA et GMV ont testé le rover presque dans l'obscurité dans le projet Lucid pour simuler les conditions de faible éclairage aux pôles lunaires, où le Soleil est bas et projette de longues ombres, laissant certaines zones dans l'obscurité permanente [S2]. Ces essais, menés en laboratoire et à Tenerife, visaient à valider la capacité du rover à fonctionner dans des régions sans lumière solaire, comme celles observées sur la Lune [S1]. Cependant, ces tests ne valident pas une alimentation laser ni une mission réelle sur la Lune, car ils sont des simulations terrestres [S1].",
+        "sources": [
+          {
+            "path": "esa-rover-field-tests.md",
+            "lineStart": 1,
+            "lineEnd": 7,
+            "digest": "4168a31074c58d8fc0e0421bd8f5650d3bab59caef5ebbffdeb4dbe6912de15f",
+            "text": "# ESA — essais de rover dans l'obscurité\nSource URL: https://www.esa.int/ESA_Multimedia/Images/2017/06/Rover_test_in_darkness\nVerified on: 2026-10-10\n\nRésumé de la publication ESA du 7 juin 2017. GMV a testé le Rover Autonomy Testbed presque dans l'obscurité pour représenter les faibles angles du Soleil aux pôles lunaires. Ces essais de laboratoire relevaient du projet Lucid. Deux rovers ont ensuite été envoyés à Tenerife pour des essais de jour et de nuit en terrain volcanique analogue.\n\nApplication C.R.A.T.E.R. : varier l'éclairage et le terrain dans les essais est pertinent. Les essais Lucid décrits sont terrestres, en laboratoire puis à Tenerife, pas sur la Lune. Cette page ne dit pas qu'ils valident une alimentation laser. Un analogue terrestre ne valide pas une mission lunaire réelle. Distinguer images de simulation, observations ONNX réelles et détections simulées ; documenter séparément calibration et vérité terrain.",
+            "sourceUrl": "https://www.esa.int/ESA_Multimedia/Images/2017/06/Rover_test_in_darkness",
+            "verifiedOn": "2026-10-10",
+            "sourceId": "S1",
+            "score": 0.6849057244383658
+          },
+          {
+            "path": "esa-lunar-shadows.md",
+            "lineStart": 1,
+            "lineEnd": 7,
+            "digest": "186e87374d24651129dbc137757440de9cd0ca6b317ace4404a152320343f91a",
+            "text": "# ESA — ombres aux pôles lunaires\nSource URL: https://www.esa.int/Enabling_Support/Space_Engineering_Technology/Laser-powered_rover_to_explore_Moon_s_dark_shadows\nVerified on: 2026-10-10\n\nRésumé du 14 mai 2020 sur l'étude PHILIP, pas une mission opérationnelle. Aux hautes latitudes lunaires, le Soleil reste bas et projette de longues ombres ; certains cratères restent dans l'obscurité permanente. Un rover dans ces zones ne bénéficie pas directement de l'énergie solaire. ESA a étudié une alimentation laser depuis un atterrisseur.\n\nApplication C.R.A.T.E.R. : tester séparément faible éclairage, ombres et obstacles. Une zone noire dans une image ne prouve ni un trou ni la présence de glace. La proposition laser de 2020 n'est pas un équipement de notre démo ; aucune température locale n'est mesurée par ce résumé.",
+            "sourceUrl": "https://www.esa.int/Enabling_Support/Space_Engineering_Technology/Laser-powered_rover_to_explore_Moon_s_dark_shadows",
+            "verifiedOn": "2026-10-10",
+            "sourceId": "S2",
+            "score": 0.444633531988537
+          },
+          {
+            "path": "nasa-video-cadence.md",
+            "lineStart": 1,
+            "lineEnd": 7,
+            "digest": "6dd06c19becd1cb858749d96eaa909cefbb42cb762c055fff0dec9aa1c69cf46",
+            "text": "# NASA — cadence de la vidéo de conduite du sol 130\nSource URL: https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/\nVerified on: 2026-10-10\n\nRésumé relu de la notice NASA. La séquence montre la conduite autonome de Perseverance du 1er juillet 2021, sol 130. Une caméra de navigation a pris les images environ tous les cinq mètres de déplacement. Leur contraste a été amélioré.\n\nConséquence pour nos essais : cinq mètres est un intervalle de distance, pas de temps. Sans les horaires d'acquisition, nous ne connaissons pas l'intervalle temporel entre ces images. Le FPS de lecture du MP4 ne donne donc pas la fréquence d'acquisition originale. L'amélioration du contraste change l'apparence des images ; elle n'explique pas cette différence de cadence. La calibration spatiale sert à la géométrie et ne détermine pas la cadence temporelle. Le tracking entre captures rapprochées reste à tester avec une autre séquence.",
+            "sourceUrl": "https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/",
+            "verifiedOn": "2026-10-10",
+            "sourceId": "S3",
+            "score": 0.3481651556163257
+          },
+          {
+            "path": "nasa-stereo-cameras.md",
+            "lineStart": 1,
+            "lineEnd": 7,
+            "digest": "1b9b0119331d34902be99881b2117059e48ba8c0395b05733c54ca0e89f8711b",
+            "text": "# NASA — caméras stéréo et dangers\nSource URL: https://science.nasa.gov/mission/mars-2020-perseverance/rover-components/\nVerified on: 2026-10-10\n\nRésumé des sections Hazcams/Navcams de NASA Science, page évolutive sans date de publication retenue. Perseverance utilise deux Navcams couleur stéréo sur son mât. Les Hazcams observent notamment les rochers, tranchées et dunes ; des images stéréo permettent d'évaluer le relief avant de conduire.\n\nApplication C.R.A.T.E.R. : une boîte 2D de détection ne suffit pas à donner une distance en mètres. Il faut une géométrie et une échelle justifiées (stéréo calibrée, profondeur mesurée ou hypothèse de sol documentée), puis une pose vers LOCAL_ENU_V1. Une vidéo MP4 seule ne garantit pas ces informations. Ce résumé ne valide pas notre reconstruction 3D.",
+            "sourceUrl": "https://science.nasa.gov/mission/mars-2020-perseverance/rover-components/",
+            "verifiedOn": "2026-10-10",
+            "sourceId": "S4",
+            "score": 0.3313352047623659
+          }
+        ],
+        "citedSourceIds": [
+          "S2",
+          "S1"
+        ],
+        "facts": null,
+        "models": {
+          "embedding": "embeddinggemma:300m",
+          "llm": "qwen3:4b-instruct-2507-q4_K_M"
+        },
+        "roles": [
+          "retriever",
+          "report_analyst",
+          "explainer",
+          "citation_verifier"
+        ],
+        "limitations": "Les citations sont vérifiées, pas la vérité de chaque phrase. Aucun contrôle du rover."
+      }
+    },
+    {
+      "question": "Un score de confiance de 0,9 garantit-il 90 % de détections correctes ?",
+      "expectedStatus": "answered",
+      "expectedFile": "paper-confidence-calibration.md",
+      "seconds": 96.91,
+      "statusMatches": true,
+      "citationMatches": true,
+      "result": {
+        "status": "answered",
+        "answer": "Non, un score de confiance de 0,9 ne garantit pas 90 % de détections correctes. [S1] explique que la calibration du score de confiance vise à aligner les probabilités prédites avec la fréquence réelle de réponses correctes, et que des réseaux modernes peuvent être mal calibrés, donc un score de 0,9 ne prouve pas une précision de 90 % sans évaluation annotée adaptée. [S4] précise que la détection ne fournit pas de profondeur métrique, de pose ou d'identité temporelle stable, ce qui signifie que le score de confiance ne reflète pas directement la fiabilité de la détection en termes de détection correcte dans le monde réel.",
+        "sources": [
+          {
+            "path": "paper-confidence-calibration.md",
+            "lineStart": 1,
+            "lineEnd": 7,
+            "digest": "00505cbcd41643475b498013ac9ee8d7e2dd4af9167ea799ff735fba0a73673d",
+            "text": "# Calibration de la confiance des réseaux neuronaux\nSource URL: https://arxiv.org/abs/1706.04599v2\nVerified on: 2026-10-10\n\nRésumé de l'abstract de Guo, Pleiss, Sun et Weinberger, ICML 2017, v2 du 3 août 2017. La calibration cherche à rapprocher les probabilités prédites de la fréquence réelle de réponses correctes. Les expériences de classification montrent que des réseaux modernes peuvent être mal calibrés ; les auteurs étudient notamment le temperature scaling.\n\nApplication C.R.A.T.E.R. : un score de détection de 0,9 ne prouve pas 90 % de réussite sans évaluation annotée adaptée. Cette étude de classification ne calibre pas directement Grounding DINO. La confiance d'une classe et l'incertitude de position en mètres sont différentes. La calibration statistique du score ne remplace pas la calibration géométrique de la caméra.",
+            "sourceUrl": "https://arxiv.org/abs/1706.04599v2",
+            "verifiedOn": "2026-10-10",
+            "sourceId": "S1",
+            "score": 0.418686079941912
+          },
+          {
+            "path": "m2-design.md",
+            "lineStart": 61,
+            "lineEnd": 75,
+            "digest": "0fffa30492e2c9fa1411b820e0d5adaa8753189a5bccb7ebd91e7e5fe46423b5",
+            "text": "Un petit scénario calibré produit des pixels à partir de points ENU connus.\nLa reconstruction utilise seulement ces pixels et la caméra ; la vérité terrain\nest utilisée uniquement pour validation. Ce scénario n'est pas un détecteur IA\net les vidéos NASA non calibrées ne sont pas déclarées localisées en mètres.\nEntrée M1 : JSONL avec pose caméra, position rover et détections (id stable,\ntype, boîte ou pixel de contact, confiance, observation UTC).\n\n## Binaire v1\n\nBig endian, magic/version, IDs UTF-8, séquence uint32, horodatages millisecondes\nUTC uint64, positions int32 millimètres, incertitudes uint32 millimètres arrondies\nvers le haut, confiance uint16. Types/statuts : enums ; CRC32 sur le paquet.\nLe CRC détecte les corruptions, sans authentifier l'expéditeur.\nRefuser débordement, NaN/inf, paquets tronqués, champs inconnus et données invalides.\nLa quantification entraîne <=0,5 mm par axe et <=1/(2*65535) sur la confiance.",
+            "sourceId": "S2",
+            "score": 0.30816412814948624
+          },
+          {
+            "path": "assistant-knowledge.md",
+            "lineStart": 20,
+            "lineEnd": 36,
+            "digest": "3f8248b8cd8f758085d55b257473674a20c891f8628608816c613022e7bb8fc0",
+            "text": "transmission : la même trame peut être envoyée plusieurs fois. En cas de perte\nDATA ou ACK, M2 réessaie avec la même séquence. La station supprime les doublons.\nIl est donc possible de livrer toutes les trames avec des pertes de paquets.\nCela ne garantit pas la livraison : les réessais et la file sont limités ;\nune trame peut être abandonnée ou rejetée. Les 30/30 décrivent cet essai seulement.\nUne livraison complète ne garantit pas une livraison immédiate : la file et les\ncoupures peuvent augmenter la latence.\n\nLe taux de livraison des trames est delivered / generated. Le taux de perte DATA\nest dataPacketsLost / dataPacketsSent. Le taux de perte ACK est\nackPacketsLost / ackPacketsSent. Ces trois taux ont des dénominateurs différents.\nUn rapport mode benchmark mesure une simulation reproductible. Il ne démontre\npas les performances d'une radio physique ou d'une perception sur terrain réel.\n\n## Rôle des modèles\n\nUn embedding représente un document pour retrouver les passages utiles.",
+            "sourceId": "S3",
+            "score": 0.289277863357349
+          },
+          {
+            "path": "paper-grounding-dino.md",
+            "lineStart": 1,
+            "lineEnd": 7,
+            "digest": "a17fb7e98a16e116bb60935290e98259d05e438990f7a99fd65cd7f703cd623d",
+            "text": "# Grounding DINO — détection guidée par texte\nSource URL: https://arxiv.org/abs/2303.05499v5\nVerified on: 2026-10-10\n\nRésumé de l'abstract de Liu et al., dépôt initial 9 mars 2023, v5 du 19 juillet 2024. Grounding DINO est un détecteur ouvert : des noms de catégories ou expressions textuelles guident la détection d'objets dans une image. Le modèle fusionne des représentations visuelles et linguistiques ; les auteurs évaluent plusieurs benchmarks de vision.\n\nLimite C.R.A.T.E.R. : cette fusion texte/image dans M1 ne signifie pas que notre assistant RAG textuel accepte des vidéos. Les scores publiés ne valident pas le modèle Tiny exporté ONNX sur nos scènes lunaires. Une détection ne fournit à elle seule ni profondeur métrique, ni pose, ni identité temporelle stable. Aucun nouveau modèle n'est téléchargé ici.",
+            "sourceUrl": "https://arxiv.org/abs/2303.05499v5",
+            "verifiedOn": "2026-10-10",
+            "sourceId": "S4",
+            "score": 0.28656785596256157
+          }
+        ],
+        "citedSourceIds": [
+          "S1",
+          "S4"
+        ],
+        "facts": null,
+        "models": {
+          "embedding": "embeddinggemma:300m",
+          "llm": "qwen3:4b-instruct-2507-q4_K_M"
+        },
+        "roles": [
+          "retriever",
+          "report_analyst",
+          "explainer",
+          "citation_verifier"
+        ],
+        "limitations": "Les citations sont vérifiées, pas la vérité de chaque phrase. Aucun contrôle du rover."
+      }
+    },
+    {
+      "question": "Quelle est la température mesurée actuellement par notre rover C.R.A.T.E.R. ?",
+      "expectedStatus": "insufficient_evidence",
+      "expectedFile": null,
+      "seconds": 62.703,
+      "statusMatches": true,
+      "citationMatches": true,
+      "result": {
+        "status": "insufficient_evidence",
+        "answer": "Les sources disponibles ne permettent pas de répondre.",
+        "sources": [
+          {
+            "path": "nasa-visual-odometry.md",
+            "lineStart": 1,
+            "lineEnd": 7,
+            "digest": "628152dc1336077ff38e0b77e0658fb15757f9e5b5d83c9314d37ec33dbcb944",
+            "text": "# JPL — odométrie visuelle et glissement des roues\nSource URL: https://robotics.jpl.nasa.gov/what-we-do/flight-projects/mars-science-laboratory/surface-system-software-and-rover-navigation/\nVerified on: 2026-10-10\n\nRésumé de JPL Robotics sur Curiosity, page sans date de publication affichée. Le rover combine gyroscopes, accéléromètres et rotations des roues pour suivre sa pose. L'odométrie visuelle compare des images avant/après un déplacement, suit des caractéristiques du terrain et estime une pose à six degrés de liberté. Elle aide à détecter le glissement des roues.\n\nLimite C.R.A.T.E.R. : compter des rotations ne prouve pas le déplacement réel. Suivre les identifiants des rochers n'est pas estimer la pose de la caméra. M2 utilise la pose calibrée fournie par M1 ; ce document n'ajoute ni odométrie visuelle ni fusion inertielle au logiciel.",
+            "sourceUrl": "https://robotics.jpl.nasa.gov/what-we-do/flight-projects/mars-science-laboratory/surface-system-software-and-rover-navigation/",
+            "verifiedOn": "2026-10-10",
+            "sourceId": "S1",
+            "score": 0.5378360164724222
+          },
+          {
+            "path": "esa-rover-field-tests.md",
+            "lineStart": 1,
+            "lineEnd": 7,
+            "digest": "4168a31074c58d8fc0e0421bd8f5650d3bab59caef5ebbffdeb4dbe6912de15f",
+            "text": "# ESA — essais de rover dans l'obscurité\nSource URL: https://www.esa.int/ESA_Multimedia/Images/2017/06/Rover_test_in_darkness\nVerified on: 2026-10-10\n\nRésumé de la publication ESA du 7 juin 2017. GMV a testé le Rover Autonomy Testbed presque dans l'obscurité pour représenter les faibles angles du Soleil aux pôles lunaires. Ces essais de laboratoire relevaient du projet Lucid. Deux rovers ont ensuite été envoyés à Tenerife pour des essais de jour et de nuit en terrain volcanique analogue.\n\nApplication C.R.A.T.E.R. : varier l'éclairage et le terrain dans les essais est pertinent. Les essais Lucid décrits sont terrestres, en laboratoire puis à Tenerife, pas sur la Lune. Cette page ne dit pas qu'ils valident une alimentation laser. Un analogue terrestre ne valide pas une mission lunaire réelle. Distinguer images de simulation, observations ONNX réelles et détections simulées ; documenter séparément calibration et vérité terrain.",
+            "sourceUrl": "https://www.esa.int/ESA_Multimedia/Images/2017/06/Rover_test_in_darkness",
+            "verifiedOn": "2026-10-10",
+            "sourceId": "S2",
+            "score": 0.5301403074444233
+          },
+          {
+            "path": "assistant-knowledge.md",
+            "lineStart": 1,
+            "lineEnd": 19,
+            "digest": "3f8248b8cd8f758085d55b257473674a20c891f8628608816c613022e7bb8fc0",
+            "text": "# Repères validés pour expliquer M2\n\n## Calibration et coordonnées\n\nDans LOCAL_ENU_V1, ENU signifie East, North, Up : x vers l'Est, y vers le Nord,\nz vers le haut. Les trois coordonnées sont en mètres et l'origine est le\nmarqueur convenu au début de la mission.\n\nUne détection M1 donne un pixel de contact dans une image. Un pixel n'est pas\nune distance en mètres. Pour projeter ce pixel, M2 utilise la calibration\n(fx, fy, cx, cy), le centre de la caméra en mètres et sa rotation vers ENU.\nIl construit un rayon puis son intersection avec un plan de sol connu.\nLa position du rover est fournie séparément par la source ; la calibration\nne permet pas à elle seule de mesurer la position du rover.\nUne vidéo NASA sans ces paramètres ne fournit pas des positions ENU métriques.\n\n## Pourquoi des pertes radio peuvent coexister avec une livraison complète\n\nUne trame est une observation unique. Un paquet DATA est une tentative de",
+            "sourceId": "S3",
+            "score": 0.5134767488275477
+          },
+          {
+            "path": "esa-lunar-shadows.md",
+            "lineStart": 1,
+            "lineEnd": 7,
+            "digest": "186e87374d24651129dbc137757440de9cd0ca6b317ace4404a152320343f91a",
+            "text": "# ESA — ombres aux pôles lunaires\nSource URL: https://www.esa.int/Enabling_Support/Space_Engineering_Technology/Laser-powered_rover_to_explore_Moon_s_dark_shadows\nVerified on: 2026-10-10\n\nRésumé du 14 mai 2020 sur l'étude PHILIP, pas une mission opérationnelle. Aux hautes latitudes lunaires, le Soleil reste bas et projette de longues ombres ; certains cratères restent dans l'obscurité permanente. Un rover dans ces zones ne bénéficie pas directement de l'énergie solaire. ESA a étudié une alimentation laser depuis un atterrisseur.\n\nApplication C.R.A.T.E.R. : tester séparément faible éclairage, ombres et obstacles. Une zone noire dans une image ne prouve ni un trou ni la présence de glace. La proposition laser de 2020 n'est pas un équipement de notre démo ; aucune température locale n'est mesurée par ce résumé.",
+            "sourceUrl": "https://www.esa.int/Enabling_Support/Space_Engineering_Technology/Laser-powered_rover_to_explore_Moon_s_dark_shadows",
+            "verifiedOn": "2026-10-10",
+            "sourceId": "S4",
+            "score": 0.5040588855689743
+          }
+        ],
+        "citedSourceIds": [],
+        "facts": null,
+        "models": {
+          "embedding": "embeddinggemma:300m",
+          "llm": "qwen3:4b-instruct-2507-q4_K_M"
+        },
+        "roles": [
+          "retriever",
+          "report_analyst",
+          "explainer",
+          "citation_verifier"
+        ],
+        "limitations": "Les citations sont vérifiées, pas la vérité de chaque phrase. Aucun contrôle du rover."
+      }
+    }
+  ],
+  "modelDigests": {
+    "qwen3:4b-instruct-2507-q4_K_M": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+    "embeddinggemma:300m": "85462619ee721b466c5927d109d4cb765861907d5417b9109caebc4e614679f1"
+  },
+  "manualReview": "Expected conclusions and abstention confirmed. Confidence answer includes an unnecessary depth/pose digression; citations alone do not certify every causal claim. Earlier ESA trial incorrectly linked separate studies; context and prompt clarified before this run."
+}

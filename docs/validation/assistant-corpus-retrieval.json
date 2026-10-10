@@ -1,0 +1,481 @@
+{
+  "validatedAt": "2026-10-10T22:59:15.341983+00:00",
+  "embeddingModel": "embeddinggemma:300m",
+  "embeddingIdentity": "85462619ee721b466c5927d109d4cb765861907d5417b9109caebc4e614679f1",
+  "indexedChunks": 24,
+  "selectedDocuments": 16,
+  "cases": 13,
+  "hitsAt4": 13,
+  "top1": 13,
+  "results": [
+    {
+      "question": "Comment AutoNav choisit-il un trajet pour contourner les dangers ?",
+      "expectedFile": "docs/knowledge/nasa-autonav.md",
+      "rankInTop4": 1,
+      "seconds": 1.463,
+      "hits": [
+        {
+          "file": "docs/knowledge/nasa-autonav.md",
+          "score": 0.48590701413522364,
+          "digest": "9d9f82e5391545d706e8baf40e02bd06673fdab3d23faa78f661b4826a0d16e5",
+          "sourceUrl": "https://science.nasa.gov/resource/how-perseverance-drives-on-mars/",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/knowledge/paper-lunarnav-localization.md",
+          "score": 0.26811358252570916,
+          "digest": "8b360704467172ce3d7efcb5dfffa6097a9699f007391ac7a4f02b2f25b27c41",
+          "sourceUrl": "https://arxiv.org/abs/2301.01350v1",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/m1-observation-contract.md",
+          "score": 0.26533208985303847,
+          "digest": "860b74e310a2fabb60ac6ede9275ff73f2f798cc76201439048197839cbbede4",
+          "sourceUrl": null,
+          "verifiedOn": null
+        },
+        {
+          "file": "docs/knowledge/paper-hota-tracking.md",
+          "score": 0.25689682354079746,
+          "digest": "63473a449da9259af6e04c24fce95832e0f65e616145fe1b001627517fe933fa",
+          "sourceUrl": "https://arxiv.org/abs/2009.07736v2",
+          "verifiedOn": "2026-10-10"
+        }
+      ]
+    },
+    {
+      "question": "Les images de Long Autonomous Drive sont-elles prises toutes les cinq secondes ou tous les cinq mètres ?",
+      "expectedFile": "docs/knowledge/nasa-video-cadence.md",
+      "rankInTop4": 1,
+      "seconds": 1.476,
+      "hits": [
+        {
+          "file": "docs/knowledge/nasa-video-cadence.md",
+          "score": 0.48758469070176597,
+          "digest": "6dd06c19becd1cb858749d96eaa909cefbb42cb762c055fff0dec9aa1c69cf46",
+          "sourceUrl": "https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/knowledge/nasa-stereo-cameras.md",
+          "score": 0.2717717326554728,
+          "digest": "1b9b0119331d34902be99881b2117059e48ba8c0395b05733c54ca0e89f8711b",
+          "sourceUrl": "https://science.nasa.gov/mission/mars-2020-perseverance/rover-components/",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/knowledge/nasa-autonav.md",
+          "score": 0.26888203364822505,
+          "digest": "9d9f82e5391545d706e8baf40e02bd06673fdab3d23faa78f661b4826a0d16e5",
+          "sourceUrl": "https://science.nasa.gov/resource/how-perseverance-drives-on-mars/",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/knowledge/nasa-visual-odometry.md",
+          "score": 0.26764832311474984,
+          "digest": "628152dc1336077ff38e0b77e0658fb15757f9e5b5d83c9314d37ec33dbcb944",
+          "sourceUrl": "https://robotics.jpl.nasa.gov/what-we-do/flight-projects/mars-science-laboratory/surface-system-software-and-rover-navigation/",
+          "verifiedOn": "2026-10-10"
+        }
+      ]
+    },
+    {
+      "question": "Où trouver le catalogue PDS des produits Navcam calibrés ?",
+      "expectedFile": "docs/knowledge/nasa-pds-calibration.md",
+      "rankInTop4": 1,
+      "seconds": 1.467,
+      "hits": [
+        {
+          "file": "docs/knowledge/nasa-pds-calibration.md",
+          "score": 0.6136069835557212,
+          "digest": "4e7fdb771e9faaa696970505c9caf9504e633ea8db8df2f0a56d50bd72811dc5",
+          "sourceUrl": "https://pds.nasa.gov/ds-view/pds/viewBundle.jsp?identifier=urn:nasa:pds:mars2020_navcam_ops_calibrated&version=1.0",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/knowledge/nasa-stereo-cameras.md",
+          "score": 0.3155726569003351,
+          "digest": "1b9b0119331d34902be99881b2117059e48ba8c0395b05733c54ca0e89f8711b",
+          "sourceUrl": "https://science.nasa.gov/mission/mars-2020-perseverance/rover-components/",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/m1-observation-contract.md",
+          "score": 0.28987468360700575,
+          "digest": "860b74e310a2fabb60ac6ede9275ff73f2f798cc76201439048197839cbbede4",
+          "sourceUrl": null,
+          "verifiedOn": null
+        },
+        {
+          "file": "docs/assistant-knowledge.md",
+          "score": 0.28813995948320587,
+          "digest": "3f8248b8cd8f758085d55b257473674a20c891f8628608816c613022e7bb8fc0",
+          "sourceUrl": null,
+          "verifiedOn": null
+        }
+      ]
+    },
+    {
+      "question": "À quoi servent les Navcams stéréo et les Hazcams de Perseverance ?",
+      "expectedFile": "docs/knowledge/nasa-stereo-cameras.md",
+      "rankInTop4": 1,
+      "seconds": 1.436,
+      "hits": [
+        {
+          "file": "docs/knowledge/nasa-stereo-cameras.md",
+          "score": 0.6795983301874958,
+          "digest": "1b9b0119331d34902be99881b2117059e48ba8c0395b05733c54ca0e89f8711b",
+          "sourceUrl": "https://science.nasa.gov/mission/mars-2020-perseverance/rover-components/",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/knowledge/nasa-pds-calibration.md",
+          "score": 0.5045223092717331,
+          "digest": "4e7fdb771e9faaa696970505c9caf9504e633ea8db8df2f0a56d50bd72811dc5",
+          "sourceUrl": "https://pds.nasa.gov/ds-view/pds/viewBundle.jsp?identifier=urn:nasa:pds:mars2020_navcam_ops_calibrated&version=1.0",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/knowledge/nasa-video-cadence.md",
+          "score": 0.46759154031635997,
+          "digest": "6dd06c19becd1cb858749d96eaa909cefbb42cb762c055fff0dec9aa1c69cf46",
+          "sourceUrl": "https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/knowledge/nasa-autonav.md",
+          "score": 0.4568600301543341,
+          "digest": "9d9f82e5391545d706e8baf40e02bd06673fdab3d23faa78f661b4826a0d16e5",
+          "sourceUrl": "https://science.nasa.gov/resource/how-perseverance-drives-on-mars/",
+          "verifiedOn": "2026-10-10"
+        }
+      ]
+    },
+    {
+      "question": "Comment l'odométrie visuelle aide-t-elle Curiosity à détecter le glissement des roues ?",
+      "expectedFile": "docs/knowledge/nasa-visual-odometry.md",
+      "rankInTop4": 1,
+      "seconds": 1.509,
+      "hits": [
+        {
+          "file": "docs/knowledge/nasa-visual-odometry.md",
+          "score": 0.6270606474579219,
+          "digest": "628152dc1336077ff38e0b77e0658fb15757f9e5b5d83c9314d37ec33dbcb944",
+          "sourceUrl": "https://robotics.jpl.nasa.gov/what-we-do/flight-projects/mars-science-laboratory/surface-system-software-and-rover-navigation/",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/knowledge/nasa-video-cadence.md",
+          "score": 0.36056807890269443,
+          "digest": "6dd06c19becd1cb858749d96eaa909cefbb42cb762c055fff0dec9aa1c69cf46",
+          "sourceUrl": "https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/knowledge/nasa-stereo-cameras.md",
+          "score": 0.3586488007581817,
+          "digest": "1b9b0119331d34902be99881b2117059e48ba8c0395b05733c54ca0e89f8711b",
+          "sourceUrl": "https://science.nasa.gov/mission/mars-2020-perseverance/rover-components/",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/knowledge/nasa-autonav.md",
+          "score": 0.337094668304721,
+          "digest": "9d9f82e5391545d706e8baf40e02bd06673fdab3d23faa78f661b4826a0d16e5",
+          "sourceUrl": "https://science.nasa.gov/resource/how-perseverance-drives-on-mars/",
+          "verifiedOn": "2026-10-10"
+        }
+      ]
+    },
+    {
+      "question": "Pourquoi SPICE exige-t-il des kernels pour transformer certains repères ?",
+      "expectedFile": "docs/knowledge/nasa-spice-frames.md",
+      "rankInTop4": 1,
+      "seconds": 1.465,
+      "hits": [
+        {
+          "file": "docs/knowledge/nasa-spice-frames.md",
+          "score": 0.5864063571058049,
+          "digest": "384d6a73d7aa3de568245da709e4e3ed495e40c8738d21f3431d7ee745cc2da6",
+          "sourceUrl": "https://naif.jpl.nasa.gov/pub/naif/toolkit_docs/C/req/frames.html",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/m2-design.md",
+          "score": 0.21628882688328405,
+          "digest": "0fffa30492e2c9fa1411b820e0d5adaa8753189a5bccb7ebd91e7e5fe46423b5",
+          "sourceUrl": null,
+          "verifiedOn": null
+        },
+        {
+          "file": "docs/assistant-knowledge.md",
+          "score": 0.20987458376785997,
+          "digest": "3f8248b8cd8f758085d55b257473674a20c891f8628608816c613022e7bb8fc0",
+          "sourceUrl": null,
+          "verifiedOn": null
+        },
+        {
+          "file": "docs/m1-observation-contract.md",
+          "score": 0.2087728764643532,
+          "digest": "860b74e310a2fabb60ac6ede9275ff73f2f798cc76201439048197839cbbede4",
+          "sourceUrl": null,
+          "verifiedOn": null
+        }
+      ]
+    },
+    {
+      "question": "Comment DTN stocke-t-il les données lorsque le prochain relais est indisponible ?",
+      "expectedFile": "docs/knowledge/nasa-dtn-buffering.md",
+      "rankInTop4": 1,
+      "seconds": 1.453,
+      "hits": [
+        {
+          "file": "docs/knowledge/nasa-dtn-buffering.md",
+          "score": 0.5002049293113753,
+          "digest": "634d96f3b70e3486b0ce3062f3c3337479b57448ec789b9a76a50efadaae7fc9",
+          "sourceUrl": "https://www.nasa.gov/reference/delay-disruption-tolerant-networking-overview/",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/assistant-knowledge.md",
+          "score": 0.32345326977731015,
+          "digest": "3f8248b8cd8f758085d55b257473674a20c891f8628608816c613022e7bb8fc0",
+          "sourceUrl": null,
+          "verifiedOn": null
+        },
+        {
+          "file": "docs/m2-design.md",
+          "score": 0.28995428285237396,
+          "digest": "0fffa30492e2c9fa1411b820e0d5adaa8753189a5bccb7ebd91e7e5fe46423b5",
+          "sourceUrl": null,
+          "verifiedOn": null
+        },
+        {
+          "file": "docs/m2-design.md",
+          "score": 0.21075612057975646,
+          "digest": "0fffa30492e2c9fa1411b820e0d5adaa8753189a5bccb7ebd91e7e5fe46423b5",
+          "sourceUrl": null,
+          "verifiedOn": null
+        }
+      ]
+    },
+    {
+      "question": "Pourquoi certains cratères des pôles lunaires restent-ils dans l'ombre ?",
+      "expectedFile": "docs/knowledge/esa-lunar-shadows.md",
+      "rankInTop4": 1,
+      "seconds": 1.46,
+      "hits": [
+        {
+          "file": "docs/knowledge/esa-lunar-shadows.md",
+          "score": 0.5349457437460867,
+          "digest": "186e87374d24651129dbc137757440de9cd0ca6b317ace4404a152320343f91a",
+          "sourceUrl": "https://www.esa.int/Enabling_Support/Space_Engineering_Technology/Laser-powered_rover_to_explore_Moon_s_dark_shadows",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/knowledge/esa-rover-field-tests.md",
+          "score": 0.4146706966208246,
+          "digest": "4168a31074c58d8fc0e0421bd8f5650d3bab59caef5ebbffdeb4dbe6912de15f",
+          "sourceUrl": "https://www.esa.int/ESA_Multimedia/Images/2017/06/Rover_test_in_darkness",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/knowledge/paper-lunarnav-localization.md",
+          "score": 0.37322171109061586,
+          "digest": "8b360704467172ce3d7efcb5dfffa6097a9699f007391ac7a4f02b2f25b27c41",
+          "sourceUrl": "https://arxiv.org/abs/2301.01350v1",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/assistant-knowledge.md",
+          "score": 0.3086308974330648,
+          "digest": "3f8248b8cd8f758085d55b257473674a20c891f8628608816c613022e7bb8fc0",
+          "sourceUrl": null,
+          "verifiedOn": null
+        }
+      ]
+    },
+    {
+      "question": "Pourquoi ESA et GMV ont-ils testé le rover presque dans l'obscurité dans le projet Lucid ?",
+      "expectedFile": "docs/knowledge/esa-rover-field-tests.md",
+      "rankInTop4": 1,
+      "seconds": 1.467,
+      "hits": [
+        {
+          "file": "docs/knowledge/esa-rover-field-tests.md",
+          "score": 0.6830467519411918,
+          "digest": "4168a31074c58d8fc0e0421bd8f5650d3bab59caef5ebbffdeb4dbe6912de15f",
+          "sourceUrl": "https://www.esa.int/ESA_Multimedia/Images/2017/06/Rover_test_in_darkness",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/knowledge/esa-lunar-shadows.md",
+          "score": 0.44417259888670757,
+          "digest": "186e87374d24651129dbc137757440de9cd0ca6b317ace4404a152320343f91a",
+          "sourceUrl": "https://www.esa.int/Enabling_Support/Space_Engineering_Technology/Laser-powered_rover_to_explore_Moon_s_dark_shadows",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/knowledge/nasa-video-cadence.md",
+          "score": 0.3460851554497356,
+          "digest": "6dd06c19becd1cb858749d96eaa909cefbb42cb762c055fff0dec9aa1c69cf46",
+          "sourceUrl": "https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/knowledge/nasa-visual-odometry.md",
+          "score": 0.3281172495553219,
+          "digest": "628152dc1336077ff38e0b77e0658fb15757f9e5b5d83c9314d37ec33dbcb944",
+          "sourceUrl": "https://robotics.jpl.nasa.gov/what-we-do/flight-projects/mars-science-laboratory/surface-system-software-and-rover-navigation/",
+          "verifiedOn": "2026-10-10"
+        }
+      ]
+    },
+    {
+      "question": "Comment Grounding DINO utilise-t-il les noms de catégories pour détecter des objets ?",
+      "expectedFile": "docs/knowledge/paper-grounding-dino.md",
+      "rankInTop4": 1,
+      "seconds": 1.452,
+      "hits": [
+        {
+          "file": "docs/knowledge/paper-grounding-dino.md",
+          "score": 0.5773511114965804,
+          "digest": "a17fb7e98a16e116bb60935290e98259d05e438990f7a99fd65cd7f703cd623d",
+          "sourceUrl": "https://arxiv.org/abs/2303.05499v5",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/knowledge/paper-confidence-calibration.md",
+          "score": 0.36384666800480847,
+          "digest": "00505cbcd41643475b498013ac9ee8d7e2dd4af9167ea799ff735fba0a73673d",
+          "sourceUrl": "https://arxiv.org/abs/1706.04599v2",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/m1-observation-contract.md",
+          "score": 0.2933869742182026,
+          "digest": "860b74e310a2fabb60ac6ede9275ff73f2f798cc76201439048197839cbbede4",
+          "sourceUrl": null,
+          "verifiedOn": null
+        },
+        {
+          "file": "docs/m1-observation-contract.md",
+          "score": 0.28955965336175027,
+          "digest": "860b74e310a2fabb60ac6ede9275ff73f2f798cc76201439048197839cbbede4",
+          "sourceUrl": null,
+          "verifiedOn": null
+        }
+      ]
+    },
+    {
+      "question": "Un score de confiance de 0,9 garantit-il 90 % de détections correctes ?",
+      "expectedFile": "docs/knowledge/paper-confidence-calibration.md",
+      "rankInTop4": 1,
+      "seconds": 1.509,
+      "hits": [
+        {
+          "file": "docs/knowledge/paper-confidence-calibration.md",
+          "score": 0.418686079941912,
+          "digest": "00505cbcd41643475b498013ac9ee8d7e2dd4af9167ea799ff735fba0a73673d",
+          "sourceUrl": "https://arxiv.org/abs/1706.04599v2",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/m2-design.md",
+          "score": 0.30816412814948624,
+          "digest": "0fffa30492e2c9fa1411b820e0d5adaa8753189a5bccb7ebd91e7e5fe46423b5",
+          "sourceUrl": null,
+          "verifiedOn": null
+        },
+        {
+          "file": "docs/assistant-knowledge.md",
+          "score": 0.289277863357349,
+          "digest": "3f8248b8cd8f758085d55b257473674a20c891f8628608816c613022e7bb8fc0",
+          "sourceUrl": null,
+          "verifiedOn": null
+        },
+        {
+          "file": "docs/knowledge/paper-grounding-dino.md",
+          "score": 0.28656785596256157,
+          "digest": "a17fb7e98a16e116bb60935290e98259d05e438990f7a99fd65cd7f703cd623d",
+          "sourceUrl": "https://arxiv.org/abs/2303.05499v5",
+          "verifiedOn": "2026-10-10"
+        }
+      ]
+    },
+    {
+      "question": "Que mesure HOTA pour le suivi multi-objets ?",
+      "expectedFile": "docs/knowledge/paper-hota-tracking.md",
+      "rankInTop4": 1,
+      "seconds": 1.46,
+      "hits": [
+        {
+          "file": "docs/knowledge/paper-hota-tracking.md",
+          "score": 0.5993531972923294,
+          "digest": "63473a449da9259af6e04c24fce95832e0f65e616145fe1b001627517fe933fa",
+          "sourceUrl": "https://arxiv.org/abs/2009.07736v2",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/m1-observation-contract.md",
+          "score": 0.30422761698780765,
+          "digest": "860b74e310a2fabb60ac6ede9275ff73f2f798cc76201439048197839cbbede4",
+          "sourceUrl": null,
+          "verifiedOn": null
+        },
+        {
+          "file": "docs/m2-design.md",
+          "score": 0.3041598513900974,
+          "digest": "0fffa30492e2c9fa1411b820e0d5adaa8753189a5bccb7ebd91e7e5fe46423b5",
+          "sourceUrl": null,
+          "verifiedOn": null
+        },
+        {
+          "file": "docs/knowledge/nasa-visual-odometry.md",
+          "score": 0.28602892064601765,
+          "digest": "628152dc1336077ff38e0b77e0658fb15757f9e5b5d83c9314d37ec33dbcb944",
+          "sourceUrl": "https://robotics.jpl.nasa.gov/what-we-do/flight-projects/mars-science-laboratory/surface-system-software-and-rover-navigation/",
+          "verifiedOn": "2026-10-10"
+        }
+      ]
+    },
+    {
+      "question": "Comment LunarNav associe-t-il les cratères à une carte orbitale pour estimer une position ?",
+      "expectedFile": "docs/knowledge/paper-lunarnav-localization.md",
+      "rankInTop4": 1,
+      "seconds": 1.528,
+      "hits": [
+        {
+          "file": "docs/knowledge/paper-lunarnav-localization.md",
+          "score": 0.6729286805182526,
+          "digest": "8b360704467172ce3d7efcb5dfffa6097a9699f007391ac7a4f02b2f25b27c41",
+          "sourceUrl": "https://arxiv.org/abs/2301.01350v1",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/assistant-knowledge.md",
+          "score": 0.4573274391656601,
+          "digest": "3f8248b8cd8f758085d55b257473674a20c891f8628608816c613022e7bb8fc0",
+          "sourceUrl": null,
+          "verifiedOn": null
+        },
+        {
+          "file": "docs/knowledge/nasa-autonav.md",
+          "score": 0.45637921215214533,
+          "digest": "9d9f82e5391545d706e8baf40e02bd06673fdab3d23faa78f661b4826a0d16e5",
+          "sourceUrl": "https://science.nasa.gov/resource/how-perseverance-drives-on-mars/",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "file": "docs/knowledge/nasa-visual-odometry.md",
+          "score": 0.4387802493244671,
+          "digest": "628152dc1336077ff38e0b77e0658fb15757f9e5b5d83c9314d37ec33dbcb944",
+          "sourceUrl": "https://robotics.jpl.nasa.gov/what-we-do/flight-projects/mars-science-laboratory/surface-system-software-and-rover-navigation/",
+          "verifiedOn": "2026-10-10"
+        }
+      ]
+    }
+  ],
+  "limitations": "Prepared corpus probes, not unseen-query accuracy or LLM factual validation. CPU, local Ollama; no source URL fetched."
+}

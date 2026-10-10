@@ -54,6 +54,8 @@ le passage attendu parmi les quatre premiers pour 13 questions préparées.
 Ce n'est ni une précision sur des questions inédites ni une validation factuelle
 du LLM. Ces commandes ne téléchargent aucun poids. Consulter manuellement une
 URL demande une connexion ; répondre avec le corpus local n'en demande pas.
+Les [mesures et traces relues](../validation/assistant-research.md) présentent
+les résultats de recherche et quatre réponses/abstentions réelles via le client M3.
 
 ## Choix des ressources en ligne
 
