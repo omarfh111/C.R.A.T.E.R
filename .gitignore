@@ -95,3 +95,7 @@ wandb/
 *.webm
 *.mpeg
 *.mpg
+
+# Local design reference (kept out of source control)
+/Sentinel Autonomous Orbital Intelligence.zip
+/.sentinel-reference/
