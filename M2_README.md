@@ -217,3 +217,7 @@ Procédure ONNX sur le PC M1 :
 
 Partage des petits artefacts ONNX existants :
 [export vérifié et publication Git depuis le PC M1](docs/m1-calibrated-handoff.md).
+
+Assistant local pour M3 :
+[contrat HTTP, client TypeScript et tests](docs/assistant-http-contract.md),
+[corpus NASA relu et fonctionnement hors ligne](docs/knowledge/README.md).

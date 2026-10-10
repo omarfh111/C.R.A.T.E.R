@@ -1,0 +1,107 @@
+{
+  "validatedAt": "2026-10-10",
+  "runtime": "Ollama local CPU; HTTP sidecar + TypeScript M3 client; no cloud inference",
+  "indexChunks": 14,
+  "models": {
+    "embedding": "embeddinggemma:300m",
+    "llm": "qwen3:4b-instruct-2507-q4_K_M"
+  },
+  "manualReview": "Final cadence answer distinguishes distance/time, contrast and spatial calibration. Unknown current rover temperature abstains.",
+  "limitations": "Two reviewed examples only; no general accuracy guarantee. Earlier trials made incorrect causal links; sources and prompt were clarified before this final run. CPU load can interfere with short perception capture windows.",
+  "cases": [
+    {
+      "name": "nasa-cadence",
+      "question": "Pourquoi le FPS de lecture de la vidéo NASA Long Autonomous Drive ne représente-t-il pas la cadence originale de capture ?",
+      "elapsedS": 75.712,
+      "status": "answered",
+      "answer": "Le FPS de lecture de la vidéo NASA ne représente pas la cadence originale de capture parce que les images étaient prises à intervalles de distance (environ tous les 5 mètres), pas à intervalles de temps, et sans timestamps d'acquisition, il est impossible de déduire l'intervalle temporel [S1]. L'amélioration du contraste des images ne modifie pas la cadence d'acquisition, et la calibration spatiale ne permet pas de déterminer la fréquence temporelle d'observation [S1]. Ainsi, le FPS du MP4 reflète une vitesse de lecture de la vidéo, pas la fréquence d'acquisition réelle du rover [S1].",
+      "citedSourceIds": [
+        "S1"
+      ],
+      "sources": [
+        {
+          "sourceId": "S1",
+          "file": "nasa-video-cadence.md",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "digest": "6dd06c19becd1cb858749d96eaa909cefbb42cb762c055fff0dec9aa1c69cf46",
+          "sourceUrl": "https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "sourceId": "S2",
+          "file": "nasa-pds-calibration.md",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "digest": "4e7fdb771e9faaa696970505c9caf9504e633ea8db8df2f0a56d50bd72811dc5",
+          "sourceUrl": "https://pds.nasa.gov/ds-view/pds/viewBundle.jsp?identifier=urn:nasa:pds:mars2020_navcam_ops_calibrated&version=1.0",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "sourceId": "S3",
+          "file": "nasa-autonav.md",
+          "lineStart": 1,
+          "lineEnd": 8,
+          "digest": "9d9f82e5391545d706e8baf40e02bd06673fdab3d23faa78f661b4826a0d16e5",
+          "sourceUrl": "https://science.nasa.gov/resource/how-perseverance-drives-on-mars/",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "sourceId": "S4",
+          "file": "assistant-knowledge.md",
+          "lineStart": 1,
+          "lineEnd": 19,
+          "digest": "3f8248b8cd8f758085d55b257473674a20c891f8628608816c613022e7bb8fc0",
+          "sourceUrl": null,
+          "verifiedOn": null
+        }
+      ]
+    },
+    {
+      "name": "unknown-rover-temperature",
+      "question": "Quelle est la température exacte de notre rover C.R.A.T.E.R. maintenant ?",
+      "elapsedS": 83.052,
+      "status": "insufficient_evidence",
+      "answer": "Les sources disponibles ne permettent pas de répondre.",
+      "citedSourceIds": [],
+      "sources": [
+        {
+          "sourceId": "S1",
+          "file": "assistant-knowledge.md",
+          "lineStart": 1,
+          "lineEnd": 19,
+          "digest": "3f8248b8cd8f758085d55b257473674a20c891f8628608816c613022e7bb8fc0",
+          "sourceUrl": null,
+          "verifiedOn": null
+        },
+        {
+          "sourceId": "S2",
+          "file": "m2-design.md",
+          "lineStart": 45,
+          "lineEnd": 60,
+          "digest": "0fffa30492e2c9fa1411b820e0d5adaa8753189a5bccb7ebd91e7e5fe46423b5",
+          "sourceUrl": null,
+          "verifiedOn": null
+        },
+        {
+          "sourceId": "S3",
+          "file": "nasa-video-cadence.md",
+          "lineStart": 1,
+          "lineEnd": 7,
+          "digest": "6dd06c19becd1cb858749d96eaa909cefbb42cb762c055fff0dec9aa1c69cf46",
+          "sourceUrl": "https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/",
+          "verifiedOn": "2026-10-10"
+        },
+        {
+          "sourceId": "S4",
+          "file": "m2-design.md",
+          "lineStart": 1,
+          "lineEnd": 23,
+          "digest": "0fffa30492e2c9fa1411b820e0d5adaa8753189a5bccb7ebd91e7e5fe46423b5",
+          "sourceUrl": null,
+          "verifiedOn": null
+        }
+      ]
+    }
+  ]
+}

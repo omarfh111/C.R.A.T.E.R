@@ -40,6 +40,12 @@ jobs:
       - run: npm ci --ignore-scripts --no-audit --no-fund
         if: matrix.python-version == '3.12'
         working-directory: tmp/m3-validation
+      - name: Test assistant adapter and actual local HTTP contract
+        if: matrix.python-version == '3.12'
+        run: |
+          node --test integrations/m3-assistant-client.test.mjs
+          node tmp/m3-validation/node_modules/typescript/bin/tsc --noEmit --strict --target ES2022 --module ESNext --lib ES2022,DOM --skipLibCheck integrations/m3-assistant-client.ts
+          python -m pytest tests/test_assistant_m3_client.py -q
       - run: node scripts/validate-m3-contract.mjs tmp/m3-validation/src/telemetry/contract.ts artifacts/received-frames.jsonl
         if: matrix.python-version == '3.12'
       - name: Validate calibrated simulated JSONL through real WebSocket and M3

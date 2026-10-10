@@ -23,6 +23,16 @@ framework multi-agent ou d'API payante pour ce périmètre. Le client refuse les
 modèles cloud et vérifie les métadonnées Ollama avant l'inférence ; CPU par défaut
 pour laisser la VRAM à M1, modèles déchargés après chaque appel.
 
+## Préparation de l'intégration M3
+
+Sources NASA relues et datées dans `docs/knowledge`, métadonnées sourceUrl et
+verifiedOn conservées par le RAG. Les index existants restent compatibles.
+Le client TypeScript et le contrat HTTP sont livrés séparément du dashboard,
+avec tests Node, types stricts et test réel HTTP à backend déterministe.
+Voir `docs/assistant-http-contract.md` pour démarrage et smoke local Ollama.
+L'API NASA de médias est une ressource de découverte, pas une dépendance de
+`/ask` ; aucune clé ni connexion NASA n'est nécessaire pendant la démo.
+
 Attendent M1 : analyse automatique d'images/vidéos, index multimodal des obstacles,
 évaluation sur sorties finales de perception et données réelles calibrées.
 Attendent M3 : intégration du panneau assistant dans son dashboard ; l'API est
