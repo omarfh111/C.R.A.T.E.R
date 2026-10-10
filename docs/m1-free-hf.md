@@ -97,3 +97,23 @@ terrain is safe. Set `--max-rock-area 1` to disable this area filter. Scores
 are model detector scores, not calibrated probabilities. Tracking is local
 IoU association with camera-motion compensation; NASA timelapse image gaps
 can cause new IDs. Metric coordinates remain absent without calibration.
+
+## Integrated live validation (2026-10-10)
+
+The integrated run requested NASA frames 0, 10 and 20. Frame 0 completed:
+one real model detection was tracked, exported in original pixel coordinates
+and rendered into a decodable 1280x960 preview. The next request was refused
+because the free GPU quota was exhausted. The three-frame run is incomplete;
+no completed metrics report or new accuracy/latency result is claimed.
+Evidence: [integrated validation](validation/hf-space-pipeline.json).
+Partial outputs are in `outputs/nasa-free-integrated-v3/`.
+
+An initial client concurrency limit prevented internal Gradio queue workers
+from completing. The backend now retains the library worker pool while our
+frame loop remains sequential. Automated validation passed 57 tests,
+including controlled tracking/export and M2 geometry/network integration;
+one optional offline model test was skipped because weights were not fetched.
+
+After quota resets, run the command above with a new output directory. A
+quota failure requires waiting; changing HF_TOKEN permissions will not
+restore GPU quota. No paid fallback or automatic repeat calls are made.

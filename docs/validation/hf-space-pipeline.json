@@ -1,0 +1,62 @@
+{
+  "checked_on": "2026-10-10",
+  "branch": "feat/ai-perception",
+  "implementation_commit": "8686131",
+  "backend": "hf-space",
+  "space": "developer0hye/Grounding_DINO_Base_demo",
+  "authenticated_with_existing_HF_TOKEN": true,
+  "requested_frame_indices": [
+    0,
+    10,
+    20
+  ],
+  "exported_frame_indices": [
+    0
+  ],
+  "completed": false,
+  "status": "stopped_on_free_quota_refusal",
+  "failure_at_frame_index": 10,
+  "automatic_retry": false,
+  "paid_fallback": false,
+  "challenge_local_perception_compliant": false,
+  "outputs_verified": {
+    "jsonl_frames": 1,
+    "preview_decoded_frames": 1,
+    "preview_resolution": [
+      1280,
+      960
+    ],
+    "original_pixel_coordinates_valid": true,
+    "metric_camera_pose_absent": true
+  },
+  "detections_exported": [
+    {
+      "id": "hazard-000001",
+      "type": "rock",
+      "bboxPx": [
+        552.0,
+        294.6666666666667,
+        581.3333333333334,
+        310.6666666666667
+      ],
+      "contactPixel": [
+        566.6666666666667,
+        310.6666666666667
+      ],
+      "confidence": 0.335,
+      "observedAt": "2026-10-10T19:48:00.820Z"
+    }
+  ],
+  "latency_and_full_accuracy": "Not reported: the three-frame live run did not complete.",
+  "tests": {
+    "passed": 57,
+    "skipped": 1,
+    "skip_reason": "local model weights not downloaded"
+  },
+  "notes": [
+    "Initial client worker limits caused local queue deadlocks; corrected by retaining the Gradio default worker pool.",
+    "After correction, first frame completed through detection, tracking, JSONL and preview; next frame was refused for quota.",
+    "Partial outputs remain under outputs/nasa-free-integrated-v3; no completed metrics.json was written.",
+    "Wait for free quota reset and use a new output directory for the next live test."
+  ]
+}
