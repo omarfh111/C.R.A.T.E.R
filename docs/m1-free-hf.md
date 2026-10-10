@@ -53,8 +53,8 @@ public-Space call. Public Space ownership and API availability can change.
 Images are uploaded to the community Space. Remote inference conflicts with
 the challenge's local perception requirement. This candidate is an
 experimental development option; the existing compliant local implementation
-remains available. The pipeline's `--backend hf-hosted` still targets the
-paid router: this research did not silently switch that backend to Spaces.
+remains available. Use the explicit `--backend hf-space` for this free community Space.
+`--backend hf-hosted` continues to target the paid router.
 
 Evidence: [saved comparison](validation/hf-free-spaces.json).
 Local rendered results are under `outputs/space-comparison/` (ignored by Git).
@@ -67,3 +67,33 @@ Sources:
 - https://huggingface.co/docs/inference-providers/pricing
 - https://huggingface.co/spaces/developer0hye/Grounding_DINO_Base_demo/blob/main/app.py
 - https://huggingface.co/spaces/gokaygokay/Florence-2/blob/main/app.py
+
+## Run the integrated free backend
+
+```powershell
+.\.venv\Scripts\python -m pip install -r requirements-m1-spaces.txt
+.\.venv\Scripts\python -m crater_m1 run ..\vid3.mp4 --backend hf-space --view left --stride 10 --max-frames 3 --output outputs/nasa-free-pilot
+.\.venv\Scripts\python -m crater_m1 evaluate outputs/nasa-free-pilot/observations.jsonl examples/nasa-pilot-annotations.json --output outputs/nasa-free-pilot/accuracy.json
+```
+
+The existing HF_TOKEN in `.env` is sufficient. This backend ignores paid
+router model/provider settings. It uses HF_MAX_SIDE, HF_TIMEOUT_SECONDS and
+HF_MAX_REQUESTS. With no explicit frame count, only three calls are allowed.
+Choose a new output directory per run. No automatic retries or paid fallback
+are used; a rejected/invalid request stops the run instead of emitting an
+obstacle-free frame. Queue time is included in measured inference latency.
+
+Images are resized to HF_MAX_SIDE (default 960), JPEG-encoded, uploaded from
+an automatically removed temporary file and mapped back to original pixels.
+Unlike the initial 1280-pixel exploratory calls above, this configured input
+can change detector results. Annotated images returned by the Space are not
+downloaded; the local pipeline creates the preview, JSONL and metrics.
+
+The detector rejects a box covering more than half of the input image by
+default (`--max-rock-area 0.5`) to exclude observed terrain boxes. This is a
+heuristic that could also exclude a very large nearby rock. Rejections are
+counted in `model_resources.rejected_large_boxes`; they do not prove the
+terrain is safe. Set `--max-rock-area 1` to disable this area filter. Scores
+are model detector scores, not calibrated probabilities. Tracking is local
+IoU association with camera-motion compensation; NASA timelapse image gaps
+can cause new IDs. Metric coordinates remain absent without calibration.

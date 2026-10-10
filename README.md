@@ -91,3 +91,18 @@ See `docs/m1-hosted.md` for the selected hosted grounding model, lightweight
 installation, fine-grained token permissions and smoke test. Select
 `--backend hf-hosted` explicitly. This remote mode is marked CLOUD in preview
 and reports; it does not satisfy the challenge's local-only perception rule.
+
+## Free Hugging Face Space experiment
+
+A live-tested free Grounding DINO Base Space is available through
+`--backend hf-space`. See [setup, quota and quality limits](docs/m1-free-hf.md).
+No model weights or GPU are required locally. The current `.env` token works.
+
+```powershell
+.\.venv\Scripts\python -m pip install -r requirements-m1-spaces.txt
+.\.venv\Scripts\python -m crater_m1 run ..\vid3.mp4 --backend hf-space --view left --stride 10 --max-frames 3 --output outputs/nasa-free-pilot
+```
+
+This experimental cloud mode remains subject to queues/daily quotas and the
+challenge's local-perception restriction. It emits normal tracked JSONL,
+preview and measured metrics for M1; it does not invent 3D coordinates.

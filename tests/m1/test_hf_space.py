@@ -56,3 +56,33 @@ def test_remote_errors_fail_closed_and_never_expose_token(value):
     detector=SpaceGrounding(HFConfig(TOKEN),client_factory=lambda *a,**k:client)
     with pytest.raises(RuntimeError) as error: detector.detect(np.zeros((100,100,3),dtype=np.uint8))
     assert TOKEN not in str(error.value) and len(client.calls)==1 and client.jobs[0].cancelled
+
+
+def test_space_pipeline_preserves_tracks_cloud_provenance_and_original_pixels(tmp_path):
+    from crater_m1.simulation import generate
+    from crater_m1.pipeline import run
+    generate(tmp_path/"scene",count=3)
+    client=FakeClient(({},"rock 0.8 10, 20, 50, 60"))
+    detector=SpaceGrounding(HFConfig(TOKEN,max_side=320,max_requests=3),client_factory=lambda *a,**k:client)
+    report=run(tmp_path/"scene/scene.mp4",tmp_path/"run",detector,preview=True)
+    frames=[json.loads(line) for line in (tmp_path/"run/observations.jsonl").read_text().splitlines()]
+    assert report["processed_frames"]==3 and report["unique_track_ids"]==1
+    assert all(f["perception"]["execution"]=="remote" and f["camera"] is None for f in frames)
+    assert frames[0]["detections"][0]["bboxPx"]==[20,40,100,120]
+    assert (tmp_path/"run/preview.mp4").stat().st_size>0
+
+
+def test_cli_space_default_budget_and_explicit_configuration(tmp_path,monkeypatch,capsys):
+    import sys
+    from crater_m1.cli import main
+    from crater_m1.simulation import generate
+    from crater_m1 import hf_space
+    generate(tmp_path/"scene",count=5)
+    env=tmp_path/"token.env";env.write_text("HF_TOKEN="+TOKEN)
+    client=FakeClient(({},"No detections."));real=hf_space.SpaceGrounding
+    monkeypatch.setattr(hf_space,"SpaceGrounding",lambda config,**kwargs:real(config,client_factory=lambda *a,**k:client,**kwargs))
+    monkeypatch.setattr(sys,"argv",["crater-m1","run",str(tmp_path/"scene/scene.mp4"),"--backend","hf-space","--env-file",str(env),"--output",str(tmp_path/"run"),"--no-preview"])
+    main()
+    report=json.loads((tmp_path/"run/metrics.json").read_text())
+    assert report["processed_frames"]==3 and report["backend"]=="hf-space"
+    assert len(client.calls)==3 and TOKEN not in capsys.readouterr().out
