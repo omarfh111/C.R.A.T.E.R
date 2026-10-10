@@ -141,6 +141,23 @@ Calibration absente/invalide : erreur explicite, aucune coordonnée inventée.
 
 ## Hypothèses et limites
 
+Le lanceur live accepte désormais `--perception-backend onnx-grounding-dino`
+(défaut) et `--device directml`. Il reprend M1 au commit `45cbf2f` sans modifier
+ses sources. DirectML demande les poids ONNX préparés dans `--cache-dir` ;
+aucun téléchargement ni repli synthétique n'a lieu pendant la mission.
+`--device cuda` reste réservé au backend PyTorch `grounding-dino`.
+Les seuils, `--terrain-filter`, `--tiles 2x2`, `--track-min-hits`,
+`--track-max-missed` et `--confirmed-only` sont transmis explicitement à M1.
+
+La calibration live déclare `frameId: LOCAL_ENU_V1`, l'origine convenue et les
+caméras/poses indexées par numéro de frame original. `ground_z_m` indique
+l'altitude du plan de sol connu (défaut 0 m, hypothèse explicite).
+Une résolution différente de l'image observée provoque une erreur.
+`source.perceptionMetrics` contient les métriques M1 lorsque son run termine ;
+`maxSampledBufferedObservations` est un maximum échantillonné, pas un pic exact.
+Les temps de handoff incluent l'attente du callback interrompu à l'arrêt.
+Ils ne représentent pas uniquement le temps d'inférence ONNX.
+
 - Origine = marqueur de départ convenu avec M3 ; x Est, y Nord, z Haut, mètres.
 - Caméra pinhole déjà rectifiée et pose connue ; sol supposé plan et connu.
 - On localise le contact au sol ou un point représentatif d'un danger.

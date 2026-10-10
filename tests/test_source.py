@@ -59,3 +59,34 @@ def test_jsonl_line_errors_are_actionable(tmp_path):
     assert next(stream) == {}
     with pytest.raises(ValueError, match="line 2"):
         next(stream)
+
+
+def test_per_frame_intrinsics_camera_pose_and_rover_pose_are_independent(observation):
+    from copy import deepcopy
+    link = dict(status="connected", packetsSent=0, packetsLost=0)
+    first = deepcopy(observation)
+    first["detections"][0]["contactPixel"] = [520, 240]
+    a = observation_to_frame(first, 0, link).frame
+    assert [a["hazards"][0]["position"][k] for k in ("xM", "yM", "zM")] == pytest.approx([1, 0, 0])
+    second = deepcopy(observation)
+    second["camera"].update(fx=600, fy=300, centerEnuM=[-2, 1, 3],
+                            rotationCameraToEnu=[[0, 1, 0], [1, 0, 0], [0, 0, -1]])
+    second["roverPosition"].update(xM=7, yM=-4)
+    second["detections"][0]["contactPixel"] = [520, 140]
+    b = observation_to_frame(second, 1, link).frame
+    assert [b["hazards"][0]["position"][k] for k in ("xM", "yM", "zM")] == pytest.approx([-3, 2, 0])
+    assert b["roverPosition"]["xM"] == 7 and b["roverPosition"]["yM"] == -4
+    assert b["hazards"][0]["id"] == a["hazards"][0]["id"]
+
+
+def test_camera_resolution_must_match_observed_image(observation):
+    observation["image"] = {"width": 320, "height": 240}
+    with pytest.raises(ValueError, match="resolution"):
+        observation_to_frame(observation, 0, dict(status="connected", packetsSent=0, packetsLost=0))
+
+
+@pytest.mark.parametrize("field", ["camera", "roverPosition", "positionUncertaintyRadiusM"])
+def test_null_pose_is_never_replaced_by_synthetic_coordinates(observation, field):
+    observation[field] = None
+    with pytest.raises(ValueError):
+        observation_to_frame(observation, 0, dict(status="connected", packetsSent=0, packetsLost=0))

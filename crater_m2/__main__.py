@@ -22,10 +22,18 @@ def arguments(argv=None):
     parser.add_argument("--input", type=Path, help="calibrated M1 observations JSONL; otherwise synthetic pixels")
     parser.add_argument("--perception-video", type=Path, help="local M1 video -> callback -> M2, in real time")
     parser.add_argument("--calibration", type=Path, help="M1 calibrated per-frame camera poses for the video")
-    parser.add_argument("--perception-backend", choices=("grounding-dino", "synthetic-contrast"), default="grounding-dino")
+    parser.add_argument("--perception-backend", choices=("onnx-grounding-dino", "grounding-dino", "synthetic-contrast"), default="onnx-grounding-dino")
     parser.add_argument("--perception-output", type=Path, default=Path("outputs/m1-live"))
     parser.add_argument("--perception-buffer", type=int, default=4, help="bounded callback handoff; full buffer slows M1")
-    parser.add_argument("--device", choices=("auto", "cpu", "cuda"), default="auto")
+    parser.add_argument("--device", choices=("auto", "cpu", "cuda", "directml"), default="auto")
+    parser.add_argument("--threshold", type=float, default=.25)
+    parser.add_argument("--text-threshold", type=float, default=.2)
+    parser.add_argument("--terrain-filter", choices=("edges", "area", "off"), default="edges")
+    parser.add_argument("--max-rock-area", type=float, default=.5)
+    parser.add_argument("--tiles", choices=("off", "2x2"), default="off")
+    parser.add_argument("--track-min-hits", type=int, default=2)
+    parser.add_argument("--track-max-missed", type=int, default=3)
+    parser.add_argument("--confirmed-only", action="store_true")
     parser.add_argument("--cache-dir", default=".cache/huggingface")
     parser.add_argument("--stride", type=int, default=1)
     parser.add_argument("--max-frames", type=int)
@@ -52,6 +60,16 @@ def arguments(argv=None):
     if args.link_history < 1 or args.rejection_samples < 0:
         parser.error("link-history must be positive and rejection-samples nonnegative")
     if args.perception_video:
+        if args.device == "cuda" and args.perception_backend != "grounding-dino":
+            parser.error("cuda requires the PyTorch grounding-dino backend")
+        if args.device == "directml" and args.perception_backend != "onnx-grounding-dino":
+            parser.error("directml requires onnx-grounding-dino")
+        if args.tiles != "off" and args.perception_backend != "onnx-grounding-dino":
+            parser.error("tiles require onnx-grounding-dino")
+        if not (0 < args.threshold < 1 and 0 < args.text_threshold < 1 and 0 < args.max_rock_area <= 1):
+            parser.error("invalid perception thresholds")
+        if args.track_min_hits < 1 or args.track_max_missed < 0:
+            parser.error("invalid track confirmation/retention limits")
         if args.input or args.benchmark:
             parser.error("--perception-video uses a live callback; choose JSONL --input for --benchmark")
         if args.calibration is None:
@@ -226,6 +244,10 @@ async def execute(args):
             report["source"].update(
                 producerCompleted=stream.result is not None, interrupted=stream.interrupted,
                 offeredObservations=stream.produced, consumedObservations=stream.consumed,
+                maxSampledBufferedObservations=stream.max_buffered,
+                callbackHandoffWaitS=stream.handoff_wait_s,
+                maxCallbackHandoffWaitS=stream.max_handoff_wait_s,
+                perceptionMetrics=stream.result,
                 discardedAtStop=stream.buffered + int(stream.interrupted),
                 timing="mission window includes local model startup; capturedAt remains M1 capture time")
             save_report(args, report)

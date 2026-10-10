@@ -25,6 +25,9 @@ def observation_to_frame(observation: dict, sequence: int, link: dict) -> Source
         spec = observation["camera"]
         camera = Camera(spec["width"], spec["height"], spec["fx"], spec["fy"], spec["cx"], spec["cy"],
                         spec["centerEnuM"], spec["rotationCameraToEnu"])
+        if "image" in observation and (observation["image"]["width"] != camera.width
+                                       or observation["image"]["height"] != camera.height):
+            raise ValueError("camera calibration resolution does not match observed image")
         frame = dict(schemaVersion=1, roverId=observation["roverId"], sequence=sequence,
                      capturedAt=observation["capturedAt"], roverPosition=observation["roverPosition"],
                      positionUncertaintyRadiusM=observation["positionUncertaintyRadiusM"], link=link, hazards=[])
