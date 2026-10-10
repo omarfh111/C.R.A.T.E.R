@@ -30,7 +30,51 @@ The tactical map places the rover, trail and hazard markers at coordinates from 
 
 The source chip always displays `MOCK` or `LIVE`. The `DEMO` menu exists only in `MOCK` mode; its presets restart the local mock adapter and clear that mock session's counters. The dashboard adapts to desktop, tablet and mobile widths and bundles all map, font and intro assets for offline use.
 
-Mission Control separates three signals: the station WebSocket transport status, the age of the last accepted frame, and the rover link status last reported **at the frame's capture time**. A connected but silent LIVE socket becomes `STALE` after five seconds; this does not confirm a radio blackout. A closed LIVE socket becomes `TRANSPORT DOWN`, with current rover radio status unknown. Only the labeled MOCK schedule reports a simulated radio blackout. Sequence gaps are inferred from accepted frames and are not a definitive lost-packet count. The current LIVE adapter opens one WebSocket; restart the page after a dropped connection unless the endpoint itself reconnects upstream.
+Mission Control separates three signals: the station WebSocket transport status, the age of the last accepted **rover capture**, and the rover link status last reported **at that capture time**. A connected but silent LIVE socket becomes `STALE` after five seconds; a newly received delayed frame remains stale until its capture time catches up. Neither condition confirms a radio blackout. A closed LIVE socket becomes `TRANSPORT DOWN`, with current rover radio status unknown. Only the labeled MOCK schedule reports a simulated radio blackout. Sequence gaps are inferred from accepted frames and are not a definitive lost-packet count. The LIVE adapter automatically reconnects with an exponential delay capped at eight seconds, without resetting accepted telemetry.
+
+## Run M2 synthetic telemetry with M3 LIVE on Windows
+
+M2 runs locally and needs no M1 model or cloud service for its calibrated synthetic pixel scenario. From `D:\space_esb`, create a separate detached checkout and Python environment (Python 3.11+):
+
+```powershell
+cd D:\space_esb
+git fetch origin feat/spatial-telemetry
+git worktree add --detach ..\crater-m2-live origin/feat/spatial-telemetry
+py -3.12 -m venv ..\crater-m2-env
+cd ..\crater-m2-live
+& ..\crater-m2-env\Scripts\python.exe -m pip install -e .
+& ..\crater-m2-env\Scripts\python.exe -m crater_m2 --duration 45 --bandwidth 512 --start-sequence 0
+```
+
+Leave M2 running. In another PowerShell window, start M3:
+
+```powershell
+cd D:\space_esb
+$env:VITE_TELEMETRY_MODE = 'LIVE'
+$env:VITE_TELEMETRY_WS_URL = 'ws://127.0.0.1:8765/telemetry'
+npm run dev
+```
+
+Open the Vite URL. The source chip must read `LIVE`; the DEMO menu is absent. The map, rover panel and hazards reflect only accepted M2-decoded frames. M2's default scenario has a simulated radio interruption at 8–14 seconds, with 20% packet loss and delayed/retried delivery. Watch the `MC TRANSPORT` indicator remain connected while information age rises and the last accepted position holds. Later delivered frames resume updates; delayed captures remain labeled stale until fresh captures arrive. Actual arrival timing depends on the configured link and radio queue. If M2 exits, the station shows `TRANSPORT DOWN`; restarting M2 reconnects automatically. This does not assert the rover's current radio status.
+
+For the optional real bridge smoke test while M2 runs:
+
+```powershell
+cd D:\space_esb
+$env:CRATER_M2_LIVE_SMOKE = '1'
+npx vitest run src/telemetry/m2-live.smoke.test.ts
+```
+
+Each M2 CLI run starts sequence numbering again unless `--start-sequence` is supplied. M3 deliberately rejects duplicate and older sequences across reconnections to preserve v1 ordering and the last accepted position. To continue the **same browser session**, restart M2 with `--start-sequence N` where `N` is greater than the last accepted sequence shown in M3; alternatively reload M3 to begin a new in-memory telemetry session (the same tab bypasses the intro). No automatic sequence reset is inferred from a WebSocket reconnect. M2 synthetic telemetry validates this integration path; real sensor input and M1 perception remain for the later integration phase.
+
+To return to MOCK mode, stop Vite, then run:
+
+```powershell
+cd D:\space_esb
+$env:VITE_TELEMETRY_MODE = 'MOCK'
+Remove-Item Env:VITE_TELEMETRY_WS_URL -ErrorAction SilentlyContinue
+npm run dev
+```
 
 ## Architecture
 
