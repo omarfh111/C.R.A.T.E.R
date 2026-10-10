@@ -81,3 +81,15 @@ Sources:
 - https://huggingface.co/docs/inference-providers/index
 - https://huggingface.co/docs/hub/security-tokens
 - https://huggingface.co/docs/inference-providers/providers/deepinfra
+
+## Live smoke test status (2026-10-10)
+
+Token configuration passed. The real NASA one-image request was refused by
+Hugging Face with HTTP 402: no remaining credits; prepaid credits or PRO
+monthly credits are required. No model output was obtained, so neither
+accuracy nor remote inference latency is validated. Add credits at
+https://huggingface.co/settings/billing and repeat the one-frame smoke command
+with a new output directory. Changing token permissions does not resolve a
+credit balance refusal. Free accounts currently have no included inference
+credits according to the official pricing documentation:
+https://huggingface.co/docs/inference-providers/pricing

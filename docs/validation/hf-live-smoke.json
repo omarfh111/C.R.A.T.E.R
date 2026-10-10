@@ -1,0 +1,13 @@
+{
+  "checked_date": "2026-10-10",
+  "model": "Qwen/Qwen3-VL-30B-A3B-Instruct",
+  "provider": "deepinfra",
+  "source": "vid3.mp4 left view, first frame",
+  "configuration_valid": true,
+  "http_status": 402,
+  "result": "blocked_no_remaining_credits",
+  "inference_output_received": false,
+  "model_accuracy_validated": false,
+  "inference_latency_validated": false,
+  "next_action": "Add Hugging Face inference credits and repeat one-frame smoke test."
+}
