@@ -10,9 +10,13 @@ class Backend:
     def embed(self, texts, **kwargs): return [[1, 0] for _ in texts]
 
 
-def test_official_source_metadata_survives_chunking_index_and_retrieval(tmp_path):
+@pytest.mark.parametrize("url", [
+    "https://science.nasa.gov/resource/how-perseverance-drives-on-mars/",
+    "https://www.esa.int/ESA_Multimedia/Images/2017/06/Rover_test_in_darkness",
+    "https://arxiv.org/abs/2303.05499v5",
+])
+def test_official_source_metadata_survives_chunking_index_and_retrieval(tmp_path, url):
     doc = tmp_path / "nasa.md"
-    url = "https://science.nasa.gov/resource/how-perseverance-drives-on-mars/"
     doc.write_text(f"Source URL: {url}\nVerified on: 2026-10-10\n\n" + "terrain " * 300, encoding="utf-8")
     index = Index.build([doc], Backend())
     assert len(index.chunks) > 1
@@ -23,7 +27,9 @@ def test_official_source_metadata_survives_chunking_index_and_retrieval(tmp_path
 
 
 @pytest.mark.parametrize("url", ["http://science.nasa.gov/x", "https://nasa.gov.evil.com/x",
-    "https://evil.com/nasa.gov", "https://user:pass@science.nasa.gov/x", "javascript:alert(1)"])
+    "https://evil.com/nasa.gov", "https://user:pass@science.nasa.gov/x", "javascript:alert(1)",
+    "https://esa.int.evil.com/x", "https://arxiv.org.evil.com/abs/2303.05499",
+    "https://fake.arxiv.org/abs/2303.05499", "http://www.esa.int/x", "https://www.esa.int:8080/x"])
 def test_invalid_official_source_links_rejected(tmp_path, url):
     doc = tmp_path / "nasa.md"
     doc.write_text(f"Source URL: {url}\nVerified on: 2026-10-10\nText", encoding="utf-8")

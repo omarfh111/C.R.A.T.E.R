@@ -1,0 +1,36 @@
+{
+  "reviewedOn": "2026-10-10",
+  "files": [
+    "docs/assistant-knowledge.md",
+    "docs/m1-observation-contract.md",
+    "docs/m2-design.md",
+    "docs/knowledge/nasa-autonav.md",
+    "docs/knowledge/nasa-video-cadence.md",
+    "docs/knowledge/nasa-pds-calibration.md",
+    "docs/knowledge/nasa-stereo-cameras.md",
+    "docs/knowledge/nasa-visual-odometry.md",
+    "docs/knowledge/nasa-spice-frames.md",
+    "docs/knowledge/nasa-dtn-buffering.md",
+    "docs/knowledge/esa-lunar-shadows.md",
+    "docs/knowledge/esa-rover-field-tests.md",
+    "docs/knowledge/paper-grounding-dino.md",
+    "docs/knowledge/paper-confidence-calibration.md",
+    "docs/knowledge/paper-hota-tracking.md",
+    "docs/knowledge/paper-lunarnav-localization.md"
+  ],
+  "retrievalCases": [
+    {"question": "Comment AutoNav choisit-il un trajet pour contourner les dangers ?", "expectedFile": "docs/knowledge/nasa-autonav.md"},
+    {"question": "Les images de Long Autonomous Drive sont-elles prises toutes les cinq secondes ou tous les cinq mètres ?", "expectedFile": "docs/knowledge/nasa-video-cadence.md"},
+    {"question": "Où trouver le catalogue PDS des produits Navcam calibrés ?", "expectedFile": "docs/knowledge/nasa-pds-calibration.md"},
+    {"question": "À quoi servent les Navcams stéréo et les Hazcams de Perseverance ?", "expectedFile": "docs/knowledge/nasa-stereo-cameras.md"},
+    {"question": "Comment l'odométrie visuelle aide-t-elle Curiosity à détecter le glissement des roues ?", "expectedFile": "docs/knowledge/nasa-visual-odometry.md"},
+    {"question": "Pourquoi SPICE exige-t-il des kernels pour transformer certains repères ?", "expectedFile": "docs/knowledge/nasa-spice-frames.md"},
+    {"question": "Comment DTN stocke-t-il les données lorsque le prochain relais est indisponible ?", "expectedFile": "docs/knowledge/nasa-dtn-buffering.md"},
+    {"question": "Pourquoi certains cratères des pôles lunaires restent-ils dans l'ombre ?", "expectedFile": "docs/knowledge/esa-lunar-shadows.md"},
+    {"question": "Pourquoi ESA et GMV ont-ils testé le rover presque dans l'obscurité dans le projet Lucid ?", "expectedFile": "docs/knowledge/esa-rover-field-tests.md"},
+    {"question": "Comment Grounding DINO utilise-t-il les noms de catégories pour détecter des objets ?", "expectedFile": "docs/knowledge/paper-grounding-dino.md"},
+    {"question": "Un score de confiance de 0,9 garantit-il 90 % de détections correctes ?", "expectedFile": "docs/knowledge/paper-confidence-calibration.md"},
+    {"question": "Que mesure HOTA pour le suivi multi-objets ?", "expectedFile": "docs/knowledge/paper-hota-tracking.md"},
+    {"question": "Comment LunarNav associe-t-il les cratères à une carte orbitale pour estimer une position ?", "expectedFile": "docs/knowledge/paper-lunarnav-localization.md"}
+  ]
+}

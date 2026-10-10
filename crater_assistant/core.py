@@ -19,7 +19,9 @@ def _validate_source_metadata(url, verified):
     try:
         parsed = urlsplit(url)
         host = parsed.hostname or ""
-        if (parsed.scheme != "https" or not (host == "nasa.gov" or host.endswith(".nasa.gov"))
+        trusted_host = (host == "arxiv.org" or any(
+            host == domain or host.endswith("." + domain) for domain in ("nasa.gov", "esa.int")))
+        if (parsed.scheme != "https" or not trusted_host
                 or parsed.username or parsed.password or parsed.port not in (None, 443)
                 or any(c.isspace() for c in url) or date.fromisoformat(verified).isoformat() != verified):
             raise ValueError("invalid metadata")

@@ -25,6 +25,14 @@ test('unavailable assistant produces an error, never a fabricated answer', async
   await assert.rejects(client.ask('Question'), /503/);
 });
 
+test('reviewed ESA and author paper references survive the M3 client', async () => {
+  for (const sourceUrl of ['https://www.esa.int/example', 'https://arxiv.org/abs/2303.05499v5']) {
+    const client = createAssistantClient({ fetch: async () => new Response(JSON.stringify({
+      ...answer, sources: [{ ...answer.sources[0], sourceUrl }] })) });
+    assert.equal((await client.ask('Question')).sources[0].sourceUrl, sourceUrl);
+  }
+});
+
 test('abstention is preserved as a distinct result', async () => {
   const client = createAssistantClient({ fetch: async () => new Response(JSON.stringify({
     ...answer, status: 'insufficient_evidence', answer: 'Sources insuffisantes.', citedSourceIds: [] })) });
@@ -41,6 +49,9 @@ test('unsafe source links and unknown citation IDs are rejected', async () => {
     { ...answer, sources: [{ ...answer.sources[0], sourceUrl: 'javascript:alert(1)' }] },
     { ...answer, citedSourceIds: ['S99'] },
     { ...answer, status: ['answered'] },
+    ...['https://esa.int.evil.com/x', 'https://arxiv.org.evil.com/x', 'https://fake.arxiv.org/x',
+      'http://www.esa.int/x', 'https://www.esa.int:8080/x'].map(sourceUrl =>
+      ({ ...answer, sources: [{ ...answer.sources[0], sourceUrl }] })),
   ]) {
     const client = createAssistantClient({ fetch: async () => new Response(JSON.stringify(value)) });
     await assert.rejects(client.ask('Question'), /response/i);

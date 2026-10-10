@@ -38,7 +38,8 @@ function officialUrl(value: unknown): boolean {
   try {
     const url = new URL(value);
     return url.protocol === 'https:' && !url.username && !url.password && !url.port
-      && (url.hostname === 'nasa.gov' || url.hostname.endsWith('.nasa.gov'));
+      && (url.hostname === 'arxiv.org' || ['nasa.gov', 'esa.int'].some(domain =>
+        url.hostname === domain || url.hostname.endsWith(`.${domain}`)));
   } catch { return false; }
 }
 

@@ -220,4 +220,4 @@ Partage des petits artefacts ONNX existants :
 
 Assistant local pour M3 :
 [contrat HTTP, client TypeScript et tests](docs/assistant-http-contract.md),
-[corpus NASA relu et fonctionnement hors ligne](docs/knowledge/README.md).
+[corpus scientifique relu et fonctionnement hors ligne](docs/knowledge/README.md).

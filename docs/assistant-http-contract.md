@@ -15,7 +15,9 @@ les questions utilisent exclusivement les résumés locaux relus.
 Depuis le checkout M2, reconstruire l'index puis démarrer le sidecar :
 
 ```powershell
-python -m crater_assistant index docs/assistant-knowledge.md docs/m1-observation-contract.md docs/m2-design.md docs/knowledge/nasa-autonav.md docs/knowledge/nasa-video-cadence.md docs/knowledge/nasa-pds-calibration.md --output artifacts/assistant-nasa-index.json
+$corpus = Get-Content docs/knowledge/corpus.json -Raw | ConvertFrom-Json
+$sources = $corpus.files
+python -m crater_assistant index @sources --output artifacts/assistant-nasa-index.json
 python -m crater_assistant serve --index artifacts/assistant-nasa-index.json --port 8766
 ```
 
@@ -44,7 +46,7 @@ Question : 1 à 2000 caractères, `topK` de 1 à 8, corps JSON de 16 Ko maximum.
 La réponse contient `status`, `answer`, `sources`, `citedSourceIds`, `facts`,
 `models`, `roles`, `limitations` ; les types exacts figurent dans le client fourni.
 Chaque source a un identifiant `[S1]`, un texte, un chemin local, une empreinte
-et des lignes. Les résumés NASA ajoutent `sourceUrl` et `verifiedOn`.
+et des lignes. Les résumés sourcés ajoutent `sourceUrl` et `verifiedOn`.
 
 `answered` signifie que le format et les citations passent les contrôles.
 `insufficient_evidence` est une réponse valide indiquant un manque de preuves.
@@ -59,7 +61,7 @@ Les citations connues ne garantissent pas la vérité de toutes les phrases.
 | 503 | Modèles, index ou rapport indisponibles ; proposer un nouvel essai |
 
 Afficher le texte comme texte, jamais comme HTML brut. Les liens externes sont
-facultatifs et validés comme HTTPS NASA ; les chemins locaux sont des libellés,
+facultatifs et validés comme HTTPS NASA/ESA/arxiv.org ; les chemins locaux sont des libellés,
 pas des URL web. Montrer les limites des preuves et le caractère simulé des
 rapports concernés. L'assistant ne commande jamais le rover.
 
