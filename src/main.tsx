@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useReducer, useState } from 'react'
+import React, { useEffect, useReducer, useState } from 'react'
 import ReactDOM from 'react-dom/client'
 import '@fontsource/space-grotesk/300.css'
 import '@fontsource/space-grotesk/400.css'
@@ -6,6 +6,7 @@ import '@fontsource/space-grotesk/600.css'
 import '@fontsource/ibm-plex-mono/400.css'
 import '@fontsource/ibm-plex-mono/500.css'
 import { LunarIntro } from './intro/LunarIntro'
+import { useIntroPlayback } from './intro/useIntroPlayback'
 import { createTelemetryAdapter, type TelemetryMode } from './telemetry/adapter'
 import { defaultMockConfig, type MockConfig } from './telemetry/mock'
 import { ingestTelemetry, initialTelemetryState } from './telemetry/state'
@@ -37,10 +38,7 @@ function App() {
   const [state, dispatch] = useReducer(ingestTelemetry, initialTelemetryState)
   const [now, setNow] = useState(Date.now())
   const [configurationError, setConfigurationError] = useState('')
-  const [introVisible, setIntroVisible] = useState(true)
-  const [introRun, setIntroRun] = useState(0)
-  const completeIntro = useCallback(() => setIntroVisible(false), [])
-  const replayIntro = () => { setIntroRun((run) => run + 1); setIntroVisible(true) }
+  const { introVisible, introRun, completeIntro, replayIntro } = useIntroPlayback()
 
   useEffect(() => {
     const clock = setInterval(() => setNow(Date.now()), 1000)
