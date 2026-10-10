@@ -39,3 +39,20 @@ def observation(track_id, detection, observed_at, width, height):
     return {"id": track_id, "type": detection.type, "bboxPx": list(detection.bbox),
             "contactPixel": detection.contact_pixel, "confidence": detection.confidence,
             "observedAt": observed_at}
+
+
+def validate_pose(camera, rover_position, uncertainty, width, height):
+    import numpy as np
+    if camera["width"]!=width or camera["height"]!=height:
+        raise ValueError("calibration resolution mismatch")
+    if not all(math.isfinite(camera[k]) for k in ("fx","fy","cx","cy")) or min(camera["fx"],camera["fy"])<=0:
+        raise ValueError("invalid intrinsics")
+    rotation=np.array(camera["rotationCameraToEnu"],dtype=float)
+    center=np.array(camera["centerEnuM"],dtype=float)
+    rover=np.array(rover_position,dtype=float)
+    if center.shape!=(3,) or rover.shape!=(3,) or not np.isfinite(center).all() or not np.isfinite(rover).all():
+        raise ValueError("finite 3D camera/rover position required")
+    if rotation.shape!=(3,3) or not np.isfinite(rotation).all() or not np.allclose(rotation.T@rotation,np.eye(3),atol=1e-7,rtol=0) or not np.isclose(np.linalg.det(rotation),1,atol=1e-7,rtol=0):
+        raise ValueError("camera rotation must be right-handed and orthonormal")
+    if not math.isfinite(uncertainty) or uncertainty<0:
+        raise ValueError("nonnegative pose uncertainty required")

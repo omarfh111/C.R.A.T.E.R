@@ -14,10 +14,12 @@ class GroundingDino:
         import torch
         from transformers import AutoProcessor, AutoModelForZeroShotObjectDetection
         self.torch=torch
+        torch.set_num_threads(4)
         self.device=("cuda" if torch.cuda.is_available() else "cpu") if device=="auto" else device
         if self.device=="cuda" and not torch.cuda.is_available():
             raise RuntimeError("CUDA requested but unavailable")
         self.prompt, self.threshold, self.text_threshold = prompt, threshold, text_threshold
+        self.image_size=image_size
         self.processor=AutoProcessor.from_pretrained(MODEL_ID, revision=MODEL_REVISION,
             cache_dir=cache_dir,local_files_only=local_files_only)
         self.processor.image_processor.size={"shortest_edge":image_size,"longest_edge":int(image_size*1.67)}
@@ -49,7 +51,10 @@ class GroundingDino:
         if self.device=="cuda": self.torch.cuda.synchronize()
 
     def resources(self):
-        return {"device":self.device,"gpu_peak_allocated_mb":self.torch.cuda.max_memory_allocated()/1048576 if self.device=="cuda" else None}
+        return {"device":self.device,"model_id":MODEL_ID,"model_revision":MODEL_REVISION,
+            "prompt":self.prompt,"threshold":self.threshold,"text_threshold":self.text_threshold,
+            "image_size":self.image_size,"torch_version":self.torch.__version__,"cpu_threads":self.torch.get_num_threads(),
+            "gpu_peak_allocated_mb":self.torch.cuda.max_memory_allocated()/1048576 if self.device=="cuda" else None}
 
 
 class SyntheticContrastDetector:

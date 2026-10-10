@@ -1,6 +1,7 @@
 """Video decoding and explicit pixel transforms."""
 from pathlib import Path
 import cv2
+import hashlib
 
 
 def inspect_video(path):
@@ -10,7 +11,7 @@ def inspect_video(path):
         fps=cap.get(cv2.CAP_PROP_FPS)
         if fps<=0: raise ValueError("video has no valid playback FPS")
         return {"file":Path(path).name,"fps":fps,"frames":int(cap.get(cv2.CAP_PROP_FRAME_COUNT)),
-                "width":int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),"height":int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))}
+                "sha256":_sha256(path),"width":int(cap.get(cv2.CAP_PROP_FRAME_WIDTH)),"height":int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))}
     finally: cap.release()
 
 
@@ -40,3 +41,7 @@ def frames(path,*,view="full",crop=None,stride=1,max_frames=None):
                 if max_frames is not None and count>=max_frames: break
             index+=1
     finally: cap.release()
+
+
+def _sha256(path):
+    with Path(path).open("rb") as stream: return hashlib.file_digest(stream,"sha256").hexdigest()

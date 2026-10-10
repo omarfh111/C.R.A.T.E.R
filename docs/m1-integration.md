@@ -26,6 +26,9 @@ Les annotations ne sont jamais fournies au detecteur.
 
 Les timestamps NASA sont ceux de l'acquisition pour la demo locale : les
 videos historiques n'exposent pas une horloge de capture exploitable. Le
-JSONL est un replay, pas encore un bus continu de capture M1 -> M2. Pour
-une demo continue, M2 doit consommer la source Python ou ajouter une lecture
-suivie (tail) ; son lecteur actuel consomme un fichier deja disponible.
+JSONL permet la relecture ; `crater_m1.pipeline.run(..., on_observation=callback)`
+livre egalement chaque observation pendant l'analyse. M2 peut appeler
+`observation_to_frame` dans ce callback puis alimenter sa file radio. Le callback
+est synchrone : un consommateur lent ralentit M1. La latence mesuree inclut ce
+cout quand un callback est installe. Le lecteur CLI actuel de M2 consomme un
+fichier deja disponible, sans lecture suivie (tail).

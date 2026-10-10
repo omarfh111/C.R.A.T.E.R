@@ -6,7 +6,7 @@ import time
 import cv2
 import numpy as np
 import psutil
-from .schema import observation
+from .schema import observation, validate_pose
 from .tracking import Tracker
 from .video import frames, inspect_video
 
@@ -15,7 +15,7 @@ def utc_now(): return datetime.now(timezone.utc).isoformat(timespec="millisecond
 
 
 def run(video,output,detector,*,view="full",crop=None,stride=1,max_frames=None,
-        rover_id="rover-1",calibration=None,preview=True,tracker=None):
+        rover_id="rover-1",calibration=None,preview=True,tracker=None,on_observation=None):
     output=Path(output)
     output.mkdir(parents=True,exist_ok=True)
     # Do not truncate a prior run silently.
@@ -40,16 +40,18 @@ def run(video,output,detector,*,view="full",crop=None,stride=1,max_frames=None,
                     pose=poses["frames"].get(str(frame_index))
                     if pose is None: raise ValueError(f"no calibrated pose for frame {frame_index}")
                     camera=pose["camera"]; rover_position=pose["roverPositionEnuM"]; pose_uncertainty=pose["positionUncertaintyRadiusM"]
+                    validate_pose(camera,rover_position,pose_uncertainty,w,h)
                     if camera["width"]!=w or camera["height"]!=h or rect != (0,0,info["width"],info["height"]):
                         raise ValueError("calibration must match uncropped video resolution")
                 payload={"schemaVersion":1,"roverId":rover_id,"sequence":sequence,"capturedAt":captured,
-                    "source":{"file":Path(video).name,"frame_index":frame_index,"video_time_s":video_time,
+                    "source":{"file":Path(video).name,"file_sha256":info["sha256"],"frame_index":frame_index,"video_time_s":video_time,
                         "capture_timing":"simulated_known_pose" if poses is not None else "video_playback_unknown_original_cadence"},
                     "image":{"width":w,"height":h,"crop_xywh":list(rect)},"camera":camera,
                     "roverPosition":None if rover_position is None else {"frameId":"LOCAL_ENU_V1","xM":rover_position[0],"yM":rover_position[1],"zM":rover_position[2]},
                     "positionUncertaintyRadiusM":pose_uncertainty,
                     "detections":[observation(track.id,track.detection,captured,w,h) for track in observed]}
                 stream.write(json.dumps(payload,allow_nan=False)+"\n"); stream.flush()
+                if on_observation is not None: on_observation(payload)
                 elapsed=(time.perf_counter()-tick)*1000; latencies.append(elapsed)
                 memory.append(process.memory_info().rss/1048576); counts.append(len(observed)); cpu.append(process.cpu_percent(None))
                 if preview:

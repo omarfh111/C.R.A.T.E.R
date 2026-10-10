@@ -16,3 +16,16 @@ def test_evaluator_counts_false_detections_and_identity_switch(tmp_path):
     assert (r["true_positives"],r["false_positives"],r["false_negatives"],r["id_switches"])==(2,3,1,1)
     p.write_text(json.dumps(pred[0]))
     with pytest.raises(ValueError,match="missing"): evaluate(p,a)
+
+
+def test_annotation_scope_and_wrong_source_are_enforced(tmp_path):
+    annotation={"source_sha256":"abc", "min_width_px":30, "min_height_px":20,
+        "frames":[{"frame_index":0,"detections":[]}]}
+    prediction={"source":{"frame_index":0,"file_sha256":"abc"},"detections":[
+        {"id":"small","type":"rock","bboxPx":[1,1,10,10],"confidence":.5}]}
+    a=tmp_path/"a.json"; p=tmp_path/"p.jsonl"
+    a.write_text(json.dumps(annotation)); p.write_text(json.dumps(prediction))
+    assert evaluate(p,a)["false_positives"]==0
+    prediction["source"]["file_sha256"]="different"
+    p.write_text(json.dumps(prediction))
+    with pytest.raises(ValueError,match="different source"): evaluate(p,a)

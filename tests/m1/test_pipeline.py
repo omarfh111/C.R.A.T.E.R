@@ -10,7 +10,9 @@ from crater_m1.evaluation import evaluate
 def test_real_pixels_to_tracks_jsonl_preview_and_metrics(tmp_path):
     source=tmp_path/"scene"; generate(source,count=8)
     output=tmp_path/"run"
-    metrics=run(source/"scene.mp4",output,SyntheticContrastDetector(),calibration=source/"calibration.json")
+    emitted=[]
+    metrics=run(source/"scene.mp4",output,SyntheticContrastDetector(),calibration=source/"calibration.json",on_observation=emitted.append)
+    assert len(emitted)==8 and [f["sequence"] for f in emitted]==list(range(8))
     assert metrics["processed_frames"]==8
     assert metrics["processing_fps"]>0
     frames=[json.loads(line) for line in (output/"observations.jsonl").read_text().splitlines()]

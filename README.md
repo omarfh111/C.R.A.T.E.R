@@ -8,7 +8,9 @@ pendant l'inference. Les coordonnees metriques et le reseau appartiennent a M2.
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\python -m pip install -e ".[test]"
-# Pour la RTX 3050 (pilote compatible CUDA 12.8) :
+# CPU (installation validee localement) :
+.\.venv\Scripts\python -m pip install torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cpu
+# Option RTX 3050 (pilote compatible CUDA 12.8, performance a mesurer) :
 .\.venv\Scripts\python -m pip install torch==2.9.1 torchvision==0.24.1 --index-url https://download.pytorch.org/whl/cu128
 .\.venv\Scripts\python -m pip install transformers==4.57.1
 .\.venv\Scripts\python -m crater_m1 download-model
@@ -22,7 +24,7 @@ utilise uniquement le cache local ; aucune connexion n'est necessaire.
 
 ```powershell
 .\.venv\Scripts\python -m crater_m1 inspect ..\vid3.mp4
-.\.venv\Scripts\python -m crater_m1 run ..\vid3.mp4 --view left --device cuda --output outputs/nasa-run
+.\.venv\Scripts\python -m crater_m1 run ..\vid3.mp4 --view left --device auto --output outputs/nasa-run
 ```
 
 `vid3.mp4` : First AutoNav, deux vues 1280x960 cote a cote, 43 images, 2 FPS.
@@ -70,3 +72,15 @@ Contrat : `docs/m1-contract.md`. Tests : `tests/m1/`.
 Sources : [NASA First AutoNav](https://science.nasa.gov/resource/perseverances-first-autonav-drive/),
 [NASA Long Drive](https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/),
 [Grounding DINO](https://huggingface.co/IDEA-Research/grounding-dino-tiny).
+
+## Integration et preuve hors ligne
+
+Voir `docs/m1-integration.md` pour M2, les tests reseau et le callback Python.
+Un test optionnel interdit toute connexion socket pendant le chargement et
+l'inference du modele local : apres telechargement, definir
+`CRATER_AI_SMOKE=1` puis `python -m pytest tests/m1/test_ai_offline.py`.
+
+Les annotations pilotes dans `examples/nasa-pilot-annotations.json` portent
+sur trois images NASA et un seuil de taille explicite. Le SHA256 de la video
+est controle avant evaluation. Ce petit jeu manuel ne permet pas de generaliser
+les performances a toute une mission lunaire.

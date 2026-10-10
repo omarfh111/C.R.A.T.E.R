@@ -15,11 +15,19 @@ def evaluate(predictions,annotations,threshold=.5):
         if index in frames: raise ValueError("duplicate prediction frame")
         frames[index]=obj["detections"]
     truth=json.loads(Path(annotations).read_text(encoding="utf-8"))
+    expected_hash=truth.get("source_sha256")
+    if expected_hash:
+        sources=[json.loads(line)["source"].get("file_sha256") for line in Path(predictions).read_text(encoding="utf-8").splitlines()]
+        if not sources or any(value!=expected_hash for value in sources): raise ValueError("annotations belong to a different source video")
+    indices=[frame["frame_index"] for frame in truth["frames"]]
+    if indices!=sorted(set(indices)): raise ValueError("annotation frames must be unique and chronological")
     tp=fp=fn=switches=0; last_id={}; overlaps=[]; evaluated=[]
     for frame in truth["frames"]:
         index=frame["frame_index"]
         if index not in frames: raise ValueError(f"annotated frame {index} missing from predictions")
         expected,predicted=frame["detections"],frames[index]
+        min_w,min_h=truth.get("min_width_px",0),truth.get("min_height_px",0)
+        predicted=[d for d in predicted if d["bboxPx"][2]-d["bboxPx"][0]>=min_w and d["bboxPx"][3]-d["bboxPx"][1]>=min_h]
         for d in expected+predicted: Detection(tuple(d["bboxPx"]),d.get("confidence",1.),d["type"])
         if len({d["id"] for d in expected})!=len(expected) or len({d["id"] for d in predicted})!=len(predicted):
             raise ValueError("duplicate object ID within frame")
@@ -39,7 +47,7 @@ def evaluate(predictions,annotations,threshold=.5):
             last_id[gt_id]=pred_id; overlaps.append(float(scores[i,j]))
         tp+=len(matches); fp+=len(predicted)-len(matches); fn+=len(expected)-len(matches); evaluated.append(index)
     if not evaluated: raise ValueError("no annotations to evaluate")
-    return {"scope":truth.get("scope","unspecified"),"frames_evaluated":evaluated,"iou_threshold":threshold,
+    return {"scope":truth.get("scope","unspecified"),"frames_evaluated":evaluated,"iou_threshold":threshold,"prediction_min_width_px":truth.get("min_width_px",0),"prediction_min_height_px":truth.get("min_height_px",0),
         "true_positives":tp,"false_positives":fp,"false_negatives":fn,
         "precision":tp/(tp+fp) if tp+fp else None,"recall":tp/(tp+fn) if tp+fn else None,
         "matched_mean_iou":float(np.mean(overlaps)) if overlaps else None,"id_switches":switches,
