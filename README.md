@@ -17,6 +17,12 @@ locally; the dashboard consumes canonical JSON frames in LOCAL_ENU_V1.
 - The optional local assistant remains documented in [ASSISTANT_README.md](ASSISTANT_README.md).
   Hosted M1 experiments remain optional and do not satisfy the local-only demo.
 
+## End-to-end integration
+
+- [Windows setup and launch guide](docs/end-to-end-integration.md)
+- [Measured validation evidence](docs/integration-validation.md)
+- [Seven-minute live demonstration](docs/seven-minute-demo.md)
+
 ## Development checks
 
 Windows prerequisites: Python 3.11+ and Node.js 24. Reuse the validated local

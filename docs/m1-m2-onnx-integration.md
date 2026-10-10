@@ -1,5 +1,7 @@
 # Exécuter M1 → M2 → contrat M3 sur le PC M1
 
+> Historical two-checkout instructions for the pinned M2 development phase. For the unified integration branch, use [the current Windows guide](end-to-end-integration.md); do not fetch a moving M2 branch for this validated baseline.
+
 M2 inclut exactement les sources M1 figées au commit `94bcf57`. Le lanceur sélectionne
 `onnx-grounding-dino` et DirectML sans changer le modèle, le tracker ou les
 sources M1. Sur le PC d'Omar, aucun poids ONNX n'a été téléchargé. Les essais

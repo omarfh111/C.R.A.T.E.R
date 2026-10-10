@@ -1,5 +1,7 @@
 # Partager la validation calibrée M1
 
+> Historical two-checkout instructions for the pinned M2 development phase. For the unified integration branch, use [the current Windows guide](end-to-end-integration.md); do not fetch a moving M2 branch for this validated baseline.
+
 M1 est figé à `94bcf577e0aa5e8f9310d3fadc62757b26ce657b`. Ses sources finales
 et son rapport sont intégrés dans `feat/spatial-telemetry`. Les fichiers du run
 ONNX restent sur le PC M1 : cette procédure se réalise depuis ce PC, avec ses
