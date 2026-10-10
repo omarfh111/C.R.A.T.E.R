@@ -36,12 +36,12 @@ def generate(output, count=90):
                     [x+half//2,y-bh],[x+half,y-bh//2],[x+half,y]],dtype=np.int32)
                 cv2.fillPoly(image,[polygon],(50,50,50))
                 cv2.fillPoly(image,[np.array([[x-half//2,y-bh],[x+half//2,y-bh],[x,y-2]])],(75,75,75))
-                truth.append({"id":f"rock-{number+1}","type":"rock","bbox_px":[x-half,y-bh,x+half,y],
-                    "contact_pixel_px":[x,y],"position_enu_m":list(point)})
+                truth.append({"id":f"rock-{number+1}","type":"rock","bboxPx":[x-half,y-bh,x+half,y],
+                    "contactPixel":[x,y],"position_enu_m":list(point)})
             writer.write(image)
-            calibration["frames"][str(index)]={"camera":{"width":width,"height":height,
-                "fx":fx,"fy":fy,"cx":cx,"cy":cy,"center_enu_m":center.tolist(),
-                "rotation_camera_to_enu":rotation.tolist()},"rover_position_enu_m":[0,index*.01,0]}
+            calibration["frames"][str(index)]={"positionUncertaintyRadiusM":.05,"camera":{"width":width,"height":height,
+                "fx":fx,"fy":fy,"cx":cx,"cy":cy,"centerEnuM":center.tolist(),
+                "rotationCameraToEnu":rotation.tolist()},"roverPositionEnuM":[0,index*.01,0]}
             annotations["frames"].append({"frame_index":index,"detections":truth})
         cv2.imwrite(str(output/"scene-preview.jpg"),image)
     finally: writer.release()

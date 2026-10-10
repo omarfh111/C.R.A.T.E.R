@@ -36,6 +36,6 @@ def observation(track_id, detection, observed_at, width, height):
         raise ValueError("observation timestamp must have timezone")
     if detection.bbox[2] >= width or detection.bbox[3] >= height:
         raise ValueError("bbox/contact must be inside the processed image")
-    return {"id": track_id, "type": detection.type, "bbox_px": list(detection.bbox),
-            "contact_pixel_px": detection.contact_pixel, "confidence": detection.confidence,
+    return {"id": track_id, "type": detection.type, "bboxPx": list(detection.bbox),
+            "contactPixel": detection.contact_pixel, "confidence": detection.confidence,
             "observedAt": observed_at}

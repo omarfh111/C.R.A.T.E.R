@@ -30,4 +30,4 @@ def test_uncalibrated_video_emits_no_metric_pose(tmp_path):
     generate(tmp_path/"scene",count=2)
     run(tmp_path/"scene/scene.mp4",tmp_path/"run",SyntheticContrastDetector(),preview=False)
     frame=json.loads((tmp_path/"run/observations.jsonl").read_text().splitlines()[0])
-    assert frame["camera"] is None and frame["rover_position_enu_m"] is None
+    assert frame["camera"] is None and frame["roverPosition"] is None

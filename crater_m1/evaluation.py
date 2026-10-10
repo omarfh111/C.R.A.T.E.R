@@ -20,13 +20,13 @@ def evaluate(predictions,annotations,threshold=.5):
         index=frame["frame_index"]
         if index not in frames: raise ValueError(f"annotated frame {index} missing from predictions")
         expected,predicted=frame["detections"],frames[index]
-        for d in expected+predicted: Detection(tuple(d["bbox_px"]),d.get("confidence",1.),d["type"])
+        for d in expected+predicted: Detection(tuple(d["bboxPx"]),d.get("confidence",1.),d["type"])
         if len({d["id"] for d in expected})!=len(expected) or len({d["id"] for d in predicted})!=len(predicted):
             raise ValueError("duplicate object ID within frame")
         scores=np.zeros((len(expected),len(predicted)))
         for i,g in enumerate(expected):
             for j,p in enumerate(predicted):
-                if g["type"]==p["type"]: scores[i,j]=iou(g["bbox_px"],p["bbox_px"])
+                if g["type"]==p["type"]: scores[i,j]=iou(g["bboxPx"],p["bboxPx"])
         matches=[]
         if expected and predicted:
             cost=np.ones((len(expected),len(predicted)+len(expected)))

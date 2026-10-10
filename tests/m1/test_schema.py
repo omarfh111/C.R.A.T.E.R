@@ -4,7 +4,7 @@ from crater_m1.schema import Detection, observation
 def test_contact_and_serializable_observation():
     d = Detection((10., 20., 30., 40.), .8)
     obj = observation("rock-1", d, "2026-10-10T18:00:00Z", 100, 80)
-    assert obj["contact_pixel_px"] == [20., 40.]
+    assert obj["contactPixel"] == [20., 40.]
     assert obj["id"] == "rock-1"
 
 @pytest.mark.parametrize("bbox,score", [((0,0,0,3),.5), ((-1,0,2,3),.5), ((0,0,2,3),float("nan")), ((0,0,2,3),1.1)])

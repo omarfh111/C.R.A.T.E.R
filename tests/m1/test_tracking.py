@@ -26,3 +26,17 @@ def test_large_motion_is_not_silently_same_identity():
     tracker=Tracker()
     initial=tracker.update([box(10)])[0].id
     assert tracker.update([box(100)])[0].id != initial
+
+
+def test_camera_translation_compensation_preserves_identity():
+    import cv2
+    import numpy as np
+    random=np.random.default_rng(17)
+    gray=random.integers(0,256,(400,600),dtype=np.uint8)
+    first=cv2.cvtColor(gray,cv2.COLOR_GRAY2BGR)
+    shifted=cv2.warpAffine(first,np.float32([[1,0,70],[0,1,10]]),(600,400))
+    tracker=Tracker(motion_compensation=True)
+    initial=tracker.update([Detection((200,180,250,220),.9)],first)[0].id
+    current=tracker.update([Detection((270,190,320,230),.9)],shifted)
+    assert tracker.last_motion_inliers>=8
+    assert current[0].id==initial

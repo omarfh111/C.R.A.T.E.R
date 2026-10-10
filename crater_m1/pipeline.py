@@ -35,18 +35,19 @@ def run(video,output,detector,*,view="full",crop=None,stride=1,max_frames=None,
                 inference.append((time.perf_counter()-t)*1000)
                 observed=tracker.update(detections,image)
                 h,w=image.shape[:2]
-                camera=None; rover_position=None
+                camera=None; rover_position=None; pose_uncertainty=None
                 if poses is not None:
                     pose=poses["frames"].get(str(frame_index))
                     if pose is None: raise ValueError(f"no calibrated pose for frame {frame_index}")
-                    camera=pose["camera"]; rover_position=pose["rover_position_enu_m"]
+                    camera=pose["camera"]; rover_position=pose["roverPositionEnuM"]; pose_uncertainty=pose["positionUncertaintyRadiusM"]
                     if camera["width"]!=w or camera["height"]!=h or rect != (0,0,info["width"],info["height"]):
                         raise ValueError("calibration must match uncropped video resolution")
                 payload={"schemaVersion":1,"roverId":rover_id,"sequence":sequence,"capturedAt":captured,
                     "source":{"file":Path(video).name,"frame_index":frame_index,"video_time_s":video_time,
                         "capture_timing":"simulated_known_pose" if poses is not None else "video_playback_unknown_original_cadence"},
                     "image":{"width":w,"height":h,"crop_xywh":list(rect)},"camera":camera,
-                    "rover_position_enu_m":rover_position,
+                    "roverPosition":None if rover_position is None else {"frameId":"LOCAL_ENU_V1","xM":rover_position[0],"yM":rover_position[1],"zM":rover_position[2]},
+                    "positionUncertaintyRadiusM":pose_uncertainty,
                     "detections":[observation(track.id,track.detection,captured,w,h) for track in observed]}
                 stream.write(json.dumps(payload,allow_nan=False)+"\n"); stream.flush()
                 elapsed=(time.perf_counter()-tick)*1000; latencies.append(elapsed)
