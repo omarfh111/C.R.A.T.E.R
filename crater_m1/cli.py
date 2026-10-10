@@ -27,6 +27,8 @@ def main():
     check=sub.add_parser("hf-check",help="validate .env without an API call"); check.add_argument("--env-file",default=".env")
     simulate=sub.add_parser("simulate"); simulate.add_argument("--output",required=True); simulate.add_argument("--frames",type=int,default=90)
     evaluate=sub.add_parser("evaluate"); evaluate.add_argument("predictions"); evaluate.add_argument("annotations"); evaluate.add_argument("--output"); evaluate.add_argument("--iou",type=float,default=.5)
+    tune=sub.add_parser("tune-threshold"); tune.add_argument("predictions"); tune.add_argument("annotations")
+    tune.add_argument("--candidates",type=float,nargs="+",default=[.1,.15,.2,.25,.3,.35]); tune.add_argument("--min-precision",type=float,default=.9); tune.add_argument("--output")
     args=parser.parse_args()
     try:
         if args.command=="inspect": result=inspect_video(args.video)
@@ -61,6 +63,10 @@ def main():
         elif args.command=="simulate":
             from .simulation import generate
             result=generate(args.output,args.frames)
+        elif args.command=="tune-threshold":
+            from .tuning import sweep_thresholds
+            result=sweep_thresholds(args.predictions,args.annotations,args.candidates,args.min_precision)
+            if args.output: Path(args.output).write_text(json.dumps(result,indent=2),encoding="utf-8")
         elif args.command=="evaluate":
             from .evaluation import evaluate
             result=evaluate(args.predictions,args.annotations,args.iou)

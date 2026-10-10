@@ -1,0 +1,142 @@
+{
+  "selected_from": "tuning",
+  "min_precision": 0.9,
+  "score_floor": 0.1,
+  "recommended_threshold": 0.25,
+  "selection_rule": "maximum F2 subject to minimum precision; ties prefer higher precision then higher threshold",
+  "results": [
+    {
+      "scope": "Pilot manual annotation: left view of First AutoNav, frames 0/10/20; visible individual rocks with bbox width >=30 and height >=20 pixels. Smaller stones and boundary-truncated objects excluded; preliminary visual labels, not a validated benchmark.",
+      "frames_evaluated": [
+        0,
+        10,
+        20
+      ],
+      "iou_threshold": 0.5,
+      "prediction_min_width_px": 30,
+      "prediction_min_height_px": 20,
+      "true_positives": 6,
+      "false_positives": 6,
+      "false_negatives": 2,
+      "precision": 0.5,
+      "recall": 0.75,
+      "matched_mean_iou": 0.7855282637618589,
+      "id_switches": 0,
+      "tracking_note": "ID switches between successive matches of an annotated ID, including gaps; not IDF1/MOTA.",
+      "threshold": 0.1,
+      "f1": 0.6,
+      "f2": 0.6818181818181818
+    },
+    {
+      "scope": "Pilot manual annotation: left view of First AutoNav, frames 0/10/20; visible individual rocks with bbox width >=30 and height >=20 pixels. Smaller stones and boundary-truncated objects excluded; preliminary visual labels, not a validated benchmark.",
+      "frames_evaluated": [
+        0,
+        10,
+        20
+      ],
+      "iou_threshold": 0.5,
+      "prediction_min_width_px": 30,
+      "prediction_min_height_px": 20,
+      "true_positives": 6,
+      "false_positives": 2,
+      "false_negatives": 2,
+      "precision": 0.75,
+      "recall": 0.75,
+      "matched_mean_iou": 0.7855282637618589,
+      "id_switches": 0,
+      "tracking_note": "ID switches between successive matches of an annotated ID, including gaps; not IDF1/MOTA.",
+      "threshold": 0.15,
+      "f1": 0.75,
+      "f2": 0.75
+    },
+    {
+      "scope": "Pilot manual annotation: left view of First AutoNav, frames 0/10/20; visible individual rocks with bbox width >=30 and height >=20 pixels. Smaller stones and boundary-truncated objects excluded; preliminary visual labels, not a validated benchmark.",
+      "frames_evaluated": [
+        0,
+        10,
+        20
+      ],
+      "iou_threshold": 0.5,
+      "prediction_min_width_px": 30,
+      "prediction_min_height_px": 20,
+      "true_positives": 6,
+      "false_positives": 2,
+      "false_negatives": 2,
+      "precision": 0.75,
+      "recall": 0.75,
+      "matched_mean_iou": 0.7855282637618589,
+      "id_switches": 0,
+      "tracking_note": "ID switches between successive matches of an annotated ID, including gaps; not IDF1/MOTA.",
+      "threshold": 0.2,
+      "f1": 0.75,
+      "f2": 0.75
+    },
+    {
+      "scope": "Pilot manual annotation: left view of First AutoNav, frames 0/10/20; visible individual rocks with bbox width >=30 and height >=20 pixels. Smaller stones and boundary-truncated objects excluded; preliminary visual labels, not a validated benchmark.",
+      "frames_evaluated": [
+        0,
+        10,
+        20
+      ],
+      "iou_threshold": 0.5,
+      "prediction_min_width_px": 30,
+      "prediction_min_height_px": 20,
+      "true_positives": 6,
+      "false_positives": 0,
+      "false_negatives": 2,
+      "precision": 1.0,
+      "recall": 0.75,
+      "matched_mean_iou": 0.7855282637618589,
+      "id_switches": 0,
+      "tracking_note": "ID switches between successive matches of an annotated ID, including gaps; not IDF1/MOTA.",
+      "threshold": 0.25,
+      "f1": 0.8571428571428571,
+      "f2": 0.7894736842105263
+    },
+    {
+      "scope": "Pilot manual annotation: left view of First AutoNav, frames 0/10/20; visible individual rocks with bbox width >=30 and height >=20 pixels. Smaller stones and boundary-truncated objects excluded; preliminary visual labels, not a validated benchmark.",
+      "frames_evaluated": [
+        0,
+        10,
+        20
+      ],
+      "iou_threshold": 0.5,
+      "prediction_min_width_px": 30,
+      "prediction_min_height_px": 20,
+      "true_positives": 5,
+      "false_positives": 0,
+      "false_negatives": 3,
+      "precision": 1.0,
+      "recall": 0.625,
+      "matched_mean_iou": 0.7870161290402914,
+      "id_switches": 0,
+      "tracking_note": "ID switches between successive matches of an annotated ID, including gaps; not IDF1/MOTA.",
+      "threshold": 0.3,
+      "f1": 0.7692307692307693,
+      "f2": 0.6756756756756757
+    },
+    {
+      "scope": "Pilot manual annotation: left view of First AutoNav, frames 0/10/20; visible individual rocks with bbox width >=30 and height >=20 pixels. Smaller stones and boundary-truncated objects excluded; preliminary visual labels, not a validated benchmark.",
+      "frames_evaluated": [
+        0,
+        10,
+        20
+      ],
+      "iou_threshold": 0.5,
+      "prediction_min_width_px": 30,
+      "prediction_min_height_px": 20,
+      "true_positives": 3,
+      "false_positives": 0,
+      "false_negatives": 5,
+      "precision": 1.0,
+      "recall": 0.375,
+      "matched_mean_iou": 0.8194698401546493,
+      "id_switches": 0,
+      "tracking_note": "ID switches between successive matches of an annotated ID, including gaps; not IDF1/MOTA.",
+      "threshold": 0.35,
+      "f1": 0.5454545454545454,
+      "f2": 0.42857142857142855
+    }
+  ],
+  "note": "Same-video provisional labels; selection is not a guarantee of deployment reliability."
+}
