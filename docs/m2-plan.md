@@ -77,3 +77,11 @@ production build passed in an ignored temporary checkout. Python wheel built.
 Windows sandbox denies asyncio's local sockets and pip metadata renaming;
 reruns with authorized elevated execution passed. No application workaround
 or skipped network test introduced.
+Remote publication verified: `c4e42964ebd9f4c36a935e004d4ca2a7ec46e95b` on
+`origin/feat/spatial-telemetry`. GitHub Actions run 38077999204 failed before any
+runner or step started: GitHub annotation says recent account payments failed
+or the spending limit must be increased. Remote Python 3.11/3.12 execution is
+therefore unverified; local Python 3.12, packaging, benchmark and M3 parser
+checks passed. Account billing must be resolved by the owner, then CI rerun.
+The documented M1 JSONL example additionally delivered/ACKed 3/3 observations;
+all three decoded messages were accepted by M3's actual parser.
