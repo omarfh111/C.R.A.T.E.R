@@ -14,10 +14,20 @@ def iou(a, b):
     return intersection / union if union > 0 else 0.
 
 
+def nested_duplicate(a, b):
+    """Merge similar concentric boxes, without swallowing small nearby rocks."""
+    areas = [(r[2]-r[0])*(r[3]-r[1]) for r in (a, b)]
+    intersection = max(0., min(a[2], b[2])-max(a[0], b[0])) * max(0., min(a[3], b[3])-max(a[1], b[1]))
+    centers = [np.array([(r[0]+r[2])/2, (r[1]+r[3])/2]) for r in (a, b)]
+    diagonal = max(np.hypot(r[2]-r[0], r[3]-r[1]) for r in (a, b))
+    return (max(areas)/min(areas) <= 2.5 and intersection/min(areas) >= .85
+            and np.linalg.norm(centers[0]-centers[1]) <= .15*diagonal)
+
+
 def suppress_duplicates(detections, threshold=.5):
     kept = []
     for d in sorted(detections, key=lambda item: item.confidence, reverse=True):
-        if not any(d.type == k.type and iou(d.bbox, k.bbox) > threshold for k in kept):
+        if not any(d.type == k.type and (iou(d.bbox, k.bbox) > threshold or nested_duplicate(d.bbox, k.bbox)) for k in kept):
             kept.append(d)
     return kept
 

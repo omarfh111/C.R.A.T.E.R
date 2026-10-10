@@ -46,3 +46,13 @@ above the .5 area limit. `area` restores the legacy blanket area filter, and
 is a box heuristic, not terrain classification. Unit tests cover large close
 rocks and wide ground boxes; the eight-frame NASA comparison was unchanged.
 [Terrain evidence](validation/reliability-terrain.json).
+
+## Duplicate boxes
+
+Same-class, nearly concentric nested boxes can be merged even when IoU is
+below .5. Containment, center distance and size-ratio gates preserve tiny
+rocks inside large terrain boxes and adjacent rocks. The highest confidence
+box survives. Tests verify one ID for duplicate boxes and separation of
+distinct objects. Replaying the cached NASA crop run removed no additional
+boxes; this clip does not establish a measured precision gain.
+[Replay evidence](validation/reliability-duplicates.json).
