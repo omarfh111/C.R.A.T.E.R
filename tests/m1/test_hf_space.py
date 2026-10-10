@@ -43,6 +43,7 @@ def test_authenticated_request_budget_cleanup_and_safe_metrics():
     detector=SpaceGrounding(HFConfig(TOKEN,max_side=640,max_requests=1),client_factory=factory)
     assert detector.detect(np.zeros((960,1280,3),dtype=np.uint8))[0].bbox==(20,40,100,120)
     assert options["hf_token"]==TOKEN and options["download_files"] is False
+    assert options["max_workers"]>=2  # queue prediction and SSE receiver share the executor
     image,args,kwargs=client.calls[0]
     assert not Path(image["path"]).exists() and kwargs["api_name"]=="/run_grounding"
     assert args==( "rock. stone. boulder.",.25,.2)
