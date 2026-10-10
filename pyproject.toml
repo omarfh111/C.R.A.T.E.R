@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "crater-m1"
+version = "0.1.0"
+description = "Local rover hazard perception and tracking"
+requires-python = ">=3.11"
+dependencies = ["numpy>=1.26,<3", "opencv-python-headless>=4.10,<6", "pillow>=10,<13", "psutil>=6,<8", "scipy>=1.12,<2"]
+
+[project.optional-dependencies]
+ai = ["torch>=2.6,<3", "torchvision>=0.21,<1", "transformers==4.57.1"]
+test = ["pytest>=8,<10"]
+
+[project.scripts]
+crater-m1 = "crater_m1.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["crater_m1*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests/m1"]
+pythonpath = ["."]
