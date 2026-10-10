@@ -4,13 +4,39 @@ import hashlib
 import json
 import math
 import re
+from datetime import date
 from pathlib import Path
+from urllib.parse import urlsplit
 
 import numpy as np
 
 MAX_FILE_BYTES = 1_000_000
 MAX_CHUNKS = 1000
 CHUNK_CHARS = 1000
+
+
+def _validate_source_metadata(url, verified):
+    try:
+        parsed = urlsplit(url)
+        host = parsed.hostname or ""
+        if (parsed.scheme != "https" or not (host == "nasa.gov" or host.endswith(".nasa.gov"))
+                or parsed.username or parsed.password or parsed.port not in (None, 443)
+                or any(c.isspace() for c in url) or date.fromisoformat(verified).isoformat() != verified):
+            raise ValueError("invalid metadata")
+    except (ValueError, TypeError, AttributeError) as exc:
+        raise ValueError("Invalid official source URL or verification date") from exc
+
+
+def _source_metadata(text):
+    urls = re.findall(r"^Source URL: (.+)$", text, flags=re.MULTILINE)
+    dates = re.findall(r"^Verified on: (.+)$", text, flags=re.MULTILINE)
+    if not urls and not dates:
+        return {}
+    if len(urls) != 1 or len(dates) != 1:
+        raise ValueError("Expected one official source URL and verification date")
+    url, verified = urls[0].strip(), dates[0].strip()
+    _validate_source_metadata(url, verified)
+    return dict(sourceUrl=url, verifiedOn=verified)
 
 
 def _nonnegative_number(value):
@@ -34,6 +60,8 @@ def chunks_from_files(paths):
     chunks = []
     for path in dict.fromkeys(str(Path(p).resolve()) for p in paths):
         text, digest = _read(path)
+        metadata = _source_metadata(text)
+        first_chunk = len(chunks)
         if not text.strip():
             raise ValueError(f"Source is empty: {path}")
         buffer = ""
@@ -56,6 +84,8 @@ def chunks_from_files(paths):
         if buffer.strip():
             chunks.append({"path": path, "lineStart": start, "lineEnd": end,
                            "digest": digest, "text": buffer.strip()})
+        for chunk in chunks[first_chunk:]:
+            chunk.update(metadata)
         if len(chunks) > MAX_CHUNKS:
             raise ValueError("Corpus exceeds 1000 chunks; select fewer documents")
     return chunks
@@ -97,6 +127,8 @@ class Index:
                     or type(chunk.get("lineStart")) is not int or type(chunk.get("lineEnd")) is not int
                     or not 1 <= chunk["lineStart"] <= chunk["lineEnd"]):
                 raise ValueError("Invalid index chunk")
+            if "sourceUrl" in chunk or "verifiedOn" in chunk:
+                _validate_source_metadata(chunk.get("sourceUrl"), chunk.get("verifiedOn"))
 
     @classmethod
     def build(cls, paths, backend):

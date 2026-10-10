@@ -95,6 +95,10 @@ class Ollama:
             "Ne développe pas un acronyme si sa définition n'est pas dans les sources. "
             "La position du rover est une entrée fournie ; la calibration permet de projeter un pixel, "
             "elle ne mesure pas à elle seule la position du rover. "
+            "Ne confonds pas cadence temporelle et calibration spatiale : une calibration caméra "
+            "ne détermine pas la fréquence d'acquisition. Des images espacées en distance "
+            "ne donnent pas un intervalle temporel sans vitesse ou timestamps d'acquisition. "
+            "Les documents NASA décrivent leur mission, pas une mesure de notre rover. "
             "Si les sources ne répondent pas, écris seulement INSUFFICIENT_EVIDENCE. "
             "Ne donne aucune commande au rover. Réponds directement à la question en 2 à 4 phrases "
             "concrètes en texte naturel. Évite toute phrase générique qui renvoie "
@@ -105,7 +109,7 @@ class Ollama:
             "messages": [{"role": "system", "content": system},
                 {"role": "user", "content": f"Question : {question}\n\nPassages sources :\n{context}\n\n"
                     "Explique la réponse à cette question et cite chaque passage utilisé avec [S1], [S2], etc."}],
-            "options": {"temperature": 0.7, "top_p": 0.8, "top_k": 20, "min_p": 0,
+            "options": {"temperature": 0.1, "top_p": 0.8, "top_k": 20, "min_p": 0,
                         "seed": 7, "num_ctx": 8192, "num_predict": 600,
                         "num_gpu": -1 if self.gpu else 0}})
         if result.get("done_reason") == "length":
