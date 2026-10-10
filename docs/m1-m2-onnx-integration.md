@@ -1,6 +1,6 @@
 # Exécuter M1 → M2 → contrat M3 sur le PC M1
 
-M2 inclut exactement les sources M1 du commit `45cbf2f`. Le lanceur sélectionne
+M2 inclut exactement les sources M1 figées au commit `94bcf57`. Le lanceur sélectionne
 `onnx-grounding-dino` et DirectML sans changer le modèle, le tracker ou les
 sources M1. Sur le PC d'Omar, aucun poids ONNX n'a été téléchargé. Les essais
 locaux utilisent des fixtures et le détecteur `synthetic-contrast` **explicitement**

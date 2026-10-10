@@ -1,12 +1,17 @@
 # M1 → M2 offline ONNX integration
 
-User requirements: import M1 commit `45cbf2f551bcf162709cd3dc0d8d6f4e86c1f35a`
+User requirements: import final M1 commit `94bcf577e0aa5e8f9310d3fadc62757b26ce657b`
 without replacing M2/M3, launch actual `onnx-grounding-dino` on DirectML, accept
 per-frame calibrated camera/pose, verify JSONL before continuous callbacks,
 exercise blackout/buffering/retries/recovery and validate delivered WebSocket
 frames with the actual M3 telemetry v1 parser. No cloud inference or synthetic
 detector substitution. NASA camera poses are unavailable; calibrated demo is
 being prepared by M1. Unknown poses must fail explicitly.
+
+Update: M1 published its calibrated ONNX validation report at `94bcf57`,
+against an older M2 commit (`8b1b95e`). The actual video, poses and ONNX
+observations remain on its developer's PC. The latest M2 loss/blackout/live
+WebSocket validation on that PC is still required.
 
 Architecture: retain M1 source byte-for-byte at the requested commit. M2 owns
 backend dispatch and bounded callback handoff; each observation's camera is

@@ -1,5 +1,6 @@
 """Small controlled camera/ground scene; truth used ONLY for evaluation."""
 from pathlib import Path
+import hashlib
 import json
 import math
 import cv2
@@ -45,6 +46,8 @@ def generate(output, count=90):
             annotations["frames"].append({"frame_index":index,"detections":truth})
         cv2.imwrite(str(output/"scene-preview.jpg"),image)
     finally: writer.release()
+    with (output/"scene.mp4").open("rb") as stream:
+        annotations["source_sha256"]=hashlib.file_digest(stream,"sha256").hexdigest()
     (output/"calibration.json").write_text(json.dumps(calibration,indent=2),encoding="utf-8")
     (output/"annotations.json").write_text(json.dumps(annotations,indent=2),encoding="utf-8")
     return {"video":str(output/"scene.mp4"),"frames":count,"calibration":str(output/"calibration.json"),"annotations":str(output/"annotations.json")}

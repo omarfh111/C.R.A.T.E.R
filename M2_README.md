@@ -109,10 +109,11 @@ de l'historique du simulateur, même si l'inférence termine pendant une coupure
 Les pertes du simulateur sont connues par construction ; ce n'est pas un
 estimateur de pertes pour une radio physique.
 
-Pour Grounding DINO local, installer `.[ai]`, préparer les poids avec la commande
-M1 `download-model`, puis retirer `--perception-backend synthetic-contrast` et
-fournir une vidéo et une calibration réelles compatibles. Aucun backend cloud
-n'est proposé par cette commande d'intégration. Le modèle suit le cache local.
+Pour Grounding DINO ONNX local, utiliser l'environnement et le cache déjà
+préparés sur le PC M1, sélectionner `--perception-backend onnx-grounding-dino`
+et `--device directml`, puis fournir une vidéo et une calibration compatibles.
+La procédure complète figure dans `docs/m1-m2-onnx-integration.md`. Le backend
+PyTorch `grounding-dino` reste une option explicite avec les dépendances `.[ai]`.
 
 `--duration` inclut le chargement du modèle : prévoir une durée adaptée, par
 exemple 120 secondes pour un premier essai. Zéro observation donne un rapport
@@ -142,7 +143,7 @@ Calibration absente/invalide : erreur explicite, aucune coordonnée inventée.
 ## Hypothèses et limites
 
 Le lanceur live accepte désormais `--perception-backend onnx-grounding-dino`
-(défaut) et `--device directml`. Il reprend M1 au commit `45cbf2f` sans modifier
+(défaut) et `--device directml`. Il reprend M1 au commit final `94bcf57` sans modifier
 ses sources. DirectML demande les poids ONNX préparés dans `--cache-dir` ;
 aucun téléchargement ni repli synthétique n'a lieu pendant la mission.
 `--device cuda` reste réservé au backend PyTorch `grounding-dino`.

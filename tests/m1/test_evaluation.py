@@ -1,6 +1,8 @@
 import json
+import hashlib
 import pytest
 from crater_m1.evaluation import evaluate
+from crater_m1.simulation import generate
 
 
 def test_evaluator_counts_false_detections_and_identity_switch(tmp_path):
@@ -29,3 +31,11 @@ def test_annotation_scope_and_wrong_source_are_enforced(tmp_path):
     prediction["source"]["file_sha256"]="different"
     p.write_text(json.dumps(prediction))
     with pytest.raises(ValueError,match="different source"): evaluate(p,a)
+
+
+def test_generated_annotations_bind_to_rendered_video(tmp_path):
+    generate(tmp_path/"scene",count=2)
+    scene=tmp_path/"scene"
+    truth=json.loads((scene/"annotations.json").read_text())
+    with (scene/"scene.mp4").open("rb") as stream:
+        assert truth["source_sha256"]==hashlib.file_digest(stream,"sha256").hexdigest()
