@@ -22,10 +22,10 @@ Dependencies: Python >=3.11, NumPy >=1.26,<3, websockets >=15,<16; pytest >=8,<9
 
 ## 2. Binary codec
 
-- [ ] Tests first: `tests/test_codec.py`, observe RED.
-- [ ] Implement `encode_frame(frame)->bytes`, `decode_frame(bytes)->dict` and ACK
+- [x] Tests first: `tests/test_codec.py`, observe RED.
+- [x] Implement `encode_frame(frame)->bytes`, `decode_frame(bytes)->dict` and ACK
   encoding/decoding in `crater_m2/codec.py`.
-- [ ] Verify bounded quantization, CRC, Unicode IDs, malformed/truncated packets,
+- [x] Verify bounded quantization, CRC, Unicode IDs, malformed/truncated packets,
   enums and overflow. Run full suite; commit and push.
 
 ## 3. Reliable constrained transport
@@ -56,3 +56,6 @@ User explicitly requested immediate execution; no further design gate imposed.
 Task 1: RED missing package, then GREEN 31/31 tests on Python 3.12. Verified
 known ENU projections, strict schema and invalid geometry. Existing local Python
 has required dependencies; no model/download or environment installation needed.
+Task 2: RED missing codec; added extreme finite-number regression (RED overflow),
+then explicit range guards before scaling. GREEN 46/46, including all truncations,
+CRC corruption, representability and uncertainty rounding.
