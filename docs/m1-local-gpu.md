@@ -61,3 +61,32 @@ remain null and no metric 3D position is invented.
 Sources:
 - https://onnxruntime.ai/docs/execution-providers/DirectML-ExecutionProvider.html
 - https://huggingface.co/onnx-community/grounding-dino-tiny-ONNX
+
+## Measured validation on this PC
+
+The complete 43-frame left NASA view ran successfully in 26.40 seconds
+(excluding model/session loading), with 583.6 ms mean processing latency,
+599.7 ms p95 and 1.63 frames/s including preview export. All 43 JSONL entries
+and 43 preview frames were verified. The process RAM sample peaked at about
+1,447 MB; this does not measure peak GPU VRAM. Outputs:
+`outputs/nasa-local-gpu-full/`.
+
+On exactly the same three frames (0/10/20), without preview, CPU mean
+processing latency was 9,739.9 ms versus 691.9 ms with DirectML, approximately
+14.1 times faster in this sample. Both use the same prepared model, 800x800
+input, thresholds and four CPU threads. This is a small comparison, not a
+guaranteed speedup for other scenes or hardware. CPU/GPU process RAM peaks
+were respectively about 3,997/1,398 MB.
+
+A one-frame ORT profile recorded 1,622 DirectML node events and 39 CPU node
+events, confirming actual GPU execution. Counts are not utilization or time
+percentages. The real cached model load/inference test passed with Python
+socket connections blocked. Local tests passed 61, with only the optional
+original PyTorch-weight test skipped. [Saved evidence](validation/local-gpu.json).
+
+The three annotated pilot frames yielded 6 true positives, 0 false positives
+and 2 missed rocks at IoU .5 (precision 100%, recall 75% within the specified
+>=30x20-pixel scope). This tiny manually labeled sample does not establish
+full-video accuracy. The complete run produced 116 observations and 71 tracker
+IDs, showing fragmentation under NASA timelapse motion; reliable long-term
+identity tracking is not established by this run.

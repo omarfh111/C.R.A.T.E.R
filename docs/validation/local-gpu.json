@@ -1,0 +1,136 @@
+{
+  "checked_on": "2026-10-10",
+  "gpu": "NVIDIA RTX 3050 Laptop 6GB",
+  "cuda_driver_capability": "NVIDIA-SMI reports CUDA UMD 13.3; toolkit not configured",
+  "pytorch": "2.9.1+cpu",
+  "selected_local_backend": "ONNX DirectML on RTX 3050",
+  "remote_api_used": false,
+  "inference_network_blocked_test_passed": true,
+  "same_frames_comparison": {
+    "frame_indices": [
+      0,
+      10,
+      20
+    ],
+    "model_input": [
+      800,
+      800
+    ],
+    "cpu_mean_processing_ms": 9739.923900070911,
+    "gpu_mean_processing_ms": 691.9304666419824,
+    "speedup_ratio": 14.076448963636295,
+    "cpu_mean_inference_ms": 9532.347100010762,
+    "gpu_mean_inference_ms": 602.3217999997238,
+    "cpu_rss_peak_mb": 3996.96484375,
+    "gpu_process_rss_peak_mb": 1398.37109375,
+    "note": "Three-frame sample, four CPU threads; model loading excluded. Both runs omit preview. RSS is process RAM, not VRAM."
+  },
+  "full_nasa_gpu_metrics": {
+    "video": {
+      "file": "vid3.mp4",
+      "fps": 2.0,
+      "frames": 43,
+      "sha256": "d7f157de8f5bb694a614230901b4de2359dc439e0e94c8bcd5b629177ea9f461",
+      "width": 2560,
+      "height": 960
+    },
+    "processed_frames": 43,
+    "detections_total": 116,
+    "unique_track_ids": 71,
+    "wall_seconds": 26.4001884998288,
+    "end_to_end_fps": 1.6287762490892383,
+    "processing_fps": 1.713584353806825,
+    "processing_fps_excluding_first": 1.7190575161669661,
+    "latency_ms_mean": 583.5720883996421,
+    "latency_ms_p95": 599.7487999964505,
+    "inference_ms_mean": 541.6979209389971,
+    "cpu_seconds": 57.484375,
+    "cpu_percent_process_mean": 217.99534883720938,
+    "cpu_percent_note": "process CPU can exceed 100% on multicore",
+    "rss_peak_mb": 1447.171875,
+    "model_resources": {
+      "device": "directml",
+      "execution": "local-onnx",
+      "model_id": "onnx-community/grounding-dino-tiny-ONNX",
+      "model_revision": "ff690b0a8050566c290287545bd059350f3e9096",
+      "source_model_file": "onnx/model_fp16.onnx",
+      "prepared_model_file": "model_fp32.onnx",
+      "precision": "FP32 promoted from FP16 source",
+      "onnxruntime_version": "1.24.4",
+      "providers": [
+        "DmlExecutionProvider",
+        "CPUExecutionProvider"
+      ],
+      "gpu_adapter": {
+        "device_id": 0,
+        "name": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+        "vendor_id": 4318,
+        "dedicated_video_mb": 6001
+      },
+      "image_size": 800,
+      "prompt": "rock. stone. boulder.",
+      "threshold": 0.25,
+      "text_threshold": 0.2,
+      "max_rock_box_area_fraction": 0.5,
+      "rejected_large_boxes": 41,
+      "confidence_semantics": "Grounding DINO detector score; not calibrated probability",
+      "challenge_local_perception_compliant": true,
+      "provider_note": "DirectML accelerates supported operators; unsupported/shape operators may execute on CPU."
+    },
+    "original_capture_fps": null,
+    "notes": [
+      "Playback FPS is not original sensor capture cadence.",
+      "Processing latency includes inference, association, JSON serialization; excludes preview encoding.",
+      "Model loading excluded; first inference included. RSS sampled once per frame.",
+      "Uncalibrated observations have null camera and rover position; no metric coordinates inferred."
+    ],
+    "backend": "onnx-grounding-dino"
+  },
+  "pilot_accuracy": {
+    "scope": "Pilot manual annotation: left view of First AutoNav, frames 0/10/20; visible individual rocks with bbox width >=30 and height >=20 pixels. Smaller stones and boundary-truncated objects excluded; preliminary visual labels, not a validated benchmark.",
+    "frames_evaluated": [
+      0,
+      10,
+      20
+    ],
+    "iou_threshold": 0.5,
+    "prediction_min_width_px": 30,
+    "prediction_min_height_px": 20,
+    "true_positives": 6,
+    "false_positives": 0,
+    "false_negatives": 2,
+    "precision": 1.0,
+    "recall": 0.75,
+    "matched_mean_iou": 0.7855282637618589,
+    "id_switches": 0,
+    "tracking_note": "ID switches between successive matches of an annotated ID, including gaps; not IDF1/MOTA."
+  },
+  "provider_profile_single_frame": {
+    "DmlExecutionProvider_node_events": 1622,
+    "CPUExecutionProvider_node_events": 39,
+    "note": "Measured provider node events after graph promotion; not GPU utilization or time percentages."
+  },
+  "artifact_validation": {
+    "jsonl_frames": 43,
+    "decoded_preview_frames": 43,
+    "preview_resolution": [
+      1280,
+      960
+    ],
+    "execution": "local",
+    "uncalibrated_camera_and_pose": null
+  },
+  "tests": {
+    "passed": 61,
+    "skipped": 1,
+    "skip_reason": "optional PyTorch model weights absent; real ONNX GPU offline test executed"
+  },
+  "limits": [
+    "Rock-only detector; craters/slopes not validated.",
+    "Three-frame annotation pilot is not a benchmark for the full video.",
+    "71 distinct tracker IDs across 116 observations; large timelapse motion causes fragmentation; reliable long-term tracking not established.",
+    "Large-box filtering can reject a very close large rock.",
+    "GPU inference includes some CPU operators; DirectML is not CUDA.",
+    "FP32 promotion cannot recover precision lost in upstream FP16 conversion."
+  ]
+}
