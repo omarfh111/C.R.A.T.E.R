@@ -72,3 +72,19 @@ that behavior is required downstream. Confirmation is temporal persistence,
 not proof that a detection is correct. NASA timelapse gaps are not seconds.
 Tests cover isolated flashes, streak resets, retained and expired IDs, fresh
 export timestamps, and the actual pinned M2 telemetry path.
+
+## Short gaps and identity retention
+
+Camera motion compensation is supplemented with bounded residual velocity
+prediction. Strong appearance similarity can rescue a low-IoU match only
+within a local distance and size gate; flat patches and distant lookalikes
+provide no identity evidence. Missing tracks remain internal and expire;
+reappearance after expiry receives a new ID.
+
+The controlled moving-rock gap test uses one ID with prediction versus two
+without it. Tests also reject a different texture and a distant lookalike.
+A full 43-frame local GPU run retained the baseline 116 observations and
+71 allocated IDs, at about .61 seconds/image; the NASA clip therefore shows
+no measured ID-retention gain. No tracking accuracy is claimed without
+identity labels. Detection scores on both splits are reported separately.
+[Final fast-mode evidence](validation/reliability-final-fast.json).
