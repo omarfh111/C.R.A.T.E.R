@@ -56,3 +56,19 @@ box survives. Tests verify one ID for duplicate boxes and separation of
 distinct objects. Replaying the cached NASA crop run removed no additional
 boxes; this clip does not establish a measured precision gain.
 [Replay evidence](validation/reliability-duplicates.json).
+
+## Temporal confirmation
+
+Tracks begin tentative and become confirmed after two consecutive processed
+frames by default. A gap resets the tentative streak; confirmed tracks can
+retain identity for up to three missed processed frames. Only fresh observed
+boxes are exported, including after a gap. The JSON tracking metadata records
+status, total hits and consecutive hits. Tentative obstacles remain visible
+immediately by default; `--confirmed-only` opts into delayed export, with
+`--track-min-hits` and `--track-max-missed` configurable.
+
+M2 currently ignores the added metadata, so select confirmed-only at M1 when
+that behavior is required downstream. Confirmation is temporal persistence,
+not proof that a detection is correct. NASA timelapse gaps are not seconds.
+Tests cover isolated flashes, streak resets, retained and expired IDs, fresh
+export timestamps, and the actual pinned M2 telemetry path.

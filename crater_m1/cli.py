@@ -22,6 +22,9 @@ def main():
     run.add_argument("--device",choices=["auto","cpu","cuda","directml"],default="auto")
     run.add_argument("--cache-dir",default=".cache/huggingface"); run.add_argument("--calibration")
     run.add_argument("--no-preview",action="store_true")
+    run.add_argument("--track-min-hits",type=int,default=2)
+    run.add_argument("--track-max-missed",type=int,default=3)
+    run.add_argument("--confirmed-only",action="store_true",help="export only tracks confirmed by consecutive sightings")
     run.add_argument("--env-file",default=".env")
     run.add_argument("--terrain-filter",choices=["edges","area","off"],default="edges",help="ONNX terrain filtering; edges preserves localized large rocks")
     run.add_argument("--tiles",choices=["off","2x2"],default="off",help="ONNX full image plus four overlapping crops")
@@ -77,6 +80,8 @@ def main():
             if not 0<args.threshold<1 or not 0<args.text_threshold<1 or (args.image_size is not None and args.image_size<128): raise ValueError("invalid model settings")
             from .detectors import GroundingDino,SyntheticContrastDetector
             from .pipeline import run as run_pipeline
+            from .tracking import Tracker
+            tracker=Tracker(min_hits=args.track_min_hits,max_missed=args.track_max_missed,confirmed_only=args.confirmed_only)
             if args.backend=="onnx-grounding-dino":
                 from .onnx_detector import OnnxGroundingDino
                 if args.prompt is not None: raise ValueError("ONNX backend uses the validated rock. stone. boulder. prompt")
@@ -108,7 +113,7 @@ def main():
                 from .tiling import TiledDetector
                 detector=TiledDetector(detector)
             result=run_pipeline(args.video,args.output,detector,view=args.view,crop=args.crop,stride=args.stride,
-                max_frames=args.max_frames,calibration=args.calibration,preview=not args.no_preview)
+                max_frames=args.max_frames,calibration=args.calibration,preview=not args.no_preview,tracker=tracker)
             result["backend"]=args.backend
             (Path(args.output)/"metrics.json").write_text(json.dumps(result,indent=2),encoding="utf-8")
         print(json.dumps(result,indent=2))

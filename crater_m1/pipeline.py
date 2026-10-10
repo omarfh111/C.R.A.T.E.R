@@ -14,6 +14,13 @@ from .video import frames, inspect_video
 def utc_now(): return datetime.now(timezone.utc).isoformat(timespec="milliseconds").replace("+00:00","Z")
 
 
+def tracked_observation(track, captured, width, height):
+    result=observation(track.id,track.detection,captured,width,height)
+    result["tracking"]={"status":"confirmed" if track.confirmed else "tentative",
+                        "hits":track.hits,"consecutiveHits":track.consecutive_hits}
+    return result
+
+
 def run(video,output,detector,*,view="full",crop=None,stride=1,max_frames=None,
         rover_id="rover-1",calibration=None,preview=True,tracker=None,on_observation=None):
     output=Path(output)
@@ -54,7 +61,7 @@ def run(video,output,detector,*,view="full",crop=None,stride=1,max_frames=None,
                     "image":{"width":w,"height":h,"crop_xywh":list(rect)},"camera":camera,
                     "roverPosition":None if rover_position is None else {"frameId":"LOCAL_ENU_V1","xM":rover_position[0],"yM":rover_position[1],"zM":rover_position[2]},
                     "positionUncertaintyRadiusM":pose_uncertainty,
-                    "detections":[observation(track.id,track.detection,captured,w,h) for track in observed]}
+                    "detections":[tracked_observation(track,captured,w,h) for track in observed]}
                 stream.write(json.dumps(payload,allow_nan=False)+"\n"); stream.flush()
                 if on_observation is not None: on_observation(payload)
                 elapsed=(time.perf_counter()-tick)*1000; latencies.append(elapsed)
@@ -86,7 +93,7 @@ def run(video,output,detector,*,view="full",crop=None,stride=1,max_frames=None,
         "latency_ms_mean":float(np.mean(latencies)),"latency_ms_p95":float(np.percentile(latencies,95)),
         "inference_ms_mean":float(np.mean(inference)),"cpu_seconds":after.user+after.system-before.user-before.system,
         "cpu_percent_process_mean":float(np.mean(cpu)),"cpu_percent_note":"process CPU can exceed 100% on multicore",
-        "rss_peak_mb":max(memory),"model_resources":detector.resources(),
+        "rss_peak_mb":max(memory),"model_resources":detector.resources(),"tracking_settings":tracker.resources(),
         "original_capture_fps":None,"notes":["Playback FPS is not original sensor capture cadence.",
             "Processing latency includes inference, association, JSON serialization; excludes preview encoding.",
             "Model loading excluded; first inference included. RSS sampled once per frame.",

@@ -38,18 +38,26 @@ class Track:
     detection: Detection
     missed: int = 0
     hits: int = 1
+    consecutive_hits: int = 1
+    confirmed: bool = False
 
 
 class Tracker:
-    def __init__(self, min_iou=.15, max_missed=3, motion_compensation=True):
-        if not 0 < min_iou <= 1 or max_missed < 0:
+    def __init__(self, min_iou=.15, max_missed=3, motion_compensation=True, min_hits=2, confirmed_only=False):
+        if not 0 < min_iou <= 1 or max_missed < 0 or min_hits < 1 or int(min_hits) != min_hits:
             raise ValueError("invalid tracker settings")
         self.min_iou, self.max_missed = min_iou, max_missed
+        self.min_hits, self.confirmed_only = min_hits, confirmed_only
         self.motion_compensation = motion_compensation
         self.tracks = []
         self.next_id = 1
         self.previous_gray = None
         self.last_motion_inliers = 0
+
+    def resources(self):
+        return {"min_consecutive_hits": self.min_hits, "max_missed_frames": self.max_missed,
+                "confirmed_only": self.confirmed_only, "motion_compensation": self.motion_compensation,
+                "gap_units": "processed frames, not seconds or original capture cadence"}
 
     def _motion(self, image):
         self.last_motion_inliers = 0
@@ -104,11 +112,14 @@ class Tracker:
         observed=[]
         for i,t in enumerate(self.tracks):
             if i in matched:
-                t.detection=detections[matched[i]]; t.missed=0; t.hits+=1; observed.append(t)
-            else: t.missed+=1
+                t.detection=detections[matched[i]]; t.missed=0; t.hits+=1
+                t.consecutive_hits+=1
+                t.confirmed=t.confirmed or t.consecutive_hits>=self.min_hits
+                observed.append(t)
+            else: t.missed+=1; t.consecutive_hits=0
         self.tracks=[t for t in self.tracks if t.missed<=self.max_missed]
         for j,d in enumerate(detections):
             if j not in matched.values():
-                t=Track(f"hazard-{self.next_id:06d}",d); self.next_id+=1
+                t=Track(f"hazard-{self.next_id:06d}",d,confirmed=self.min_hits==1); self.next_id+=1
                 self.tracks.append(t); observed.append(t)
-        return observed
+        return [t for t in observed if t.confirmed or not self.confirmed_only]
