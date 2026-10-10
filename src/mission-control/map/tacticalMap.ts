@@ -69,6 +69,8 @@ export function createTacticalMap(canvas: HTMLCanvasElement, getModel: () => Map
   const pulses: { t0: number; late: boolean }[] = []
   let bootStart = performance.now()
   let grain: CanvasPattern | null = null
+  const reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false
+  let lastDraw = -Infinity
 
   function resize() {
     const r = canvas.getBoundingClientRect()
@@ -182,10 +184,13 @@ export function createTacticalMap(canvas: HTMLCanvasElement, getModel: () => Map
   function frame() {
     schedule()
     if (W < 2) return
+    const frameTime = performance.now()
+    if (frameTime - lastDraw < (reducedMotion ? 100 : 32)) return
+    lastDraw = frameTime
     const m = getModel()
-    const now = performance.now()
+    const now = frameTime
     const wall = Date.now()
-    const boot = ease((now - bootStart) / 1900)
+    const boot = reducedMotion ? 1 : ease((now - bootStart) / 1900)
     const infoAgeMs = m.lastRxMs ? Math.max(0, wall - m.lastRxMs) : 0
     const live = m.posture === 'NOMINAL' || m.posture === 'DEGRADED' || m.posture === 'RECOVERY'
 
@@ -195,18 +200,18 @@ export function createTacticalMap(canvas: HTMLCanvasElement, getModel: () => Map
       if (!lastRover) lastRover = { x: rv.x, y: rv.y }
       if (rv.seq !== roverAnim?.seq) {
         roverAnim = { seq: rv.seq, fx: lastRover.x, fy: lastRover.y, tx: rv.x, ty: rv.y, t0: now }
-        if (rv.seq !== lastPulseSeq) { pulses.push({ t0: now, late: rv.latencyMs > 2.5 * m.intervalMs }); lastPulseSeq = rv.seq }
+        if (rv.seq !== lastPulseSeq) { if (!reducedMotion) pulses.push({ t0: now, late: rv.latencyMs > 2.5 * m.intervalMs }); lastPulseSeq = rv.seq }
       }
-      const k = ease((now - roverAnim.t0) / 650)
+      const k = reducedMotion ? 1 : ease((now - roverAnim.t0) / 650)
       lastRover = { x: roverAnim.fx + (roverAnim.tx - roverAnim.fx) * k, y: roverAnim.fy + (roverAnim.ty - roverAnim.fy) * k }
     } else { lastRover = null; roverAnim = null }
     if (follow && lastRover) {
       target.cx = lastRover.x + (W * 0.1) / view.s
       target.cy = lastRover.y
     }
-    view.s += (target.s - view.s) * 0.2
-    view.cx += (target.cx - view.cx) * 0.14
-    view.cy += (target.cy - view.cy) * 0.14
+    view.s += (target.s - view.s) * (reducedMotion ? 1 : 0.2)
+    view.cx += (target.cx - view.cx) * (reducedMotion ? 1 : 0.14)
+    view.cy += (target.cy - view.cy) * (reducedMotion ? 1 : 0.14)
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctx.fillStyle = '#03070c'
@@ -335,7 +340,7 @@ export function createTacticalMap(canvas: HTMLCanvasElement, getModel: () => Map
         ctx.stroke(); ctx.setLineDash([])
       }
       const fresh = wall - h.firstRxMs
-      if (fresh < 2200) {
+      if (!reducedMotion && fresh < 2200) {
         const k = fresh / 2200
         ctx.strokeStyle = `rgba(${st.rgb},${(1 - k) * 0.9})`; ctx.lineWidth = 1.5
         ctx.beginPath(); ctx.arc(sx, sy, 8 + k * 46, 0, Math.PI * 2); ctx.stroke()
@@ -456,7 +461,7 @@ export function createTacticalMap(canvas: HTMLCanvasElement, getModel: () => Map
     }
 
     // reception wavefront (once, when station transport reconnects)
-    if (m.recoveryStartMs && lastRover) {
+    if (!reducedMotion && m.recoveryStartMs && lastRover) {
       const k = (wall - m.recoveryStartMs) / 2400
       if (k >= 0 && k < 1) {
         const [sx, sy] = toScreen(lastRover.x, lastRover.y)

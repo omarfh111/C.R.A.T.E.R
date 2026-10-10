@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 
 /** Wall clock at a fixed cadence. Drives information age, freshness and timers (100 ms in the approved design). */
-export function useNow(periodMs = 100) {
+export function useNow(periodMs = 500) {
   const [now, setNow] = useState(() => Date.now())
   useEffect(() => {
     const id = window.setInterval(() => setNow(Date.now()), periodMs)

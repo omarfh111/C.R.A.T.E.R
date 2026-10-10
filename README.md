@@ -1,6 +1,6 @@
 # C.R.A.T.E.R. Mission Control
 
-A local React + TypeScript + Vite + Tailwind telemetry foundation for ATEC'26. It runs with deterministic mock rover traffic by default. A real source can replace the mock through one WebSocket adapter. There is no application backend or cloud dependency: the browser needs only a canonical JSON WebSocket endpoint when using live telemetry.
+A local React + TypeScript + Vite + Tailwind Mission Control for ATEC'26. It runs with deterministic mock rover traffic by default. A real source can replace the mock through one WebSocket adapter. There is no application backend or cloud dependency: the browser needs only a canonical JSON WebSocket endpoint when using live telemetry.
 
 ## Start on Windows
 
@@ -12,7 +12,7 @@ npm ci
 npm run dev
 ```
 
-Open `http://127.0.0.1:5173/`. The default `MOCK` mode needs no server or `.env` file. Run `npm test` for focused telemetry tests and `npm run build` for a TypeScript checked production build. `npm run preview` serves the built app locally.
+Open `http://127.0.0.1:5173/`. The default `MOCK` mode needs no server or `.env` file. Run `npm test` for the telemetry, intro and dashboard tests, and `npm run build` for a TypeScript checked production build. `npm run preview` serves the built app locally.
 
 ## Lunar mission intro
 
@@ -20,28 +20,39 @@ In a fresh browser tab, a five-second cinematic approach crosses a procedural lu
 
 The scene uses locally installed Three.js, procedural terrain, stars, lighting and a rover model. Fonts and the still-image fallback are bundled locally; there are no CDN requests. If WebGL 2 cannot start, the intro displays the local lunar image and hands off after a shorter sequence. `prefers-reduced-motion: reduce` uses the still image, avoids WebGL, and hands off quickly. The intro renderer, animation loop and resize observer are released when the overlay closes.
 
-The provided `Sentinel Autonomous Orbital Intelligence.zip` remains untouched in the project root. It and `.sentinel-reference/` are ignored by Git. The new scene adapts the reference's timed reveal, camera movement, starfield, lighting and restrained typography to a lunar surface setting; no Earth imagery or orbital mechanics are included. Phase 2 dashboard redesign is outside this implementation.
+The provided `Sentinel Autonomous Orbital Intelligence.zip` and `Mission Control preview status.zip` remain untouched in the project root and are ignored by Git. The lunar scene adapts the former reference's timed reveal, camera movement, starfield, lighting and restrained typography; no Earth imagery or orbital mechanics are included. The Claude Design dashboard is integrated as production React code; the reference prototype is not shipped.
 
-For local overrides, copy `.env.example` to `.env.local`, edit the values, and restart Vite. `.env.local` is ignored by Git. In `LIVE` mode set `VITE_TELEMETRY_WS_URL` to a WebSocket endpoint emitting the canonical v1 JSON frame as one text message per frame. The UI shows a configuration error when the URL is absent. The endpoint and any bridge from rover hardware are supplied by Member 2. For a page served over HTTPS, use `wss://`.
+For local overrides, copy `.env.example` to `.env.local`, edit the values, and restart Vite. `.env.local` is ignored by Git. In `LIVE` mode set `VITE_TELEMETRY_WS_URL` to a WebSocket endpoint emitting the canonical v1 JSON frame as one text message per frame. Member 2's intended local endpoint is `ws://127.0.0.1:8765/telemetry`. The UI shows a configuration error when the URL is absent. The endpoint and any bridge from rover hardware are supplied by Member 2. For a page served over HTTPS, use `wss://`.
+
+## Mission Control dashboard
+
+The tactical map places the rover, trail and hazard markers at coordinates from **accepted** v1 frames in `LOCAL_ENU_V1` meters. Its procedural terrain is illustrative, not surveyed lunar imagery. Dashed trail segments mark inferred sequence gaps; uncertainty discs use reported radii. Click a marker or inventory row to inspect a hazard, drag or scroll the map to pan and zoom, or use its layer, fit and follow controls. The rover, communications, packet, inspector and event panels all derive from accepted telemetry and the Mission Control receipt journal.
+
+The source chip always displays `MOCK` or `LIVE`. The `DEMO` menu exists only in `MOCK` mode; its presets restart the local mock adapter and clear that mock session's counters. Replay Intro does not restart telemetry. The dashboard adapts to desktop, tablet and mobile widths and bundles all map, font and intro assets for offline use.
+
+Mission Control separates three signals: the station WebSocket transport status, the age of the last accepted frame, and the rover link status last reported **at the frame's capture time**. A connected but silent LIVE socket becomes `STALE` after five seconds; this does not confirm a radio blackout. A closed LIVE socket becomes `TRANSPORT DOWN`, with current rover radio status unknown. Only the labeled MOCK schedule reports a simulated radio blackout. Sequence gaps are inferred from accepted frames and are not a definitive lost-packet count. The current LIVE adapter opens one WebSocket; restart the page after a dropped connection unless the endpoint itself reconnects upstream.
 
 ## Architecture
 
 ```text
 MOCK schedule ─┐
-               ├─> TelemetryAdapter events ─> strict v1 validation ─> ordering/duplicate reducer ─> React state
-LIVE WebSocket ┘
+               ├─> TelemetryAdapter events ─> strict v1 validation ─> ordering/duplicate reducer ─> accepted state
+LIVE WebSocket ┘                                                                      └─> receipt journal ─> dashboard/map
 ```
 
 - `src/telemetry/contract.ts`: versioned Zod runtime schema and inferred TypeScript types.
 - `src/telemetry/mock.ts`: deterministic rover frame generation and delivery schedule. `generated` contains every rover frame; `deliveries` contains only packets reaching Mission Control after configured delay, drops, duplication, reordering, and blackout.
 - `src/telemetry/adapter.ts`: common source interface. Mock and live produce the same packet and transport status events. The live source forwards raw JSON; validation happens in the common reducer.
 - `src/telemetry/state.ts`: receipt counts, schema rejection, per-rover sequence ordering, and accepted state. Mission Control receipt time is separate from rover capture time.
-- `src/main.tsx`: functional dashboard for latest position, hazards, mode, connection, and packet counts. The broader Phase 2 dashboard redesign is intentionally absent.
+- `src/main.tsx`: source configuration, intro handoff and mounted Mission Control.
+- `src/mission-control/hooks/useMissionTelemetry.ts`: shared adapter/reducer integration; the canonical validator and reducer remain in `src/telemetry/`.
+- `src/mission-control/model/`: accepted-frame journal, communications derivation and pure display selectors.
+- `src/mission-control/components/`, `map/` and `mission-control.css`: modular dashboard and procedural Canvas 2D tactical map.
 - `src/intro/lunarScene.ts`: procedural WebGL lunar scene, camera choreography, renderer sizing and cleanup.
 - `src/intro/LunarIntro.tsx`: timing, reduced-motion and fallback handoff.
 - `src/intro/useIntroPlayback.ts`: tab-scoped playback marker, replay and handoff state.
 
-The mock starts at the browser's current time, then uses deterministic ticks. Given the same `startMs` and config, the generated frames and delivery schedule are identical. Set `VITE_MOCK_SEED` for a different deterministic path. Zero for `LOSS_EVERY`, `DUPLICATE_EVERY`, or `REORDER_EVERY` disables that effect. The default blackout begins at tick 20 and lasts five ticks; the transport status changes to disconnected and returns to connected. A silent live WebSocket is marked stale after five seconds without an accepted frame. The mock ends after `TOTAL_TICKS` and marks the transport disconnected.
+The mock starts at the browser's current time, then uses deterministic ticks. Given the same `startMs` and config, the generated frames and delivery schedule are identical. Set `VITE_MOCK_SEED` for a different deterministic path. Zero for `LOSS_EVERY`, `DUPLICATE_EVERY`, or `REORDER_EVERY` disables that effect. The default simulated blackout begins at tick 20 and lasts five ticks; the mock transport status changes to disconnected and returns to connected. The mock ends after `TOTAL_TICKS` and marks the transport disconnected.
 
 ## Member 2 integration
 

@@ -37,7 +37,7 @@ export function MissionControl({
   telemetry, onReplayIntro, introActive = false, className = '', inert = false,
   staleThresholdMs = THRESHOLDS.staleMs, agedHazardMs = THRESHOLDS.agedHazardMs,
 }: MissionControlProps) {
-  const now = useNow(100)
+  const now = useNow(500)
   const vw = useViewportWidth()
   const mapRef = useRef<TacticalMapHandle>(null)
   const cursorRef = useRef<{ x: number; y: number } | null>(null)
@@ -78,7 +78,7 @@ export function MissionControl({
     } : null,
   }
 
-  const stale = d.posture === 'BLACKOUT' || d.posture === 'TRANSPORT_DOWN' || d.posture === 'STALE'
+  const stale = !!f && (d.posture === 'BLACKOUT' || d.posture === 'TRANSPORT_DOWN' || d.posture === 'STALE')
   const banner = outageBanner(d, j, now)
   const selected = hazards.find((h) => h.key === selectedKey) ?? null
   const inventory = sortedInventory(hazards, filters, sort, f?.roverPosition.xM ?? 0, f?.roverPosition.yM ?? 0)

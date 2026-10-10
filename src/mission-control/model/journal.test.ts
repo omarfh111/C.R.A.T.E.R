@@ -4,7 +4,7 @@ import { buildMockTimeline, defaultMockConfig, type MockConfig } from '../../tel
 import { ingestTelemetry, initialTelemetryState, type TelemetryState } from '../../telemetry/state'
 import { deriveComms } from './derive'
 import { createJournal, recordEvent, type Journal } from './journal'
-import { outageBanner } from './presenters'
+import { ageView, outageBanner, postureSubline } from './presenters'
 
 const startMs = Date.parse('2026-10-10T12:00:00.000Z')
 
@@ -74,6 +74,18 @@ describe('Mission Control journal over the default mock schedule', () => {
 })
 
 describe('LIVE station transport and rover radio reports', () => {
+  it('shows an unavailable initial LIVE socket without inventing a prior rover fix', () => {
+    const j = createJournal(startMs, 'LIVE')
+    const event: AdapterEvent = { type: 'status', status: 'disconnected' }
+    const state = ingestTelemetry(initialTelemetryState, event)
+    recordEvent(j, initialTelemetryState, state, event, startMs + 1000, 1000)
+    const d = deriveComms(state, j, startMs + 2000, 1000)
+    expect(d.posture).toBe('TRANSPORT_DOWN')
+    expect(ageView(d).state).toBe('NO DATA')
+    expect(outageBanner(d, j, startMs + 2000)?.line1).toBe('No telemetry frame has been accepted from this source.')
+    expect(postureSubline(d, j, startMs + 2000)).toContain('radio state unknown')
+  })
+
   it('marks connected transport with silent telemetry as stale without claiming radio blackout', () => {
     const j = createJournal(startMs, 'LIVE')
     const connected = ingestTelemetry(initialTelemetryState, { type: 'status', status: 'connected' })

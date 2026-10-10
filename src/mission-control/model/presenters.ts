@@ -15,7 +15,7 @@ export function postureSubline(d: CommsDerivation, j: Journal, nowMs: number): s
     DEGRADED: `Intermittent reception · yield ${d.yield != null ? Math.round(d.yield * 100) + '%' : '—'} · last rx ${age} s`,
     STALE: `Transport up, no accepted frame for ${age} s`,
     BLACKOUT: `Simulated radio blackout ${j.interruptionStartMs != null ? ((nowMs - j.interruptionStartMs) / 1000).toFixed(1) : '—'} s · display frozen at seq ${d.frame?.sequence ?? '—'}`,
-    TRANSPORT_DOWN: `Station WebSocket disconnected ${j.interruptionStartMs != null ? ((nowMs - j.interruptionStartMs) / 1000).toFixed(1) : '—'} s · rover radio state unknown`,
+    TRANSPORT_DOWN: `Station WebSocket disconnected ${((nowMs - (j.interruptionStartMs ?? j.transportSince)) / 1000).toFixed(1)} s · rover radio state unknown`,
     RECOVERY: `Station reception resumed · ${j.recovery?.frames ?? 0} frames reconciled`,
   }
   return lines[d.posture]
@@ -27,7 +27,7 @@ export function outageBanner(d: CommsDerivation, j: Journal, nowMs: number): Ban
   if (d.posture === 'BLACKOUT') {
     return {
       rgb: '239,91,76', kicker: 'MOCK · SIMULATED RADIO BLACKOUT',
-      timer: 'T+ ' + (j.interruptionStartMs != null ? ((nowMs - j.interruptionStartMs) / 1000).toFixed(1) : '—') + ' s',
+      timer: 'T+ ' + ((nowMs - (j.interruptionStartMs ?? j.transportSince)) / 1000).toFixed(1) + ' s',
       title: 'Simulated radio blackout',
       line1: `Display frozen at last accepted frame · seq ${f?.sequence ?? '—'} · captured ${f ? clk(Date.parse(f.capturedAt)) : '—'}Z`,
       line2: 'No position or hazard observations are being received. Amber envelope shows inferred maximum travel since last fix.',
@@ -36,9 +36,9 @@ export function outageBanner(d: CommsDerivation, j: Journal, nowMs: number): Ban
   if (d.posture === 'TRANSPORT_DOWN') {
     return {
       rgb: '239,91,76', kicker: 'MISSION CONTROL · STATION TRANSPORT DOWN',
-      timer: 'T+ ' + (j.interruptionStartMs != null ? ((nowMs - j.interruptionStartMs) / 1000).toFixed(1) : '—') + ' s',
+      timer: 'T+ ' + ((nowMs - (j.interruptionStartMs ?? j.transportSince)) / 1000).toFixed(1) + ' s',
       title: 'Station connection lost',
-      line1: `Last accepted frame · seq ${f?.sequence ?? '—'} · captured ${f ? clk(Date.parse(f.capturedAt)) : '—'}Z`,
+      line1: f ? `Last accepted frame · seq ${f.sequence} · captured ${clk(Date.parse(f.capturedAt))}Z` : 'No telemetry frame has been accepted from this source.',
       line2: 'The WebSocket is disconnected. Current rover radio state is unknown; displayed observations are from accepted telemetry.',
     }
   }
@@ -85,7 +85,7 @@ export function ageView(d: CommsDerivation) {
     pct: a != null ? Math.min(100, (a / d.staleMs) * 100) : 0,
     degradedPct: (d.degradedMs / d.staleMs) * 100,
     degradedS: (d.degradedMs / 1000).toFixed(0), staleS: (d.staleMs / 1000).toFixed(0),
-    state: d.posture === 'BLACKOUT' || d.posture === 'TRANSPORT_DOWN' ? 'LAST KNOWN' : a == null ? 'NO DATA' : a > d.staleMs ? 'STALE' : a > d.degradedMs ? 'AGING' : 'FRESH',
+    state: a == null ? 'NO DATA' : d.posture === 'BLACKOUT' || d.posture === 'TRANSPORT_DOWN' ? 'LAST KNOWN' : a > d.staleMs ? 'STALE' : a > d.degradedMs ? 'AGING' : 'FRESH',
   }
 }
 
