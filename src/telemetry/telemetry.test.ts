@@ -21,6 +21,7 @@ describe('deterministic mock telemetry', () => {
     expect(timeline.deliveries[0].deliveryTick).toBe(2)
     expect(timeline.generated[0].capturedAt).toBe('2026-10-10T12:00:00.000Z')
     expect(timeline.generated[6].link.packetsLost).toBe(1)
+    expect(timeline.generated[4].hazards[0].position.xM).toBe(2.64)
   })
 
   it('emits blackout and recovery and the same packet event shape as live', () => {

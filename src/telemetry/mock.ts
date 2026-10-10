@@ -54,7 +54,7 @@ export function buildMockTimeline(config: MockConfig, startMs: number): MockTime
       hazards: sequence % 5 === 0 ? [{
         id: `hazard-${Math.floor(sequence / 5)}`,
         type: sequence % 10 === 0 ? 'rock' : 'crater',
-        position: { frameId: 'LOCAL_ENU_V1', xM: xM + 1.2, yM: yM + 0.8, zM: 0 },
+        position: { frameId: 'LOCAL_ENU_V1', xM: Number((xM + 1.2).toFixed(2)), yM: Number((yM + 0.8).toFixed(2)), zM: 0 },
         confidence: 0.82,
         uncertaintyRadiusM: 0.4,
         observedAt: capturedAt,
