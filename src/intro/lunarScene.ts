@@ -16,16 +16,58 @@ function random(seed: number) {
   }
 }
 
+function hash(x: number, z: number) {
+  const n = Math.sin(x * 127.1 + z * 311.7) * 43758.5453
+  return n - Math.floor(n)
+}
+
+function noise(x: number, z: number) {
+  const xi = Math.floor(x), zi = Math.floor(z)
+  const xf = ease(x - xi), zf = ease(z - zi)
+  const a = THREE.MathUtils.lerp(hash(xi, zi), hash(xi + 1, zi), xf)
+  const b = THREE.MathUtils.lerp(hash(xi, zi + 1), hash(xi + 1, zi + 1), xf)
+  return THREE.MathUtils.lerp(a, b, zf)
+}
+
 function terrainHeight(x: number, z: number) {
   const d = Math.hypot(x, z + 17)
-  const bowl = -2.9 * Math.pow(Math.max(0, 1 - d / 8.3), 1.7)
-  const rim = 1.3 * Math.exp(-Math.pow((d - 8.5) / 1.8, 2))
-  const undulation = 0.24 * Math.sin(x * 0.33) * Math.cos(z * 0.29) + 0.11 * Math.sin(x * 1.37 + z * 1.21)
+  const angle = Math.atan2(z + 17, x)
+  const rimRadius = 8.5 + (noise(Math.cos(angle) * 6 + 10, Math.sin(angle) * 6 + 10) - 0.5) * 1.3
+  const bowl = -3.7 * Math.pow(Math.max(0, 1 - d / rimRadius), 1.5)
+  const rim = 1.45 * Math.exp(-Math.pow((d - rimRadius) / 1.5, 2))
+  const undulation = (noise(x * 0.09, z * 0.09) - 0.5) * 1.6 + (noise(x * 0.39, z * 0.39) - 0.5) * 0.34
   const smaller = -0.34 * Math.exp(-Math.pow(Math.hypot(x + 20, z + 38) / 4, 2))
   return -2.7 + bowl + rim + undulation + smaller
 }
 
-function makeTerrain(mobile: boolean) {
+function makeRegolithTexture() {
+  const size = 512
+  const canvas = document.createElement('canvas')
+  canvas.width = canvas.height = size
+  const context = canvas.getContext('2d')!
+  const image = context.createImageData(size, size)
+  const rand = random(79)
+  for (let y = 0; y < size; y++) for (let x = 0; x < size; x++) {
+    const grain = rand() - 0.5
+    const broad = noise(x / 65, y / 65) - 0.5
+    const fine = noise(x / 9, y / 9) - 0.5
+    const value = Math.max(72, Math.min(190, 135 + broad * 45 + fine * 31 + grain * 47))
+    const i = (y * size + x) * 4
+    image.data[i] = value
+    image.data[i + 1] = value + 1
+    image.data[i + 2] = value + 3
+    image.data[i + 3] = 255
+  }
+  context.putImageData(image, 0, 0)
+  const texture = new THREE.CanvasTexture(canvas)
+  texture.colorSpace = THREE.SRGBColorSpace
+  texture.wrapS = texture.wrapT = THREE.RepeatWrapping
+  texture.repeat.set(14, 14)
+  texture.anisotropy = 4
+  return texture
+}
+
+function makeTerrain(mobile: boolean, texture: THREE.Texture) {
   const geometry = new THREE.PlaneGeometry(180, 180, mobile ? 110 : 180, mobile ? 110 : 180)
   geometry.rotateX(-Math.PI / 2)
   const position = geometry.attributes.position
@@ -38,7 +80,7 @@ function makeTerrain(mobile: boolean) {
     const z = position.getZ(i)
     const h = terrainHeight(x, z)
     position.setY(i, h)
-    const shade = clamp01(0.42 + h * 0.085 + 0.12 * Math.sin(x * 2.2 + z * 1.7))
+    const shade = clamp01(0.48 + h * 0.07 + (noise(x * 0.24, z * 0.24) - 0.5) * 0.24)
     color.copy(low).lerp(high, shade)
     colors[i * 3] = color.r
     colors[i * 3 + 1] = color.g
@@ -46,7 +88,29 @@ function makeTerrain(mobile: boolean) {
   }
   geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
   geometry.computeVertexNormals()
-  return new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: 1, metalness: 0, side: THREE.DoubleSide }))
+  const terrain = new THREE.Mesh(geometry, new THREE.MeshStandardMaterial({ map: texture, vertexColors: true, roughness: 1, metalness: 0, side: THREE.DoubleSide }))
+  terrain.receiveShadow = true
+  return terrain
+}
+
+function makeRocks(mobile: boolean) {
+  const rand = random(333)
+  const count = mobile ? 90 : 220
+  const rocks = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 0), new THREE.MeshStandardMaterial({ color: '#777b7f', roughness: 1, flatShading: true }), count)
+  const dummy = new THREE.Object3D()
+  for (let i = 0; i < count; i++) {
+    const x = (rand() - 0.5) * 105
+    const z = (rand() - 0.5) * 115 - 2
+    const size = 0.16 + Math.pow(rand(), 3) * 1.15
+    dummy.position.set(x, terrainHeight(x, z) + size * 0.18, z)
+    dummy.rotation.set(rand() * 3, rand() * 6.28, rand() * 2)
+    dummy.scale.set(size * (0.7 + rand() * 0.6), size * (0.35 + rand() * 0.4), size * (0.7 + rand() * 0.6))
+    dummy.updateMatrix()
+    rocks.setMatrixAt(i, dummy.matrix)
+  }
+  rocks.castShadow = true
+  rocks.receiveShadow = true
+  return rocks
 }
 
 function makeStars(mobile: boolean) {
@@ -130,12 +194,16 @@ function makeRover() {
   }
   rover.position.set(6.2, terrainHeight(6.2, -1.5), -1.5)
   rover.rotation.y = -0.28
-  rover.scale.setScalar(0.78)
+  rover.scale.setScalar(1.03)
+  rover.traverse((object) => { if (object instanceof THREE.Mesh) object.castShadow = true })
   return rover
 }
 
 export function canUseWebGL(canvas: Pick<HTMLCanvasElement, 'getContext'>): boolean {
-  try { return Boolean(canvas.getContext('webgl2')) } catch { return false }
+  try {
+    const context = canvas.getContext('webgl2')
+    return Boolean(context && context.getContextAttributes())
+  } catch { return false }
 }
 
 export function mountLunarScene(canvas: HTMLCanvasElement): () => void {
@@ -147,19 +215,29 @@ export function mountLunarScene(canvas: HTMLCanvasElement): () => void {
   renderer.toneMapping = THREE.ACESFilmicToneMapping
   renderer.toneMappingExposure = 0.05
   renderer.setClearColor('#03070c')
+  renderer.shadowMap.enabled = window.innerWidth >= 720
+  renderer.shadowMap.type = THREE.PCFShadowMap
   const scene = new THREE.Scene()
   scene.background = new THREE.Color('#03070c')
   scene.fog = new THREE.FogExp2('#03070c', 0.008)
   const camera = new THREE.PerspectiveCamera(48, 1, 0.1, 300)
   const mobile = window.innerWidth < 720
-  const terrain = makeTerrain(mobile)
+  const regolithTexture = makeRegolithTexture()
+  const terrain = makeTerrain(mobile, regolithTexture)
   scene.add(terrain)
+  scene.add(makeRocks(mobile))
   const { stars, material: starMaterial } = makeStars(mobile)
   scene.add(stars)
-  const sun = new THREE.DirectionalLight('#fff1d9', 4.2)
+  const sun = new THREE.DirectionalLight('#fff1d9', 3.5)
   sun.position.set(-24, 34, -38)
+  sun.castShadow = !mobile
+  sun.shadow.mapSize.set(1024, 1024)
+  sun.shadow.camera.left = -50; sun.shadow.camera.right = 50
+  sun.shadow.camera.top = 50; sun.shadow.camera.bottom = -50
+  sun.shadow.camera.near = 1; sun.shadow.camera.far = 120
+  sun.shadow.bias = -0.0002
   scene.add(sun)
-  scene.add(new THREE.HemisphereLight('#768da5', '#171719', 1.35))
+  scene.add(new THREE.HemisphereLight('#768da5', '#171719', 0.92))
   const horizonTexture = glowTexture()
   const horizon = new THREE.Sprite(new THREE.SpriteMaterial({ map: horizonTexture, transparent: true, blending: THREE.AdditiveBlending, depthWrite: false, opacity: 0 }))
   horizon.position.set(-25, 8, -65)
@@ -223,7 +301,7 @@ export function mountLunarScene(canvas: HTMLCanvasElement): () => void {
       }
     })
     horizonTexture.dispose()
+    regolithTexture.dispose()
     renderer.dispose()
-    renderer.forceContextLoss()
   }
 }

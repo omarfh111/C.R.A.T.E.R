@@ -1,3 +1,10 @@
 @import "tailwindcss";
 
-body { background: #020617; }
+body { background: radial-gradient(ellipse at 70% -20%, #142b38 0%, #071018 45%, #03070c 100%); color: #e9f0f3; font-family: 'Space Grotesk', sans-serif; }
+.dashboard-shell { min-height: 100vh; }
+.dashboard-shell h1, .dashboard-shell h2 { letter-spacing: -.025em; }
+.dashboard-shell dl, .dashboard-shell .dashboard-kicker, .dashboard-replay { font-family: 'IBM Plex Mono', monospace; }
+.dashboard-kicker { margin-bottom: 8px; color: #86c9d7; font-size: 10px; letter-spacing: .25em; }
+.dashboard-replay { border: 1px solid rgba(145,214,229,.32); padding: 10px 12px; color: #b9dce4; background: rgba(16,42,54,.35); font-size: 10px; letter-spacing: .12em; cursor: pointer; }
+.dashboard-replay:hover, .dashboard-replay:focus-visible { border-color: #9bddea; color: #eafaff; outline: none; }
+.dashboard-shell section > div.rounded { border-color: rgba(145,214,229,.18); background: rgba(8,20,29,.78); }
