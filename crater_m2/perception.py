@@ -110,7 +110,10 @@ def local_producer(args):
             raise ValueError("ground_z_m must be finite meters")
 
         def calibrated_callback(observation):
-            callback(dict(observation, groundZM=ground_z))
+            enriched = dict(observation, groundZM=ground_z)
+            replay.write(json.dumps(enriched, allow_nan=False) + "\n")
+            replay.flush()
+            callback(enriched)
 
         if args.perception_backend == "onnx-grounding-dino":
             from crater_m1.onnx_detector import OnnxGroundingDino
@@ -129,10 +132,12 @@ def local_producer(args):
             detector = TiledDetector(detector)
         tracker = Tracker(min_hits=args.track_min_hits, max_missed=args.track_max_missed,
                           confirmed_only=args.confirmed_only)
-        result = run(args.perception_video, args.perception_output, detector,
-                   calibration=args.calibration, stride=args.stride,
-                   max_frames=args.max_frames, preview=not args.no_preview,
-                   tracker=tracker, on_observation=calibrated_callback)
+        Path(args.perception_output).mkdir(parents=True, exist_ok=True)
+        with (Path(args.perception_output) / "m2-observations.jsonl").open("x", encoding="utf-8") as replay:
+            result = run(args.perception_video, args.perception_output, detector,
+                       calibration=args.calibration, stride=args.stride,
+                       max_frames=args.max_frames, preview=not args.no_preview,
+                       tracker=tracker, on_observation=calibrated_callback)
         result["backend"] = args.perception_backend
         (Path(args.perception_output) / "metrics.json").write_text(
             json.dumps(result, indent=2, allow_nan=False), encoding="utf-8")

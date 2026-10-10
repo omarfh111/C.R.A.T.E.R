@@ -82,3 +82,9 @@ def test_calibrated_ground_plane_is_forwarded_to_m2(tmp_path, monkeypatch):
     assert report["transport"]["delivered"] == 3
     frames = [json.loads(line) for line in args.received_jsonl.read_text().splitlines()]
     assert all(frame["hazards"][0]["position"]["zM"] == 1 for frame in frames)
+    from crater_m2.source import observation_to_frame, read_observations
+    saved = list(read_observations(args.perception_output / "m2-observations.jsonl"))
+    from crater_m2.codec import decode_frame, encode_frame
+    replayed = [decode_frame(encode_frame(observation_to_frame(row, n, frames[n]["link"]).frame))
+                for n, row in enumerate(saved)]
+    assert replayed == frames

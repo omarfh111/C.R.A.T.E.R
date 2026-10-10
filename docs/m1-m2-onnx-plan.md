@@ -15,14 +15,14 @@ existing binary CRC/ARQ/loss simulator feeds the existing loopback WebSocket.
 No canonical M3 schema change is required. Runtime and model caches are explicit;
 no weights download during inference. Use the current authorized M2 branch.
 
-1. [ ] Synchronize only M1-owned source/tests/dependency files from the pinned
+1. [x] Synchronize only M1-owned source/tests/dependency files from the pinned
    commit; preserve M2, assistant, shared packaging and examples. Run full suite,
    verify source tree equality, commit and push independently.
-2. [ ] Add failing launcher tests for ONNX/DirectML selection and invalid backend
+2. [x] Add failing launcher tests for ONNX/DirectML selection and invalid backend
    device combinations; implement local-only dispatch and relevant M1 settings.
    Expose M1 metrics and handoff statistics in M2 reports. Run full suite, commit,
    push and check CI.
-3. [ ] Add independent known-coordinate tests for changing per-frame intrinsics,
+3. [x] Add independent known-coordinate tests for changing per-frame intrinsics,
    camera translation/rotation and rover pose; null/missing poses fail. Replay
    calibrated JSONL through binary loss/blackout/recovery; collect actual socket
    messages and validate every frame with pinned M3 parser. Synthetic fixtures
@@ -32,5 +32,9 @@ no weights download during inference. Use the current authorized M2 branch.
    provider, inference/callback/radio metrics, delivered counts and M3 validation.
    Without these prerequisites, complete unaffected work and record the precise
    remaining limitation; never invent NASA poses or report a fake ONNX success.
-5. [ ] Independent review, final tests, atomic single-line Conventional Commits
+   User clarified that the prepared runtime/GPU/cache belong to the M1 developer's
+   other PC. No ONNX weights are to be downloaded on Omar's PC. Reproducible
+   commands are ready in m1-m2-onnx-integration.md; the actual GPU run is deferred
+   to that PC once M1 supplies its validated calibrated sequence/cache path.
+5. [x] Independent review, final tests, atomic single-line Conventional Commits
    without bodies/trailers, push to `feat/spatial-telemetry`, verify CI.

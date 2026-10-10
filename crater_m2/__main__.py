@@ -20,6 +20,7 @@ def arguments(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--benchmark", action="store_true", help="virtual time, no WebSocket server")
     parser.add_argument("--input", type=Path, help="calibrated M1 observations JSONL; otherwise synthetic pixels")
+    parser.add_argument("--input-ground-z", type=float, help="explicit known ground-plane height for raw M1 JSONL, in ENU meters")
     parser.add_argument("--perception-video", type=Path, help="local M1 video -> callback -> M2, in real time")
     parser.add_argument("--calibration", type=Path, help="M1 calibrated per-frame camera poses for the video")
     parser.add_argument("--perception-backend", choices=("onnx-grounding-dino", "grounding-dino", "synthetic-contrast"), default="onnx-grounding-dino")
@@ -54,9 +55,14 @@ def arguments(argv=None):
     parser.add_argument("--rejection-samples", type=int, default=100, help="maximum rejected detection details in report; totals remain complete")
     parser.add_argument("--start-sequence", type=int, default=0, help="must exceed M3's previous accepted sequence")
     parser.add_argument("--port", type=int, default=8765)
+    parser.add_argument("--wait-for-client", type=float, default=0, help="wait up to this many seconds for a WebSocket receiver before capture")
     parser.add_argument("--report", type=Path, default=Path("artifacts/m2-report.json"))
     parser.add_argument("--received-jsonl", type=Path, default=Path("artifacts/received-frames.jsonl"))
     args = parser.parse_args(argv)
+    if args.input_ground_z is not None and (args.input is None or not math.isfinite(args.input_ground_z)):
+        parser.error("input-ground-z requires --input and finite ENU meters")
+    if not math.isfinite(args.wait_for_client) or args.wait_for_client < 0:
+        parser.error("wait-for-client must be finite and nonnegative")
     if args.link_history < 1 or args.rejection_samples < 0:
         parser.error("link-history must be positive and rejection-samples nonnegative")
     if args.perception_video:
@@ -161,7 +167,10 @@ async def run_mission(args, bridge=None, *, stream=None):
                             result = None
                     else:
                         try:
-                            result = observation_to_frame(next(observations), sequence, link)
+                            observation = next(observations)
+                            if args.input_ground_z is not None:
+                                observation = dict(observation, groundZM=args.input_ground_z)
+                            result = observation_to_frame(observation, sequence, link)
                         except StopIteration:
                             source_done = True
                             result = None
@@ -227,6 +236,12 @@ async def execute(args):
         return await run_mission(args)
     async with TelemetryBridge(port=args.port) as bridge:
         print(f"M2 station ready: {bridge.url}", flush=True)
+        if args.wait_for_client:
+            deadline = asyncio.get_running_loop().time() + args.wait_for_client
+            while bridge.client_count == 0:
+                if asyncio.get_running_loop().time() >= deadline:
+                    raise ValueError("no WebSocket receiver connected before capture timeout")
+                await asyncio.sleep(.01)
         if args.perception_video:
             from .perception import PerceptionStream, local_producer
 

@@ -210,3 +210,6 @@ le contrat partagé évolue, après accord entre M2 et M3.
 
 Le schéma M3 n'a pas changé. Documentation technique :
 [binaire](docs/m2-binary-protocol.md), [conception](docs/m2-design.md).
+
+Procédure ONNX sur le PC M1 :
+[commandes JSONL, callback DirectML et validation M3](docs/m1-m2-onnx-integration.md).
