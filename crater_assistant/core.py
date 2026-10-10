@@ -235,7 +235,7 @@ class Assistant:
         self.index = index
         self.backend = backend
 
-    def ask(self, question, top_k=4, report=None):
+    def ask(self, question, top_k=4, report=None, *, context=None):
         if not isinstance(question, str) or not question.strip() or len(question) > 2000:
             raise ValueError("Question must contain 1..2000 characters")
         sources = self.index.search(question, self.backend, top_k)
@@ -246,6 +246,15 @@ class Assistant:
             sources.append({"sourceId": f"S{len(sources) + 1}", "path": str(Path(report).resolve()),
                             "lineStart": 1, "lineEnd": len(text.splitlines()),
                             "digest": digest, "score": None, "text": json.dumps(facts, ensure_ascii=False)})
+        if context is not None:
+            if (not isinstance(context, dict) or set(context) != {"label", "text"}
+                    or not isinstance(context["label"], str) or not context["label"].startswith("experience:")
+                    or not isinstance(context["text"], str) or len(context["text"].encode()) > 16384):
+                raise ValueError("Invalid internal experience context")
+            text = context["text"]
+            sources.append({"sourceId": f"S{len(sources) + 1}", "path": context["label"],
+                            "lineStart": 1, "lineEnd": max(1, len(text.splitlines())), "score": None,
+                            "digest": hashlib.sha256(text.encode()).hexdigest(), "text": text})
         result = {"status": "insufficient_evidence", "answer": "Les sources disponibles ne permettent pas de répondre.",
                   "sources": sources, "citedSourceIds": [], "facts": facts,
                   "models": {"embedding": self.backend.embedding_model, "llm": self.backend.chat_model},
