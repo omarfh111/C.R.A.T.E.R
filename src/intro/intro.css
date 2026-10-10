@@ -34,17 +34,13 @@
 .lunar-intro__bottomline { bottom: clamp(22px, 4vh, 44px); gap: 24px; color: #9eb1bf; font: 500 10px 'IBM Plex Mono', monospace; letter-spacing: .16em; }
 .lunar-intro__progress { flex: 0 1 180px; height: 1px; background: rgba(179,206,218,.23); }
 .lunar-intro__progress i { display: block; height: 100%; background: #9bddea; transform-origin: left; animation: intro-progress 5.2s linear both; }
-.lunar-intro__skip { flex: none; border: 1px solid rgba(178,215,229,.32); padding: 12px 17px; color: #e3eff4; background: rgba(6,16,23,.45); font: 500 10px 'IBM Plex Mono', monospace; letter-spacing: .18em; cursor: pointer; transition: border-color .2s, background .2s; }
-.lunar-intro__skip:hover, .lunar-intro__skip:focus-visible { border-color: #9bddea; background: rgba(54,103,119,.2); outline: none; }
-.lunar-intro__skip span { margin-left: 10px; color: #9bddea; font-size: 14px; }
 @keyframes intro-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @keyframes intro-arrive { from { opacity: 0; } to { opacity: 1; } }
 @media (max-width: 700px) {
   .lunar-intro__top-meta { display: none; }
   .lunar-intro__body { bottom: 22%; }
   .lunar-intro__title { font-size: clamp(54px, 14vw, 92px); }
-  .lunar-intro__bottomline > span:first-child, .lunar-intro__progress { display: none; }
-  .lunar-intro__bottomline { justify-content: flex-end; }
+  .lunar-intro__progress { display: none; }
   .lunar-intro__eyebrow { font-size: 9px; letter-spacing: .17em; }
   .lunar-intro__description { font-size: 9px; letter-spacing: .13em; }
 }

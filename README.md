@@ -16,7 +16,7 @@ Open `http://127.0.0.1:5173/`. The default `MOCK` mode needs no server or `.env`
 
 ## Lunar mission intro
 
-On launch, a five-second cinematic approach crosses a procedural lunar surface toward a crater and rover. **Skip Intro** is available immediately. **Replay Intro** is in the dashboard header. The dashboard stays mounted while the intro plays, so telemetry continues to arrive; replay never resets telemetry state. The overlay dissolves into the existing functional dashboard.
+On launch, a five-second cinematic approach crosses a procedural lunar surface toward a crater and rover. **Replay Intro** is in the dashboard header. The dashboard stays mounted while the intro plays, so telemetry continues to arrive; replay never resets telemetry state. The overlay dissolves into the existing functional dashboard.
 
 The scene uses locally installed Three.js, procedural terrain, stars, lighting and a rover model. Fonts and the still-image fallback are bundled locally; there are no CDN requests. If WebGL 2 cannot start, the intro displays the local lunar image and hands off after a shorter sequence. `prefers-reduced-motion: reduce` uses the still image, avoids WebGL, and hands off quickly. The intro renderer, animation loop and resize observer are released when the overlay closes.
 

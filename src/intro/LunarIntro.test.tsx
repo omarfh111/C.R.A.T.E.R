@@ -1,5 +1,5 @@
 // @vitest-environment jsdom
-import { act, cleanup, fireEvent, render, screen } from '@testing-library/react'
+import { act, cleanup, render, screen } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 const mountScene = vi.hoisted(() => vi.fn())
@@ -31,21 +31,12 @@ describe('lunar intro flow', () => {
   it('plays on launch and completes after the timed dissolve', () => {
     const complete = vi.fn()
     const { container } = render(<LunarIntro onComplete={complete} />)
-    expect(screen.getByRole('button', { name: /skip intro/i })).toBeTruthy()
+    expect(screen.queryByRole('button', { name: /skip intro/i })).toBeNull()
     expect(mountScene).toHaveBeenCalledTimes(1)
     act(() => vi.advanceTimersByTime(5199))
     expect(complete).not.toHaveBeenCalled()
     expect(container.querySelector('.lunar-intro')).toBeTruthy()
     act(() => vi.advanceTimersByTime(621))
-    expect(complete).toHaveBeenCalledTimes(1)
-  })
-
-  it('skips immediately without waiting for the full sequence', () => {
-    const complete = vi.fn()
-    const { container } = render(<LunarIntro onComplete={complete} />)
-    fireEvent.click(screen.getByRole('button', { name: /skip intro/i }))
-    expect(container.querySelector('.lunar-intro--exiting')).toBeTruthy()
-    act(() => vi.advanceTimersByTime(620))
     expect(complete).toHaveBeenCalledTimes(1)
   })
 

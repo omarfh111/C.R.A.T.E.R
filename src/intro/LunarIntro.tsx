@@ -70,7 +70,6 @@ export function LunarIntro({ onComplete }: Props) {
     <div className="lunar-intro__bottomline">
       <span>EXPLORATION BEGINS AT THE EDGE.</span>
       <span className="lunar-intro__progress" aria-hidden="true"><i /></span>
-      <button className="lunar-intro__skip" onClick={finish} type="button">SKIP INTRO <span aria-hidden="true">↗</span></button>
     </div>
   </section>
 }
