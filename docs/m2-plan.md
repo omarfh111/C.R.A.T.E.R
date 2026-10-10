@@ -155,10 +155,13 @@ Tests first, independent review and regression fixes: empty-source overwrite,
 unstable Ollama parameter ordering, report snapshot coherence and long PDF lines.
 Full suite: 183 passed, 1 optional learned-model smoke skipped; benchmark 30/30 and
 actual M3 parser: 30/30 accepted. Commit fbdab2c published; CI 38083587152 succeeded
-on Python 3.11 and 3.12. Local generation quality still undergoing smoke tests:
-generic 4B resolves to Thinking 2507 and cannot disable reasoning; explicit
-Instruct 2507 download in progress. Early generation trials are not a fair model
-comparison. EmbeddingGemma 300M works on local
+on Python 3.11 and 3.12. Follow-up d172e67 CI 38085549868 also succeeded.
+Generic 4B resolves to Thinking 2507 and cannot disable reasoning; explicit
+Instruct 2507 is installed. Three CPU samples reviewed: calibration, bounded
+radio retries/report facts and abstention. Observed 65/128/61 s including loads,
+with concurrent pytest during the report sample; not an isolated benchmark.
+See docs/validation/assistant-local.json. Early generation trials are not a fair
+model comparison. EmbeddingGemma 300M works on local
 Ollama 0.17.1; EmbeddingGemma 2:270m pull returns 412 requiring newer runtime.
 New M1 head a6df2e6 reviewed for schema/pipeline changes; none in the observed
 diff, integration deferred while M1 evolves. See ASSISTANT_README.md and

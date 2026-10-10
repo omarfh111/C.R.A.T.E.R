@@ -11,7 +11,7 @@ Configuration retenue : Ollama 0.17.1,
 `embeddinggemma:300m` pour la recherche texte et
 `qwen3:4b-instruct-2507-q4_K_M` pour l'explication.
 L'indexation et l'import PDF sont validés sur cette machine ; la variante
-Instruct se télécharge et son smoke est prévu après installation.
+Instruct est installée et ses réponses réelles sont vérifiées séparément.
 Les premiers essais ne constituent pas une
 comparaison de performance entre modèles : leurs réglages de génération ont
 également évolué. Le tag générique `qwen3:4b` pointe ici vers Thinking 2507,
@@ -183,3 +183,14 @@ Tests sans téléchargement/inférence en CI : embeddings invalides, cache péri
 citations inconnues, métriques DATA/ACK distinctes, accès local, collisions de
 fichiers et restrictions de requêtes HTTP. Les essais réels Ollama sont séparés
 pour ne pas imposer des poids lourds aux jobs CI.
+
+Validation locale du 10 octobre 2026 : 183 tests réussis et 1 smoke optionnel
+ignoré. Trois essais réels avec les poids Instruct explicites ont été relus :
+explication de calibration, distinction trames/paquets avec réessais limités,
+et abstention sur une température absente des sources. Les
+[résultats et empreintes des modèles](docs/validation/assistant-local.json)
+conservent les réponses, les références et les conditions.
+Temps observés sur CPU, chargements inclus : environ 65 s, 128 s et 61 s ;
+les tests du projet tournaient pendant le second essai. Ce ne sont ni un
+benchmark isolé ni une garantie de qualité sur d'autres questions.
+L'assistant sert à l'analyse, hors de la boucle temps réel du rover.

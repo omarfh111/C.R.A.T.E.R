@@ -20,6 +20,8 @@ Une trame est une observation unique. Un paquet DATA est une tentative de
 transmission : la même trame peut être envoyée plusieurs fois. En cas de perte
 DATA ou ACK, M2 réessaie avec la même séquence. La station supprime les doublons.
 Il est donc possible de livrer toutes les trames avec des pertes de paquets.
+Cela ne garantit pas la livraison : les réessais et la file sont limités ;
+une trame peut être abandonnée ou rejetée. Les 30/30 décrivent cet essai seulement.
 Une livraison complète ne garantit pas une livraison immédiate : la file et les
 coupures peuvent augmenter la latence.
 

@@ -1,0 +1,160 @@
+{
+  "models": {
+    "embedding": "embeddinggemma:300m",
+    "llm": "qwen3:4b-instruct-2507-q4_K_M"
+  },
+  "runtime": "Ollama 0.17.1",
+  "gpu": false,
+  "indexChunks": 11,
+  "results": [
+    {
+      "case": "calibration",
+      "question": "Pourquoi faut-il une calibration pour convertir un pixel en mètres ?",
+      "elapsedS": 64.793,
+      "status": "answered",
+      "answer": "Une calibration est nécessaire pour convertir un pixel en mètres car elle fournit les paramètres (comme fx, fy, cx, cy) et la position du centre de la caméra en mètres, permettant de construire un rayon à partir d'un pixel et d'intersecter ce rayon avec un plan de sol connu [S2]. Sans ces paramètres, un pixel ne représente pas une distance en mètres et ne peut pas être projeté dans un système de coordonnées ENU en mètres [S2]. La calibration, combinée à la position du rover fournie séparément, permet de projeter un pixel vers la position sur le sol, mais elle ne mesure pas à elle seule la position du rover [S2].",
+      "citedSourceIds": [
+        "S2"
+      ],
+      "facts": null,
+      "sources": [
+        {
+          "sourceId": "S1",
+          "file": "m1-observation-contract.md",
+          "lineStart": 39,
+          "lineEnd": 46
+        },
+        {
+          "sourceId": "S2",
+          "file": "assistant-knowledge.md",
+          "lineStart": 1,
+          "lineEnd": 19
+        },
+        {
+          "sourceId": "S3",
+          "file": "m2-design.md",
+          "lineStart": 61,
+          "lineEnd": 75
+        },
+        {
+          "sourceId": "S4",
+          "file": "m1-observation-contract.md",
+          "lineStart": 1,
+          "lineEnd": 20
+        }
+      ]
+    },
+    {
+      "case": "packet-loss",
+      "question": "Pourquoi toutes les trames sont livrées malgré des pertes DATA et ACK ?",
+      "elapsedS": 127.931,
+      "status": "answered",
+      "answer": "Toutes les trames sont livrées malgré des pertes DATA et ACK parce que le système réessaie automatiquement les trames perdues en utilisant la même séquence, et supprime les doublons à la réception [S1]. Cela permet une livraison complète dans la simulation, même si des paquets sont perdus, car les réessais sont effectués jusqu'à une limite définie [S1]. Cependant, cette livraison complète ne garantit pas la livraison immédiate, car la file et les coupures peuvent augmenter la latence [S1]. Le fait que le taux de livraison soit de 1.0 (delivered / generated = 30/30) montre que les trames ont été livrées, même avec des pertes de paquets (15 DATA perdues sur 51 envoyées) [S5].",
+      "citedSourceIds": [
+        "S1",
+        "S5"
+      ],
+      "facts": {
+        "mode": "benchmark",
+        "completed": true,
+        "source": {
+          "source": "synthetic-calibrated-pixels",
+          "meanLocalizationErrorM": 0.006873644205790956,
+          "maxLocalizationErrorM": 0.023154176861655218
+        },
+        "maxDeliveredLocalizationErrorM": 0.02319482700948608,
+        "generated": 30,
+        "delivered": 30,
+        "acknowledged": 30,
+        "pending": 0,
+        "queueDropped": 0,
+        "abandoned": 0,
+        "dataPacketsSent": 51,
+        "dataPacketsLost": 15,
+        "ackPacketsSent": 36,
+        "ackPacketsLost": 6,
+        "retransmissions": 21,
+        "totalBytesSent": 8709,
+        "meanDeliveryLatencyS": 16.157235542483697,
+        "maxDeliveryLatencyS": 29.089151119523514,
+        "deliveryRate": 1.0,
+        "dataPacketLossRate": 0.29411764705882354,
+        "ackPacketLossRate": 0.16666666666666666
+      },
+      "sources": [
+        {
+          "sourceId": "S1",
+          "file": "assistant-knowledge.md",
+          "lineStart": 20,
+          "lineEnd": 36
+        },
+        {
+          "sourceId": "S2",
+          "file": "m2-design.md",
+          "lineStart": 45,
+          "lineEnd": 60
+        },
+        {
+          "sourceId": "S3",
+          "file": "assistant-knowledge.md",
+          "lineStart": 1,
+          "lineEnd": 19
+        },
+        {
+          "sourceId": "S4",
+          "file": "m2-design.md",
+          "lineStart": 76,
+          "lineEnd": 86
+        },
+        {
+          "sourceId": "S5",
+          "file": "m2-report.json",
+          "lineStart": 1,
+          "lineEnd": 62
+        }
+      ]
+    },
+    {
+      "case": "unknown",
+      "question": "Quelle était la température exacte du rover sur Mars hier à 14h ?",
+      "elapsedS": 61.479,
+      "status": "insufficient_evidence",
+      "answer": "Les sources disponibles ne permettent pas de répondre.",
+      "citedSourceIds": [],
+      "facts": null,
+      "sources": [
+        {
+          "sourceId": "S1",
+          "file": "assistant-knowledge.md",
+          "lineStart": 1,
+          "lineEnd": 19
+        },
+        {
+          "sourceId": "S2",
+          "file": "m2-design.md",
+          "lineStart": 45,
+          "lineEnd": 60
+        },
+        {
+          "sourceId": "S3",
+          "file": "m1-observation-contract.md",
+          "lineStart": 21,
+          "lineEnd": 38
+        },
+        {
+          "sourceId": "S4",
+          "file": "m2-design.md",
+          "lineStart": 61,
+          "lineEnd": 75
+        }
+      ]
+    }
+  ],
+  "validatedAt": "2026-10-10",
+  "modelDigests": {
+    "embeddinggemma:300m": "85462619ee721b466c5927d109d4cb765861907d5417b9109caebc4e614679f1",
+    "qwen3:4b-instruct-2507-q4_K_M": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0"
+  },
+  "conditions": "CPU, keep_alive=0, local Ollama, 11 explicit document chunks; no cloud inference.",
+  "limitations": "Three reviewed examples, not a general factual-accuracy or speed benchmark. Citations alone do not prove correctness. Radio completion is specific to this bounded simulation."
+}
