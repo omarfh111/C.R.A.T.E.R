@@ -7,9 +7,11 @@
   color: #edf2f4;
   background: #03070c url('../assets/lunar-fallback.png') center / cover no-repeat;
   font-family: 'Space Grotesk', sans-serif;
-  animation: intro-arrive .3s both;
 }
-.lunar-intro--exiting { animation: none; opacity: 0; pointer-events: none; transition: opacity .62s ease; }
+.lunar-intro--replay { animation: intro-arrive .35s both; }
+.lunar-intro--exiting { animation: intro-leave .9s cubic-bezier(.4,0,.2,1) both; pointer-events: none; }
+.lunar-intro::after { content: ''; position: absolute; inset: 0; z-index: 3; pointer-events: none; background: #03070c; opacity: 0; transition: opacity .9s ease; }
+.lunar-intro--exiting::after { opacity: .45; }
 .lunar-intro__canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .lunar-intro--fallback { background-position: center; }
 .lunar-intro__atmosphere { position: absolute; inset: 0; pointer-events: none; background: radial-gradient(ellipse at 70% 53%, transparent 14%, rgba(3,7,12,.14) 52%, rgba(3,7,12,.78) 100%), linear-gradient(90deg, rgba(3,7,12,.84), rgba(3,7,12,.15) 62%, rgba(3,7,12,.36)); }
@@ -36,6 +38,7 @@
 .lunar-intro__progress i { display: block; height: 100%; background: #9bddea; transform-origin: left; animation: intro-progress 5.2s linear both; }
 @keyframes intro-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @keyframes intro-arrive { from { opacity: 0; } to { opacity: 1; } }
+@keyframes intro-leave { from { opacity: 1; } to { opacity: 0; } }
 @media (max-width: 700px) {
   .lunar-intro__top-meta { display: none; }
   .lunar-intro__body { bottom: 22%; }

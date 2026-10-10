@@ -25,10 +25,14 @@ describe('tab-scoped intro playback', () => {
 
   it('replays without clearing the tab marker', () => {
     const first = renderHook(() => useIntroPlayback())
+    act(() => first.result.current.startHandoff())
+    expect(first.result.current.handoffStarted).toBe(true)
     act(() => first.result.current.completeIntro())
     expect(first.result.current.introVisible).toBe(false)
+    expect(first.result.current.handoffStarted).toBe(false)
     act(() => first.result.current.replayIntro())
     expect(first.result.current.introVisible).toBe(true)
+    expect(first.result.current.handoffStarted).toBe(false)
     expect(first.result.current.introRun).toBe(1)
     expect(window.sessionStorage.getItem('crater:intro-started:v1')).toBe('1')
     first.unmount()

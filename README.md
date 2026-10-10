@@ -16,7 +16,7 @@ Open `http://127.0.0.1:5173/`. The default `MOCK` mode needs no server or `.env`
 
 ## Lunar mission intro
 
-On launch, a five-second cinematic approach crosses a procedural lunar surface toward a crater and rover. **Replay Intro** is in the dashboard header. The dashboard stays mounted while the intro plays, so telemetry continues to arrive; replay never resets telemetry state. The overlay dissolves into the existing functional dashboard.
+In a fresh browser tab, a five-second cinematic approach crosses a procedural lunar surface toward a crater and rover. The intro marks itself started in `sessionStorage` as soon as playback begins, so a reload in the same tab opens Mission Control immediately, even if the reload happens during playback. A separate fresh tab plays the intro again. **Replay Intro** is in the dashboard header and does not change this refresh behavior. There are no controls inside the intro. The dashboard stays mounted while the intro plays, so telemetry continues to arrive; replay never resets telemetry state. A synchronized 900 ms crossfade darkens the lunar scene and brings the dashboard upward into view before the intro unmounts. If browser storage is unavailable, the app still runs and the intro plays on each load.
 
 The scene uses locally installed Three.js, procedural terrain, stars, lighting and a rover model. Fonts and the still-image fallback are bundled locally; there are no CDN requests. If WebGL 2 cannot start, the intro displays the local lunar image and hands off after a shorter sequence. `prefers-reduced-motion: reduce` uses the still image, avoids WebGL, and hands off quickly. The intro renderer, animation loop and resize observer are released when the overlay closes.
 
@@ -38,7 +38,8 @@ LIVE WebSocket ┘
 - `src/telemetry/state.ts`: receipt counts, schema rejection, per-rover sequence ordering, and accepted state. Mission Control receipt time is separate from rover capture time.
 - `src/main.tsx`: functional dashboard for latest position, hazards, mode, connection, and packet counts. The broader Phase 2 dashboard redesign is intentionally absent.
 - `src/intro/lunarScene.ts`: procedural WebGL lunar scene, camera choreography, renderer sizing and cleanup.
-- `src/intro/LunarIntro.tsx`: timing, Skip, reduced-motion and fallback handoff.
+- `src/intro/LunarIntro.tsx`: timing, reduced-motion and fallback handoff.
+- `src/intro/useIntroPlayback.ts`: tab-scoped playback marker, replay and handoff state.
 
 The mock starts at the browser's current time, then uses deterministic ticks. Given the same `startMs` and config, the generated frames and delivery schedule are identical. Set `VITE_MOCK_SEED` for a different deterministic path. Zero for `LOSS_EVERY`, `DUPLICATE_EVERY`, or `REORDER_EVERY` disables that effect. The default blackout begins at tick 20 and lasts five ticks; the transport status changes to disconnected and returns to connected. A silent live WebSocket is marked stale after five seconds without an accepted frame. The mock ends after `TOTAL_TICKS` and marks the transport disconnected.
 

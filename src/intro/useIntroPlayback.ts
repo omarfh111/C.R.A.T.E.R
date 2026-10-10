@@ -21,6 +21,7 @@ function markStartedInThisTab(): void {
 export function useIntroPlayback() {
   const [introVisible, setIntroVisible] = useState(() => !hasStartedInThisTab())
   const [introRun, setIntroRun] = useState(0)
+  const [handoffStarted, setHandoffStarted] = useState(false)
 
   useEffect(() => {
     if (introVisible) markStartedInThisTab()
@@ -29,11 +30,16 @@ export function useIntroPlayback() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const completeIntro = useCallback(() => setIntroVisible(false), [])
+  const startHandoff = useCallback(() => setHandoffStarted(true), [])
+  const completeIntro = useCallback(() => {
+    setIntroVisible(false)
+    setHandoffStarted(false)
+  }, [])
   const replayIntro = useCallback(() => {
     setIntroRun((run) => run + 1)
+    setHandoffStarted(false)
     setIntroVisible(true)
   }, [])
 
-  return { introVisible, introRun, completeIntro, replayIntro }
+  return { introVisible, introRun, handoffStarted, startHandoff, completeIntro, replayIntro }
 }

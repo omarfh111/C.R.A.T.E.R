@@ -38,7 +38,7 @@ function App() {
   const [state, dispatch] = useReducer(ingestTelemetry, initialTelemetryState)
   const [now, setNow] = useState(Date.now())
   const [configurationError, setConfigurationError] = useState('')
-  const { introVisible, introRun, completeIntro, replayIntro } = useIntroPlayback()
+  const { introVisible, introRun, handoffStarted, startHandoff, completeIntro, replayIntro } = useIntroPlayback()
 
   useEffect(() => {
     const clock = setInterval(() => setNow(Date.now()), 1000)
@@ -61,7 +61,7 @@ function App() {
   const frame = state.latest?.frame
   const hazards = Object.entries(state.hazards).slice(-6).reverse()
 
-  return <><main inert={introVisible} className="dashboard-shell mx-auto max-w-4xl space-y-6 p-6 text-slate-100">
+  return <><main inert={introVisible} aria-hidden={introVisible} className={`dashboard-shell ${introVisible && !handoffStarted ? 'dashboard-shell--intro-active' : ''} mx-auto max-w-4xl space-y-6 p-6 text-slate-100`}>
     <header className="flex flex-wrap items-start justify-between gap-4 border-b border-slate-700 pb-4">
       <div><p className="dashboard-kicker">LUNAR SURFACE RECONNAISSANCE</p>
         <h1 className="text-2xl font-semibold">C.R.A.T.E.R. <span className="text-cyan-200">Mission Control</span></h1>
@@ -101,7 +101,7 @@ function App() {
       <h2 className="mb-3 font-semibold">Observed hazards ({Object.keys(state.hazards).length})</h2>
       {hazards.length ? <ul className="space-y-2 text-sm">{hazards.map(([key, hazard]) => <li key={key} className="flex flex-wrap justify-between gap-2 border-t border-slate-800 pt-2"><span>{hazard.id} · {hazard.type}</span><span>{hazard.position.xM}, {hazard.position.yM} m · confidence {Math.round(hazard.confidence * 100)}%</span></li>)}</ul> : <p className="text-sm text-slate-400">No hazard observations received yet.</p>}
     </section>
-  </main>{introVisible && <LunarIntro key={introRun} onComplete={completeIntro} />}</>
+  </main>{introVisible && <LunarIntro key={introRun} replay={introRun > 0} onHandoffStart={startHandoff} onComplete={completeIntro} />}</>
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root')!)

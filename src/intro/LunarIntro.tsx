@@ -2,9 +2,11 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { INTRO_DURATION_MS, mountLunarScene } from './lunarScene'
 import './intro.css'
 
-type Props = { onComplete: () => void }
+export const HANDOFF_DURATION_MS = 900
 
-export function LunarIntro({ onComplete }: Props) {
+type Props = { onHandoffStart: () => void; onComplete: () => void; replay?: boolean }
+
+export function LunarIntro({ onHandoffStart, onComplete, replay = false }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const finishTimer = useRef<number | undefined>(undefined)
   const exitingRef = useRef(false)
@@ -17,8 +19,9 @@ export function LunarIntro({ onComplete }: Props) {
     if (exitingRef.current) return
     exitingRef.current = true
     setExiting(true)
-    finishTimer.current = window.setTimeout(onComplete, reducedMotion ? 0 : 620)
-  }, [onComplete, reducedMotion])
+    onHandoffStart()
+    finishTimer.current = window.setTimeout(onComplete, reducedMotion ? 0 : HANDOFF_DURATION_MS)
+  }, [onComplete, onHandoffStart, reducedMotion])
 
   useEffect(() => {
     const previous = document.body.style.overflow
@@ -48,7 +51,7 @@ export function LunarIntro({ onComplete }: Props) {
 
   useEffect(() => () => clearTimeout(finishTimer.current), [])
 
-  return <section className={`lunar-intro ${fallback || reducedMotion ? 'lunar-intro--fallback' : ''} ${exiting ? 'lunar-intro--exiting' : ''}`} aria-label="C.R.A.T.E.R. lunar mission intro">
+  return <section className={`lunar-intro ${fallback || reducedMotion ? 'lunar-intro--fallback' : ''} ${replay ? 'lunar-intro--replay' : ''} ${exiting ? 'lunar-intro--exiting' : ''}`} aria-label="C.R.A.T.E.R. lunar mission intro">
     {!reducedMotion && !fallback && <canvas ref={canvasRef} className="lunar-intro__canvas" aria-hidden="true" />}
     <div className="lunar-intro__atmosphere" aria-hidden="true" />
     <div className="lunar-intro__grid" aria-hidden="true" />
