@@ -11,9 +11,9 @@ export function postureSubline(d: CommsDerivation, j: Journal, nowMs: number): s
   const age = d.ageMs != null ? (d.ageMs / 1000).toFixed(1) : '—'
   const lines: Record<Posture, string> = {
     ACQUIRING: 'Waiting for first valid frame',
-    NOMINAL: `Frames accepted at cadence · last rx ${age} s`,
-    DEGRADED: `Intermittent reception · yield ${d.yield != null ? Math.round(d.yield * 100) + '%' : '—'} · last rx ${age} s`,
-    STALE: `Transport up, no accepted frame for ${age} s`,
+    NOMINAL: `Frames accepted at cadence · capture age ${age} s`,
+    DEGRADED: `Intermittent reception · yield ${d.yield != null ? Math.round(d.yield * 100) + '%' : '—'} · capture age ${age} s`,
+    STALE: `Transport up · last rover capture ${age} s old`,
     BLACKOUT: `Simulated radio blackout ${j.interruptionStartMs != null ? ((nowMs - j.interruptionStartMs) / 1000).toFixed(1) : '—'} s · display frozen at seq ${d.frame?.sequence ?? '—'}`,
     TRANSPORT_DOWN: `Station WebSocket disconnected ${((nowMs - (j.interruptionStartMs ?? j.transportSince)) / 1000).toFixed(1)} s · rover radio state unknown`,
     RECOVERY: `Station reception resumed · ${j.recovery?.frames ?? 0} frames reconciled`,
@@ -44,9 +44,11 @@ export function outageBanner(d: CommsDerivation, j: Journal, nowMs: number): Ban
   }
   if (d.posture === 'STALE' && d.ageMs != null && d.lastRxMs != null) {
     return {
-      rgb: '242,181,74', kicker: 'MISSION CONTROL · TRANSPORT UP, SILENT', timer: 'AGE ' + (d.ageMs / 1000).toFixed(1) + ' s',
-      title: 'No fresh telemetry', line1: `Last accepted frame seq ${f?.sequence ?? '—'} · received ${clk(d.lastRxMs)}Z`,
-      line2: 'Transport reports connected but no valid frame has been accepted within the stale threshold.',
+      rgb: '242,181,74', kicker: 'MISSION CONTROL · TRANSPORT UP, DATA STALE', timer: 'AGE ' + (d.ageMs / 1000).toFixed(1) + ' s',
+      title: 'No fresh telemetry', line1: `Last accepted frame seq ${f?.sequence ?? '—'} · captured ${f ? clk(Date.parse(f.capturedAt)) : '—'}Z · received ${clk(d.lastRxMs)}Z`,
+      line2: d.receiptAgeMs != null && d.receiptAgeMs > d.staleMs
+        ? 'Transport is connected, but no valid frame has been accepted within the stale threshold.'
+        : 'The latest accepted frame was delayed; its rover position is still stale.',
     }
   }
   if (d.posture === 'RECOVERY' && j.recovery) {

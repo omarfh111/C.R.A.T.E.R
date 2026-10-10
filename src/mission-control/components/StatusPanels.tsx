@@ -43,7 +43,7 @@ export function RoverPanel({ rover, age, stale, blackout }: RoverProps) {
         <div className="mc-age__head"><span>INFORMATION AGE</span><span style={{ color: age.color }}>{age.state}</span></div>
         <div className="mc-age__readout">
           <span className="mc-age__value" style={{ color: age.color }}>{age.value}</span>
-          <span className="mc-age__unit">s since last<br />accepted frame</span>
+          <span className="mc-age__unit">s since rover<br />capture</span>
         </div>
         <div className="mc-age__bar">
           <div className="mc-age__fill" style={{ width: `${age.pct}%`, background: age.color, boxShadow: `0 0 10px ${age.color}` }} />

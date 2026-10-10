@@ -68,7 +68,7 @@ export function MissionControl({
   const f = d.frame
   const hazards = mapHazards(tel, j, now)
   const model: MapModel = {
-    trail: j.trail, hazards, selectedKey, posture: d.posture, lastRxMs: d.lastRxMs, maxSpeed: j.maxSpeedMps,
+    trail: j.trail, hazards, selectedKey, posture: d.posture, lastCaptureMs: d.lastCaptureMs, maxSpeed: j.maxSpeedMps,
     layers, filters, minConfidence: 0, agedHazardMs, recoveryStartMs: j.recoveryStartMs, intervalMs,
     rover: f && d.lastRxMs != null ? {
       x: f.roverPosition.xM, y: f.roverPosition.yM, unc: f.positionUncertaintyRadiusM, seq: f.sequence, roverId: f.roverId,

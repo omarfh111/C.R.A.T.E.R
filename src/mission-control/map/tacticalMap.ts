@@ -191,7 +191,7 @@ export function createTacticalMap(canvas: HTMLCanvasElement, getModel: () => Map
     const now = frameTime
     const wall = Date.now()
     const boot = reducedMotion ? 1 : ease((now - bootStart) / 1900)
-    const infoAgeMs = m.lastRxMs ? Math.max(0, wall - m.lastRxMs) : 0
+    const infoAgeMs = m.lastCaptureMs ? Math.max(0, wall - m.lastCaptureMs) : 0
     const live = m.posture === 'NOMINAL' || m.posture === 'DEGRADED' || m.posture === 'RECOVERY'
 
     // Rover display position eases toward the latest accepted fix. No extrapolation.

@@ -31,6 +31,8 @@ export function frameYield(trail: TrailPoint[]): number | null {
 export type CommsDerivation = {
   frame: TelemetryFrame | undefined
   lastRxMs: number | null
+  lastCaptureMs: number | null
+  receiptAgeMs: number | null
   ageMs: number | null
   intervalMs: number
   staleMs: number
@@ -52,7 +54,10 @@ export type CommsDerivation = {
 export function deriveComms(tel: TelemetryState, j: Journal, nowMs: number, intervalMs: number, staleMs: number = THRESHOLDS.staleMs): CommsDerivation {
   const frame = tel.latest?.frame
   const lastRxMs = tel.latest ? Date.parse(tel.latest.receivedAt) : null
-  const ageMs = lastRxMs != null ? Math.max(0, nowMs - lastRxMs) : null
+  const lastCaptureMs = frame ? Date.parse(frame.capturedAt) : null
+  const receiptAgeMs = lastRxMs != null ? Math.max(0, nowMs - lastRxMs) : null
+  // A delayed delivery cannot make an old rover fix current again.
+  const ageMs = lastCaptureMs != null ? Math.max(0, nowMs - lastCaptureMs) : null
   const degradedMs = THRESHOLDS.degradedIntervals * intervalMs
   const y = frameYield(j.trail)
   let posture: Posture = 'ACQUIRING'
@@ -63,5 +68,5 @@ export function deriveComms(tel: TelemetryState, j: Journal, nowMs: number, inte
     else if ((ageMs != null && ageMs > degradedMs) || (y != null && y < THRESHOLDS.minYield)) posture = 'DEGRADED'
     else if (frame) posture = 'NOMINAL'
   }
-  return { frame, lastRxMs, ageMs, intervalMs, staleMs, degradedMs, yield: y, posture }
+  return { frame, lastRxMs, lastCaptureMs, receiptAgeMs, ageMs, intervalMs, staleMs, degradedMs, yield: y, posture }
 }

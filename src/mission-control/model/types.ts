@@ -33,7 +33,7 @@ export type MapModel = {
   rover: MapRover | null
   selectedKey: string | null
   posture: Posture
-  lastRxMs: number | null
+  lastCaptureMs: number | null
   maxSpeed: number
   layers: MapLayers
   filters: HazardFilters

@@ -36,7 +36,9 @@ describe('Mission Control journal over the default mock schedule', () => {
     vi.advanceTimersByTime(7_000) // tick 22: inside blackout (ticks 20–24)
     expect(box.state.transportStatus).toBe('disconnected')
     expect(deriveComms(box.state, box.journal, Date.now() + 500, 1000).posture).toBe('BLACKOUT')
-    vi.advanceTimersByTime(3_000) // tick 25: transport restored
+    vi.advanceTimersByTime(3_000) // tick 25: transport restored, but deferred fix is old
+    expect(deriveComms(box.state, box.journal, Date.now() + 500, 1000).posture).toBe('STALE')
+    vi.advanceTimersByTime(1_000) // tick 26: current fix arrives
     expect(deriveComms(box.state, box.journal, Date.now() + 500, 1000).posture).toBe('RECOVERY')
     stop()
   })
@@ -98,6 +100,21 @@ describe('LIVE station transport and rover radio reports', () => {
     expect(d.posture).toBe('STALE')
     expect(outageBanner(d, j, startMs + 6000)?.title).toBe('No fresh telemetry')
     expect(j.events.every((event) => !event.msg.includes('radio blackout'))).toBe(true)
+  })
+
+  it('keeps a newly received delayed fix stale until rover capture time catches up', () => {
+    const j = createJournal(startMs, 'LIVE')
+    const connected = ingestTelemetry(initialTelemetryState, { type: 'status', status: 'connected' })
+    const frame = buildMockTimeline(defaultMockConfig, startMs).generated[0]
+    const packet: AdapterEvent = { type: 'packet', raw: frame, receivedAt: new Date(startMs + 10_000).toISOString() }
+    const accepted = ingestTelemetry(connected, packet)
+    recordEvent(j, connected, accepted, packet, startMs + 10_000, 1000)
+    const d = deriveComms(accepted, j, startMs + 10_500, 1000)
+    expect(d.receiptAgeMs).toBe(500)
+    expect(d.ageMs).toBe(10_500)
+    expect(d.posture).toBe('STALE')
+    expect(ageView(d).state).toBe('STALE')
+    expect(outageBanner(d, j, startMs + 10_500)?.line2).toContain('delayed')
   })
 
   it('keeps last-reported rover link separate from a disconnected WebSocket', () => {
