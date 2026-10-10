@@ -1,0 +1,2 @@
+# Local ONNX; Windows GPU via DirectML. No CUDA PyTorch build required.
+-e .[onnx-local,test]
