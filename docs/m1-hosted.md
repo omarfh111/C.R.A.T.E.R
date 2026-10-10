@@ -1,5 +1,7 @@
 # Hugging Face hosted perception (experimental)
 
+For a tested free public-Space alternative, see [the free inference check](m1-free-hf.md). This page describes the paid router backend.
+
 ## Selected candidate
 
 `Qwen/Qwen3-VL-30B-A3B-Instruct`, provider `deepinfra`, through the official

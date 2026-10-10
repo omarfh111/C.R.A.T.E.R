@@ -1,0 +1,105 @@
+{
+  "checked_on": "2026-10-10",
+  "authenticated_with_existing_HF_TOKEN": true,
+  "weights_downloaded_locally": false,
+  "model": "IDEA-Research/grounding-dino-base",
+  "space": "developer0hye/Grounding_DINO_Base_demo",
+  "space_revision_observed": "fbbee5a2b622bc872e0ae35e08544f33c3ba33b6",
+  "prompt": "rock. stone. boulder.",
+  "box_threshold": 0.25,
+  "text_threshold": 0.2,
+  "calls": [
+    {
+      "space": "developer0hye/Grounding_DINO_Base_demo",
+      "api": "/run_grounding",
+      "input": "outputs/inspection/left-10.jpg",
+      "arguments": [
+        "rock. stone. boulder.",
+        0.25,
+        0.2
+      ],
+      "status": "success",
+      "elapsed_seconds": 6.99,
+      "detection_text": "rock stone boulder 0.353 964, 385, 1003, 412\nrock stone boulder 0.335 830, 415, 901, 456\nrock stone boulder 0.321 578, 312, 622, 350\nrock stone boulder 0.338 12, 397, 57, 429\nrock stone 0.278 3, 517, 30, 547\nrock stone 0.270 224, 523, 254, 546"
+    },
+    {
+      "space": "gokaygokay/Florence-2",
+      "api": "/process_image",
+      "input": "outputs/inspection/left-10.jpg",
+      "arguments": [
+        "Open Vocabulary Detection",
+        "rock",
+        "microsoft/Florence-2-base"
+      ],
+      "status": "failed",
+      "error_type": "ValueError",
+      "error": "Could not fetch api info for https://gokaygokay-florence-2.hf.space: Internal Server Error",
+      "elapsed_seconds": 1.4
+    },
+    {
+      "space": "gokaygokay/Florence-2",
+      "api": "/process_image",
+      "input": "outputs/inspection/left-00.jpg",
+      "arguments": [
+        "Open Vocabulary Detection",
+        "rock",
+        "microsoft/Florence-2-base"
+      ],
+      "status": "failed",
+      "error_type": "ValueError",
+      "error": "Could not fetch api info for https://gokaygokay-florence-2.hf.space: Internal Server Error",
+      "elapsed_seconds": 1.5
+    },
+    {
+      "space": "developer0hye/Grounding_DINO_Base_demo",
+      "api": "/run_grounding",
+      "input": "outputs/inspection/left-00.jpg",
+      "arguments": [
+        "rock. stone. boulder.",
+        0.25,
+        0.2
+      ],
+      "status": "success",
+      "elapsed_seconds": 10.12,
+      "detection_text": "rock stone boulder 0.322 552, 294, 581, 310"
+    },
+    {
+      "space": "developer0hye/Grounding_DINO_Base_demo",
+      "api": "/run_grounding",
+      "input": "outputs/inspection/left-20.jpg",
+      "arguments": [
+        "rock. stone. boulder.",
+        0.25,
+        0.2
+      ],
+      "status": "success",
+      "elapsed_seconds": 2.86,
+      "detection_text": "rock stone 0.286 0, 103, 1280, 959\nrock stone 0.284 477, 342, 501, 358"
+    }
+  ],
+  "pilot_evaluation": {
+    "scope": "Pilot manual annotation: left view of First AutoNav, frames 0/10/20; visible individual rocks with bbox width >=30 and height >=20 pixels. Smaller stones and boundary-truncated objects excluded; preliminary visual labels, not a validated benchmark.",
+    "frames_evaluated": [
+      0,
+      10,
+      20
+    ],
+    "iou_threshold": 0.5,
+    "prediction_min_width_px": 30,
+    "prediction_min_height_px": 20,
+    "true_positives": 5,
+    "false_positives": 1,
+    "false_negatives": 3,
+    "precision": 0.8333333333333334,
+    "recall": 0.625,
+    "matched_mean_iou": 0.7896967876510071,
+    "tracking_note": "Tracking was not tested. Each API call was independent; IDs are only per-frame placeholders."
+  },
+  "limitations": [
+    "Three manually annotated frames only; not a validated benchmark.",
+    "Frame 0 missed both annotated rocks; frame 20 included a terrain-sized false positive.",
+    "Timing includes client initialization, upload, queue, inference and result download; not pure model latency.",
+    "Free ZeroGPU quota and availability are limited; no real-time guarantee.",
+    "Remote perception does not satisfy the challenge local-perception requirement."
+  ]
+}
