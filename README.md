@@ -108,3 +108,10 @@ See `docs/m1-hosted.md` for the selected hosted grounding model, lightweight
 installation, fine-grained token permissions and smoke test. Select
 `--backend hf-hosted` explicitly. This remote mode is marked CLOUD in preview
 and reports; it does not satisfy the challenge's local-only perception rule.
+
+## Assistant local (M2)
+
+RAG texte, explication française et analyse déterministe des rapports M2 via
+Ollama, indépendamment de la perception en cours. Voir
+[installation, modèles et API locale](ASSISTANT_README.md). La recherche
+multimodale attend la finalisation M1. Le contrat de télémétrie M3 est inchangé.

@@ -13,13 +13,15 @@ dependencies = ["numpy>=1.26,<3", "websockets>=15,<16", "opencv-python-headless>
 ai = ["torch>=2.6,<3", "torchvision>=0.21,<1", "transformers==4.57.1"]
 hosted = ["requests>=2.32,<3", "python-dotenv>=1.0,<2"]
 test = ["pytest>=8,<9"]
+assistant = ["pypdf>=6,<7"]
 
 [project.scripts]
 crater-m1 = "crater_m1.cli:main"
 crater-m2 = "crater_m2.__main__:main"
+crater-assistant = "crater_assistant.__main__:main"
 
 [tool.setuptools.packages.find]
-include = ["crater_m1*", "crater_m2*"]
+include = ["crater_m1*", "crater_m2*", "crater_assistant*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
