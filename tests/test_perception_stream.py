@@ -11,6 +11,7 @@ from websockets.asyncio.client import connect
 
 from crater_m1.detectors import SyntheticContrastDetector
 from crater_m1.simulation import generate
+import crater_m2.__main__ as cli
 from crater_m2.__main__ import arguments, execute, run_mission
 from crater_m2.bridge import TelemetryBridge
 from crater_m2.perception import PerceptionStream
@@ -193,6 +194,40 @@ def test_no_observations_before_deadline_is_not_success(tmp_path):
 
     asyncio.run(check())
 
+
+def test_interrupted_perception_after_one_delivered_frame_is_incomplete(tmp_path, monkeypatch):
+    generate(tmp_path / "scene", count=2)
+    args = arguments(["--perception-video", str(tmp_path / "scene/scene.mp4"),
+                      "--calibration", str(tmp_path / "scene/calibration.json"),
+                      "--perception-output", str(tmp_path / "m1"), "--port", "0",
+                      "--duration", ".15", "--drain", "0", "--fps", "20",
+                      "--bandwidth", "10000", "--latency", "0", "--jitter", "0",
+                      "--loss", "0", "--no-blackout",
+                      "--report", str(tmp_path / "report.json"),
+                      "--received-jsonl", str(tmp_path / "received.jsonl")])
+
+    def producer(callback):
+        callback(Scenario(datetime.now(timezone.utc)).observation(0))
+        time.sleep(.3)
+        callback(Scenario(datetime.now(timezone.utc)).observation(1))
+        return {"processed_frames": 2}
+
+    monkeypatch.setattr("crater_m2.perception.local_producer", lambda args: producer)
+    saved_states = []
+    original_save = cli.save_report
+    def record_save(args, report):
+        saved_states.append(report["completed"])
+        original_save(args, report)
+    monkeypatch.setattr(cli, "save_report", record_save)
+    report = asyncio.run(execute(args))
+    saved = json.loads((tmp_path / "report.json").read_text())
+    assert report["transport"]["generated"] == 1
+    assert report["transport"]["acknowledged"] == 1
+    assert report["source"]["interrupted"] is True
+    assert report["source"]["producerCompleted"] is False
+    assert report["completed"] is False
+    assert saved["completed"] is False
+    assert saved_states == [False]
 
 def test_live_clock_reaches_duration_boundary_without_extra_drain(tmp_path):
     args = arguments(["--duration", ".1", "--drain", "0", "--bandwidth", "10000",

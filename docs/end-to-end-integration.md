@@ -92,7 +92,7 @@ The M2 station serves `ws://127.0.0.1:8765/telemetry`. Start the browser first s
 
 M1 produces detections from video pixels. M2 uses the matching calibrated camera rays and ground plane to produce metric hazards, then sends CRC-protected binary DATA/ACK packets with bounded queue/retries and exposes decoded JSON over WebSocket. The dashboard retains the last accepted frame during radio delay; WebSocket transport state is separate from rover link state. Replayed historical timestamps stay historical. The configured 4,096 bytes/s is a radio simulation setting, not a measured GPU or Internet link rate.
 
-On this Windows DirectML path, the process normally hangs during native runtime teardown after producer, bridge and report cleanup. The integrated launcher flushes output and calls the Windows process termination API only after the completed DirectML callback run; this was regression tested and a 30-frame hardware run exited 0. Other launcher paths retain ordinary exit behavior.
+On this Windows DirectML path, native runtime teardown can hang after the producer, bridge and report cleanup. The integrated launcher flushes output before the Windows process termination API. It exits 0 only after the perception producer finishes, all offered observations are consumed and the radio mission completes; an interrupted callback is reported incomplete and exits 2. CPU, replay and non-Windows paths retain ordinary exit behavior. The bounded regression tests cover cleanup ordering and both exit codes; a complete 30-frame DirectML run exited 0.
 
 ## Checks, recovery and limitations
 

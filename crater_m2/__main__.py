@@ -222,7 +222,9 @@ async def run_mission(args, bridge=None, *, stream=None):
         )
         if failure is not None:
             report["source"]["error"] = failure
-        save_report(args, report)
+        # A live callback report is provisional until the producer joins.
+        if stream is None or not report["completed"]:
+            save_report(args, report)
     if cancelled:
         raise asyncio.CancelledError
     return report
@@ -267,6 +269,10 @@ async def execute(args):
                 perceptionMetrics=stream.result,
                 discardedAtStop=stream.buffered + int(stream.interrupted),
                 timing="mission window includes local model startup; capturedAt remains M1 capture time")
+            # Radio drain alone cannot certify a completed perception producer.
+            if (stream.result is None or stream.interrupted or stream.produced != stream.consumed
+                    or stream.buffered):
+                report["completed"] = False
             save_report(args, report)
             return report
         print("Source: calibrated synthetic pixels" if not args.input else f"Source: {args.input}", flush=True)

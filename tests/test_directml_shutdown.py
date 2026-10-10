@@ -3,6 +3,8 @@
 from pathlib import Path
 from types import SimpleNamespace
 
+import pytest
+
 import crater_m2.__main__ as cli
 
 
@@ -14,7 +16,8 @@ class Stream:
         self.flushed = True
 
 
-def test_windows_directml_flushes_before_native_exit(monkeypatch):
+@pytest.mark.parametrize('exit_code', [0, 2])
+def test_windows_directml_flushes_before_native_exit(monkeypatch, exit_code):
     stdout, stderr = Stream(), Stream()
     exits = []
     monkeypatch.setattr(cli.sys, "stdout", stdout)
@@ -22,8 +25,8 @@ def test_windows_directml_flushes_before_native_exit(monkeypatch):
     monkeypatch.setattr(cli, "_terminate_windows_process", exits.append)
     args = SimpleNamespace(perception_video=Path("calibrated.mp4"), device="directml")
 
-    assert cli._finish_process(args, 0, platform="win32") == 0
-    assert exits == [0]
+    assert cli._finish_process(args, exit_code, platform="win32") == exit_code
+    assert exits == [exit_code]
     assert stdout.flushed and stderr.flushed
 
 
