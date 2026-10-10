@@ -12,6 +12,7 @@ dependencies = ["numpy>=1.26,<3", "opencv-python-headless>=4.10,<6", "pillow>=10
 [project.optional-dependencies]
 ai = ["torch>=2.6,<3", "torchvision>=0.21,<1", "transformers==4.57.1"]
 hosted = ["requests>=2.32,<3", "python-dotenv>=1.0,<2"]
+spaces = ["requests>=2.32,<3", "python-dotenv>=1.0,<2", "gradio-client==1.13.3", "huggingface-hub==0.36.2"]
 test = ["pytest>=8,<10"]
 
 [project.scripts]

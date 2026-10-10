@@ -1,0 +1,2 @@
+# Lightweight free Space client; no torch or model weights.
+-e .[spaces,test]
