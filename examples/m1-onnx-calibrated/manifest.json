@@ -5,7 +5,7 @@
   "video": {
     "file": "scene.mp4",
     "sha256": "74c1764bb1b151486a45372ead706e06cd709700ef6df1791c7822e630c37ad9",
-    "distribution": "external attachment; excluded from Git bundle"
+    "distribution": "tracked exact source asset in integration branch; no GitHub Release"
   },
   "reportedModel": {
     "device": "directml",
@@ -70,6 +70,10 @@
     "m2-radio-report.json": {
       "sha256": "fd8ef5404847f79a2c87cd8b345be9343fdcc391ddcf210357c50b4e67c73684",
       "bytes": 1467
+    },
+    "scene.mp4": {
+      "sha256": "74c1764bb1b151486a45372ead706e06cd709700ef6df1791c7822e630c37ad9",
+      "bytes": 79774
     }
   }
 }

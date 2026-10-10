@@ -89,6 +89,8 @@ wandb/
 *.h5
 *.hdf5
 *.mp4
+# Exact 79 KB calibrated source video for the verified ONNX handoff
+!examples/m1-onnx-calibrated/scene.mp4
 *.mov
 *.avi
 *.mkv

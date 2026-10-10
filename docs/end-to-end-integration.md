@@ -6,7 +6,7 @@ This guide is for `feat/end-to-end-integration`, based on M2 `0f1a53336a01238854
 
 Use Windows 11, a working DirectML GPU driver, Python 3.11 or newer, Node.js 24, and PowerShell. The validated machine has an NVIDIA GeForce RTX 5070 Laptop GPU. The validated Python interpreter is `D:\space_esb_m1\.venv\Scripts\python.exe`; it already contains `onnxruntime-directml==1.24.4`, the model dependencies and the prepared graph. Reuse it for the hardware run. The metadata in `pyproject.toml` declares pytest 8, while this proven interpreter has pytest 9; both the full local suite and a separate hosted pytest 8 CI run passed. Do not replace the working DirectML environment just to change pytest.
 
-The exact local video is `D:\space_esb_m1\outputs\m1-final-scene\scene.mp4`. Its SHA-256 must be `74c1764bb1b151486a45372ead706e06cd709700ef6df1791c7822e630c37ad9`. The matching calibration and annotations are in that scene directory. The video is excluded from Git. Regeneration with `python -m crater_m1 simulate --frames 30 --output <new-directory>` produces a calibrated scene, but encoding may change the video hash; never pair old annotations with a new video.
+The exact local video is `D:\space_esb_m1\outputs\m1-final-scene\scene.mp4`. Its SHA-256 must be `74c1764bb1b151486a45372ead706e06cd709700ef6df1791c7822e630c37ad9`. The matching calibration and annotations are in that scene directory. The exact 79,774-byte MP4 is also distributed in `examples/m1-onnx-calibrated/scene.mp4` on this integration branch; no GitHub Release was created. Regeneration with `python -m crater_m1 simulate --frames 30 --output <new-directory>` produces a calibrated scene, but encoding may change the video hash; never pair old annotations with a new video.
 
 The model cache is `D:\space_esb_m1\.cache\huggingface`. The model is `onnx-community/grounding-dino-tiny-ONNX` at revision `ff690b0a8050566c290287545bd059350f3e9096`. M1 prepares an FP32 graph from `onnx/model_fp16.onnx`. The prepared graph is about 719 MB and is excluded from Git. The recorded provider list is DirectML then CPU; some operators can run on CPU. A machine without this cache must prepare the same revision using the existing M1 ONNX preparation workflow and normal certificate-verified HTTPS. Windows system CA trust must be repaired if HTTPS fails; never disable TLS verification. Hosted CI and JSONL replay need no model download.
 
@@ -35,17 +35,20 @@ For a new hardware setup, install the pinned `.[onnx-local]` dependency set in i
 
 ## Verified evidence and replay
 
-`examples/m1-onnx-calibrated/` contains 30 real ONNX observation frames, camera intrinsics, per-frame camera/rover poses, annotations and a SHA-256 manifest. It does not contain video or weights. The exporter checks source consistency, hashes, frame coverage and M2 projection; its metadata alone does not independently attest GPU execution. Check every bundled file against `manifest.json` before replay:
+`examples/m1-onnx-calibrated/` contains 30 real ONNX observation frames, camera intrinsics, per-frame camera/rover poses, annotations and a SHA-256 manifest. It includes the exact small source MP4 but no model weights. The exporter normally excludes videos; this distribution supplement is explicitly hash-listed in the manifest. The exporter checks source consistency, hashes, frame coverage and M2 projection; its metadata alone does not independently attest GPU execution. Check every bundled file against `manifest.json` before replay. The [bundle README](../examples/m1-onnx-calibrated/README.md) gives exact Windows commands to prepare the pinned model with certificate-verified HTTPS, rerun ONNX on the distributed MP4, and distinguish fresh inference from historical transport replay:
 
 ```powershell
 $m = Get-Content examples\m1-onnx-calibrated\manifest.json -Raw | ConvertFrom-Json
 foreach ($entry in $m.files.PSObject.Properties) {
   $file = Join-Path examples\m1-onnx-calibrated $entry.Name
+  if ((Get-Item $file).Length -ne $entry.Value.bytes) { throw "Size mismatch: $file" }
   if ((Get-FileHash $file -Algorithm SHA256).Hash.ToLowerInvariant() -ne $entry.Value.sha256) {
     throw "SHA-256 mismatch: $file"
   }
 }
-``` The scene coordinates use `LOCAL_ENU_V1`: x East, y North, z Up, with a known ground plane. Missing or invalid calibration is rejected rather than inferred.
+```
+
+The scene coordinates use `LOCAL_ENU_V1`: x East, y North, z Up, with a known ground plane. Missing or invalid calibration is rejected rather than inferred.
 
 Run the actual integrated M2 WebSocket bridge and M3 parser, using the recorded ONNX observations. This is **historical replay**, not new inference. Capture timestamps remain unchanged and may show STALE in the dashboard.
 
