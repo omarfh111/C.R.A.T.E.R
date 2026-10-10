@@ -1,11 +1,13 @@
 """Run calibrated M2 demo or replay calibrated M1 JSONL observations."""
 
 import argparse
+import ctypes
 import asyncio
 from datetime import datetime, timezone
 import json
 import math
 from pathlib import Path
+import sys
 import time
 
 from .bridge import TelemetryBridge
@@ -271,6 +273,25 @@ async def execute(args):
         return await run_mission(args, bridge)
 
 
+def _terminate_windows_process(code):
+    kernel = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel.GetCurrentProcess.restype = ctypes.c_void_p
+    kernel.TerminateProcess.argtypes = (ctypes.c_void_p, ctypes.c_uint)
+    kernel.TerminateProcess.restype = ctypes.c_int
+    if not kernel.TerminateProcess(kernel.GetCurrentProcess(), code):
+        raise OSError(ctypes.get_last_error(), "unable to terminate completed DirectML process")
+
+
+def _finish_process(args, code, *, platform=sys.platform):
+    # The threaded DirectML runtime on Windows can hang in CRT DLL teardown.
+    # The producer, sockets and reports have closed; flush before process exit.
+    if platform == "win32" and args.perception_video and args.device == "directml":
+        sys.stdout.flush()
+        sys.stderr.flush()
+        _terminate_windows_process(code)
+    return code
+
+
 def main(argv=None):
     args = arguments(argv)
     try:
@@ -281,7 +302,7 @@ def main(argv=None):
     except (ValueError, OSError) as exc:
         raise SystemExit(f"M2 error: {exc}") from exc
     print(json.dumps(report, indent=2))
-    return 0 if report["completed"] else 2
+    return _finish_process(args, 0 if report["completed"] else 2)
 
 
 if __name__ == "__main__":
