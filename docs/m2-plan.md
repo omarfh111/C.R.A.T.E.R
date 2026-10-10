@@ -30,11 +30,11 @@ Dependencies: Python >=3.11, NumPy >=1.26,<3, websockets >=15,<16; pytest >=8,<9
 
 ## 3. Reliable constrained transport
 
-- [ ] Tests first: `tests/test_radio.py`, observe RED.
-- [ ] Implement `LinkConfig`, `RadioLink`, `ReliableTransport` in
+- [x] Tests first: `tests/test_radio.py`, observe RED.
+- [x] Implement `LinkConfig`, `RadioLink`, `ReliableTransport` in
   `crater_m2/radio.py`: virtual monotonic clock, seeded loss, serialization in
   both directions, blackout intervals, FIFO stop-and-wait and station dedupe.
-- [ ] Verify delay/bandwidth, ACK loss, full blackout recovery, bounded buffers
+- [x] Verify delay/bandwidth, ACK loss, full blackout recovery, bounded buffers
   and retry exhaustion. Run full suite; commit and push.
 
 ## 4. Source adapters, WebSocket bridge and reproducible demo
@@ -59,3 +59,7 @@ has required dependencies; no model/download or environment installation needed.
 Task 2: RED missing codec; added extreme finite-number regression (RED overflow),
 then explicit range guards before scaling. GREEN 46/46, including all truncations,
 CRC corruption, representability and uncertainty rounding.
+Task 3: RED missing transport, GREEN 60/60. Seeded 45% packet loss recovered
+10/10 ordered observations; lost ACK generated radio duplicates removed before
+station publication. Verified shared byte budget, blackout buffering, retry
+exhaustion, capture preservation and adaptive timeout at 10 bytes/s.
