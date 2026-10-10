@@ -1,0 +1,125 @@
+{
+  "source_sha256": "d7f157de8f5bb694a614230901b4de2359dc439e0e94c8bcd5b629177ea9f461",
+  "image": {
+    "width": 1280,
+    "height": 960,
+    "view": "left"
+  },
+  "min_width_px": 30,
+  "min_height_px": 20,
+  "split": "validation",
+  "identity_labels": false,
+  "scope": "Provisional manual visual labels on reserved same-video NASA frames 5/15/25/35, before examining predictions. Individual visible rocks >=30x20 pixels; small stones, dunes, rover hardware and boundary-truncated objects excluded. Assistant annotations require human review; not an independent benchmark.",
+  "frames": [
+    {
+      "frame_index": 5,
+      "detections": [
+        {
+          "id": "frame-5-rock-0",
+          "type": "rock",
+          "bboxPx": [
+            273,
+            272,
+            307,
+            302
+          ]
+        },
+        {
+          "id": "frame-5-rock-1",
+          "type": "rock",
+          "bboxPx": [
+            546,
+            281,
+            580,
+            304
+          ]
+        },
+        {
+          "id": "frame-5-rock-2",
+          "type": "rock",
+          "bboxPx": [
+            609,
+            592,
+            641,
+            622
+          ]
+        }
+      ]
+    },
+    {
+      "frame_index": 15,
+      "detections": [
+        {
+          "id": "frame-15-rock-0",
+          "type": "rock",
+          "bboxPx": [
+            919,
+            594,
+            1053,
+            727
+          ]
+        },
+        {
+          "id": "frame-15-rock-1",
+          "type": "rock",
+          "bboxPx": [
+            451,
+            454,
+            508,
+            486
+          ]
+        },
+        {
+          "id": "frame-15-rock-2",
+          "type": "rock",
+          "bboxPx": [
+            795,
+            842,
+            852,
+            876
+          ]
+        }
+      ]
+    },
+    {
+      "frame_index": 25,
+      "detections": [
+        {
+          "id": "frame-25-rock-0",
+          "type": "rock",
+          "bboxPx": [
+            699,
+            856,
+            731,
+            886
+          ]
+        },
+        {
+          "id": "frame-25-rock-1",
+          "type": "rock",
+          "bboxPx": [
+            745,
+            835,
+            780,
+            869
+          ]
+        }
+      ]
+    },
+    {
+      "frame_index": 35,
+      "detections": [
+        {
+          "id": "frame-35-rock-0",
+          "type": "rock",
+          "bboxPx": [
+            266,
+            521,
+            305,
+            548
+          ]
+        }
+      ]
+    }
+  ]
+}

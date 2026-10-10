@@ -69,7 +69,7 @@ class HostedGrounding:
         status=response.status_code
         if status!=200:
             messages={401:"HF token rejected; check HF_TOKEN",403:"HF access denied; enable Make calls to Inference Providers",
-                402:"HF inference credit/payment required",404:"HF model/provider unavailable",429:"HF rate limit reached",
+                402:"HF inference credits required: add prepaid credits at https://huggingface.co/settings/billing, then retry",404:"HF model/provider unavailable",429:"HF rate limit reached",
                 503:"HF provider temporarily unavailable"}
             raise RuntimeError(messages.get(status,f"HF provider request failed (HTTP {status})"))
         try:

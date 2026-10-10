@@ -61,3 +61,11 @@ def test_timeout_request_budget_and_truncation():
     assert len(session.calls)==1
     detector=HostedGrounding(HFConfig(TOKEN),session=FakeSession(response(valid(),reason="length")))
     with pytest.raises(RuntimeError,match="incomplete"): detector.detect(image)
+
+
+def test_billing_failure_provides_action_and_never_retries():
+    session=FakeSession(response("no remaining credits",status=402))
+    detector=HostedGrounding(HFConfig(TOKEN),session=session)
+    with pytest.raises(RuntimeError,match="settings/billing"):
+        detector.detect(np.zeros((100,100,3),dtype=np.uint8))
+    assert len(session.calls)==1

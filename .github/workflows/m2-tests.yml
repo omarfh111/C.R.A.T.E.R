@@ -19,7 +19,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - run: python -m pip install -e '.[test,hosted,assistant]'
+      - run: python -m pip install -e '.[test,hosted,spaces,assistant]' onnx==1.20.1 onnxruntime==1.24.4
       - run: python -m pytest -q
         env:
           CRATER_M2_SOURCE: '${{ github.workspace }}'
