@@ -100,6 +100,8 @@ class Ollama:
             "ne donnent pas un intervalle temporel sans vitesse ou timestamps d'acquisition. "
             "Les documents NASA décrivent leur mission, pas une mesure de notre rover. "
             "Chaque explication causale doit être explicitement appuyée par un passage. "
+            "Ne relie pas deux études distinctes et ne transfère pas une validation de l'une à l'autre. "
+            "Explique seulement les informations nécessaires à la question, sans ajouter d'hypothèse. "
             "L'amélioration du contraste d'une image n'explique pas une différence de cadence. "
             "Si les sources ne répondent pas, écris seulement INSUFFICIENT_EVIDENCE. "
             "Ne donne aucune commande au rover. Réponds directement à la question en 2 à 4 phrases "

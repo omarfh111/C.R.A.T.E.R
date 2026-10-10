@@ -9,7 +9,7 @@ TypeScript fourni dans `integrations/m3-assistant-client.ts` ne dépend pas de R
 
 Les deux modèles doivent déjà être installés dans Ollama : `embeddinggemma:300m`
 et `qwen3:4b-instruct-2507-q4_K_M`. Aucun téléchargement automatique ni modèle
-cloud n'est accepté. La découverte des pages NASA a lieu pendant la préparation ;
+cloud n'est accepté. La consultation des sources a lieu pendant la préparation ;
 les questions utilisent exclusivement les résumés locaux relus.
 
 Depuis le checkout M2, reconstruire l'index puis démarrer le sidecar :

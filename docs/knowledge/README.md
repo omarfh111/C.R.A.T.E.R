@@ -3,7 +3,7 @@
 13 résumés courts en français, vérifiés le 10 octobre 2026 sur les pages
 primaires liées dans chaque fichier. Ils servent de contexte scientifique,
 pas de données de télémétrie C.R.A.T.E.R. Les limites ajoutées pour notre projet
-sont explicitement distinguées des faits décrits par NASA.
+sont explicitement distinguées des faits décrits par les agences et auteurs.
 
 - `nasa-autonav.md` : navigation autonome et dangers.
 - `nasa-video-cadence.md` : images de conduite espacées d'environ cinq mètres.
