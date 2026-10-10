@@ -43,7 +43,7 @@ def test_authenticated_request_budget_cleanup_and_safe_metrics():
     detector=SpaceGrounding(HFConfig(TOKEN,max_side=640,max_requests=1),client_factory=factory)
     assert detector.detect(np.zeros((960,1280,3),dtype=np.uint8))[0].bbox==(20,40,100,120)
     assert options["hf_token"]==TOKEN and options["download_files"] is False
-    assert options["max_workers"]>=2  # queue prediction and SSE receiver share the executor
+    assert "max_workers" not in options  # preserve Gradio prediction, receiver and wait workers
     image,args,kwargs=client.calls[0]
     assert not Path(image["path"]).exists() and kwargs["api_name"]=="/run_grounding"
     assert args==( "rock. stone. boulder.",.25,.2)
@@ -87,3 +87,11 @@ def test_cli_space_default_budget_and_explicit_configuration(tmp_path,monkeypatc
     report=json.loads((tmp_path/"run/metrics.json").read_text())
     assert report["processed_frames"]==3 and report["backend"]=="hf-space"
     assert len(client.calls)==3 and TOKEN not in capsys.readouterr().out
+
+
+def test_quota_error_is_actionable_without_retries():
+    client=FakeClient(RuntimeError("You have exceeded your GPU quota"))
+    detector=SpaceGrounding(HFConfig(TOKEN),client_factory=lambda *a,**k:client)
+    with pytest.raises(RuntimeError,match="wait for quota reset"):
+        detector.detect(np.zeros((100,100,3),dtype=np.uint8))
+    assert len(client.calls)==1 and client.jobs[0].cancelled

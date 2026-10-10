@@ -59,7 +59,7 @@ class SpaceGrounding:
             if self.client is None:
                 factory=self.client_factory or Client
                 self.client=factory(SPACE_ID,hf_token=self.config.token,verbose=False,
-                    download_files=False,analytics_enabled=False,max_workers=2,
+                    download_files=False,analytics_enabled=False,
                     httpx_kwargs={"timeout":self.config.timeout_s})
             with tempfile.TemporaryDirectory(prefix="crater-m1-") as folder:
                 path=Path(folder)/"frame.jpg"; path.write_bytes(jpeg.tobytes())
