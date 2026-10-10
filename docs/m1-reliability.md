@@ -88,3 +88,30 @@ A full 43-frame local GPU run retained the baseline 116 observations and
 no measured ID-retention gain. No tracking accuracy is claimed without
 identity labels. Detection scores on both splits are reported separately.
 [Final fast-mode evidence](validation/reliability-final-fast.json).
+
+## Dedicated CI jobs
+
+The branch workflow separates detection/tracking reliability, the pinned M2
+localization/radio contract, and ONNX portability on Ubuntu and Windows. It
+runs on branch pushes, relevant pull requests and manual dispatch, and saves
+JUnit results for each job. No HF token or rover-model download is required.
+
+The portability job verifies a tiny promoted graph numerically on CPU; the
+Windows job additionally checks DirectML provider registration. Hosted runners
+do not establish real GPU acceleration. The actual cached-model GPU test is
+run locally with network connections blocked:
+
+```powershell
+$env:CRATER_M2_SOURCE=(Resolve-Path outputs/m2-reference).Path
+$env:CRATER_ONNX_SMOKE='1'
+.\.venv\Scripts\python -m pytest tests/m1 -q
+```
+
+Fast local execution uses the existing cached model:
+
+```powershell
+.\.venv\Scripts\python -m crater_m1 run ../vid3.mp4 --backend onnx-grounding-dino --device directml --view left --no-preview --output outputs/my-fast-run
+```
+
+Add `--tiles 2x2` for the slower crop experiment; add `--confirmed-only` only
+when delayed export is desired. Choose a new output directory for each run.
