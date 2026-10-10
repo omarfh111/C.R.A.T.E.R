@@ -1,0 +1,9 @@
+# Independent install avoids overwriting M2's project metadata when integrating.
+numpy>=1.26,<3
+opencv-python-headless>=4.10,<6
+pillow>=10,<13
+psutil>=6,<8
+scipy>=1.12,<2
+transformers==4.57.1
+pytest>=8,<10
+# Install the appropriate torch/torchvision pair separately (README).

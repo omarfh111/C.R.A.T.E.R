@@ -15,8 +15,10 @@ py -3.12 -m venv .venv
 ```
 
 Linux/macOS : `python3 -m venv .venv`, puis `.venv/bin/python -m pip install -e '.[test]'`.
-NumPy, websockets et pytest suffisent ; aucun téléchargement de modèle IA ni
-service cloud nécessaire pour ce MVP. Les tests utilisent de vrais sockets localhost.
+La branche intègre également le package M1. Pour la suite complète, installer
+`.[test,hosted]` et définir `CRATER_M2_SOURCE` à la racine du checkout, comme
+indiqué dans le README principal. Aucun téléchargement de modèle IA ni
+service cloud nécessaire pour la démo contrôlée. Les tests utilisent de vrais sockets localhost.
 
 ## Démo live pour M3
 

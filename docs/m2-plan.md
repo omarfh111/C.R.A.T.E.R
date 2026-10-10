@@ -85,3 +85,17 @@ therefore unverified; local Python 3.12, packaging, benchmark and M3 parser
 checks passed. Account billing must be resolved by the owner, then CI rerun.
 The documented M1 JSONL example additionally delivered/ACKed 3/3 observations;
 all three decoded messages were accepted by M3's actual parser.
+
+## Integration M1 (continuation authorized by user)
+
+Inspected and merged `feat/ai-perception` at
+`9d3eebc` into the M2 branch, preserving both Python packages, entry points,
+optional AI/hosted dependencies and ignored artifacts. Shared package metadata
+resolved rather than overwriting either member. CI now executes M1/M2 interface
+tests against the code in this checkout. Local result: 118 passed, 1 skipped
+(explicit opt-in offline learned-model smoke; weights not installed for this run).
+M1's calibrated JSONL already matches M2, and its per-observation callback allows
+live integration without waiting for file completion. Uncalibrated NASA/remote
+perception must never acquire invented metric coordinates. Next bounded change:
+connect that callback through a bounded handoff to the existing M2 radio/WS loop,
+with finite source, error propagation, shutdown and real client tests.

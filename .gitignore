@@ -12,5 +12,9 @@ build/
 !.env.example
 tmp/
 artifacts/
+.cache/
+outputs/
 *.mp4
+*.avi
 *.log
+.m2-reference/
