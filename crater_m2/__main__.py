@@ -11,6 +11,7 @@ import time
 from .bridge import TelemetryBridge
 from .codec import encode_frame
 from .contract import timestamp
+from .metrics import RunningStats
 from .radio import LinkConfig, RadioLink, ReliableTransport
 from .source import Scenario, observation_to_frame, read_observations
 
@@ -41,11 +42,15 @@ def arguments(argv=None):
     parser.add_argument("--seed", type=int, default=7)
     parser.add_argument("--queue", type=int, default=64)
     parser.add_argument("--attempts", type=int, default=20)
+    parser.add_argument("--link-history", type=int, default=4096, help="maximum retained DATA snapshots; older captures fail explicitly")
+    parser.add_argument("--rejection-samples", type=int, default=100, help="maximum rejected detection details in report; totals remain complete")
     parser.add_argument("--start-sequence", type=int, default=0, help="must exceed M3's previous accepted sequence")
     parser.add_argument("--port", type=int, default=8765)
     parser.add_argument("--report", type=Path, default=Path("artifacts/m2-report.json"))
     parser.add_argument("--received-jsonl", type=Path, default=Path("artifacts/received-frames.jsonl"))
     args = parser.parse_args(argv)
+    if args.link_history < 1 or args.rejection_samples < 0:
+        parser.error("link-history must be positive and rejection-samples nonnegative")
     if args.perception_video:
         if args.input or args.benchmark:
             parser.error("--perception-video uses a live callback; choose JSONL --input for --benchmark")
@@ -90,11 +95,12 @@ def arguments(argv=None):
 
 
 async def run_mission(args, bridge=None, *, stream=None):
-    transport = ReliableTransport(RadioLink(args.link_config), max_queue=args.queue, max_attempts=args.attempts)
+    transport = ReliableTransport(RadioLink(args.link_config, history_capacity=args.link_history), max_queue=args.queue, max_attempts=args.attempts)
     scenario = Scenario(datetime.now(timezone.utc), seed=args.seed) if args.input is None and stream is None else None
     observations = iter(read_observations(args.input)) if args.input else None
-    binary_sizes, json_sizes = [], []
-    rejected, quantized_errors = [], []
+    binary_bytes = json_bytes = rejected_count = 0
+    rejected = []
+    quantized_errors = RunningStats()
     wall_start = time.perf_counter()
     mission_utc_start = datetime.now(timezone.utc)
     elapsed = next_capture = 0.
@@ -117,7 +123,7 @@ async def run_mission(args, bridge=None, *, stream=None):
                         for hazard in delivery.frame["hazards"]:
                             truth = scenario.points[hazard["id"]][1]
                             position = tuple(hazard["position"][key] for key in ("xM", "yM", "zM"))
-                            quantized_errors.append(math.dist(position, truth))
+                            quantized_errors.add(math.dist(position, truth))
                     if bridge:
                         await bridge.publish(delivery.frame)
                 if elapsed < args.duration - 1e-9 and elapsed + 1e-9 >= next_capture and not source_done:
@@ -142,10 +148,13 @@ async def run_mission(args, bridge=None, *, stream=None):
                             source_done = True
                             result = None
                     if result is not None:
-                        rejected.extend(result.rejected)
-                        binary_sizes.append(len(encode_frame(result.frame)))
-                        json_sizes.append(len(json.dumps(result.frame, separators=(",", ":")).encode("utf-8")))
+                        packet_size = len(encode_frame(result.frame))
+                        json_size = len(json.dumps(result.frame, separators=(",", ":")).encode("utf-8"))
                         transport.enqueue(result.frame)
+                        rejected_count += len(result.rejected)
+                        rejected.extend(result.rejected[:max(0, args.rejection_samples - len(rejected))])
+                        binary_bytes += packet_size
+                        json_bytes += json_size
                         generated += 1
                         next_capture = elapsed + 1/args.fps if stream is not None else generated / args.fps
                 if (elapsed >= args.duration - 1e-9 or source_done) and not transport.pending:
@@ -169,13 +178,15 @@ async def run_mission(args, bridge=None, *, stream=None):
             cancelled=cancelled,
             source=scenario.report() if scenario else dict(
                 source="m1-live-callback" if stream is not None else "m1-calibrated-jsonl",
-                rejectedDetections=len(rejected)),
+                rejectedDetections=rejected_count),
             transport=transport.report(),
-            meanBinaryFrameBytes=sum(binary_sizes)/len(binary_sizes) if binary_sizes else None,
-            meanJsonFrameBytes=sum(json_sizes)/len(json_sizes) if json_sizes else None,
-            totalRadioBytesPerOriginalJsonByte=transport.link.bytes_sent/sum(json_sizes) if sum(json_sizes) else None,
-            maxDeliveredLocalizationErrorM=max(quantized_errors) if quantized_errors else None,
+            meanBinaryFrameBytes=binary_bytes/generated if generated else None,
+            meanJsonFrameBytes=json_bytes/generated if generated else None,
+            totalRadioBytesPerOriginalJsonByte=transport.link.bytes_sent/json_bytes if json_bytes else None,
+            maxDeliveredLocalizationErrorM=quantized_errors.maximum,
             rejectedDetections=rejected, slowWebSocketClients=bridge.slow_clients if bridge else 0,
+            rejectedDetectionsOmitted=rejected_count-len(rejected),
+            diagnosticLimits=dict(rejectionSamples=args.rejection_samples, radioHistorySnapshots=args.link_history),
             link=dict(bytesPerSecond=args.bandwidth, latencyS=args.latency, jitterS=args.jitter,
                       lossProbability=args.loss, blackouts=args.link_config.blackouts, seed=args.seed),
             byteAccounting="application packets including CRC, DATA retries and ACK; excludes TCP/WS/IP headers",

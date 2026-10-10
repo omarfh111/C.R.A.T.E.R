@@ -117,3 +117,26 @@ Initial 6 s drain run correctly reported 19 delivered and 11 pending (incomplete
 Final 30 JSONs accepted by M3's actual parser. Its contract is unchanged on the
 newer `feat/mission-control` head. See `docs/validation/m1-m2-live.json`.
 Merge increment `917d7d1` CI succeeded before the live increment was published.
+
+## Independent M2 continuation while M1 evolves
+
+User requested a new branch check and useful independent work while M1 is in
+progress. M1 head `a0c660e` adds free remote Space experiments; compared the four
+new commits to the integrated `9d3eebc`. Camera/observation contracts and local
+pipeline callback are unchanged. Do not modify or merge its evolving remote
+backends into this increment; keep the verified local boundary.
+
+Replace growing M2 metric lists with streaming count/mean/max and exact byte
+totals. Cap rejected details (default100) while preserving total counts. Cap
+radio snapshot history (default4096) with a cumulative baseline; old capture
+queries fail explicitly, preserving correct capture-time semantics. Tests first:
+long metric stream, overflow-safe mean, bounded history, equality at eviction
+boundary, invalid/old timestamps and 200 rejections with only3 stored details.
+All limits exposed in CLI/report; no M3 canonical schema change.
+Independent review checked history against uncapped references at capacities1..5,
+including repeated timestamps and eviction equality. Fixed a partial-report byte
+average regression (RED then GREEN): a failed mixed-rover enqueue no longer adds
+bytes without adding a generated frame. Full suite139 passed,1 optional AI smoke
+skipped. Default benchmark unchanged:30/30 delivered,8709 radio bytes,58.14 s
+virtual finish; all30 decoded JSONs accepted by M3. M1 head a0c660e CI is green;
+its latest changes remain experimental remote modes outside this M2 increment.

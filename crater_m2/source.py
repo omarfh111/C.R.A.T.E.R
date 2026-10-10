@@ -11,6 +11,7 @@ import numpy as np
 
 from .contract import coordinates, utc_iso, validate_frame
 from .geometry import Camera, locate_ground, project_point
+from .metrics import RunningStats
 
 
 @dataclass
@@ -93,7 +94,7 @@ used to assess errors only, never substituted for the reconstructed output.
         self.points = {"rock-1": ("rock", (1., 4., 0.)),
                        "rock-2": ("rock", (-1.2, 6., 0.)),
                        "crater-edge-1": ("crater", (2., 9., 0.))}
-        self.errors = []
+        self._error_stats = RunningStats()
         self.rejected_count = 0
 
     def observation(self, elapsed_s):
@@ -127,11 +128,11 @@ used to assess errors only, never substituted for the reconstructed output.
         self.rejected_count += len(result.rejected)
         for hazard in result.frame["hazards"]:
             point = np.array([hazard["position"][key] for key in ("xM", "yM", "zM")])
-            self.errors.append(float(np.linalg.norm(point - self.points[hazard["id"]][1])))
+            self._error_stats.add(float(np.linalg.norm(point - self.points[hazard["id"]][1])))
         return result
 
     def report(self):
-        return dict(source="synthetic-calibrated-pixels", evaluatedObservations=len(self.errors),
+        return dict(source="synthetic-calibrated-pixels", evaluatedObservations=self._error_stats.count,
                     rejectedDetections=self.rejected_count,
-                    meanLocalizationErrorM=sum(self.errors)/len(self.errors) if self.errors else None,
-                    maxLocalizationErrorM=max(self.errors) if self.errors else None)
+                    meanLocalizationErrorM=self._error_stats.mean,
+                    maxLocalizationErrorM=self._error_stats.maximum)

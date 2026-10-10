@@ -11,6 +11,7 @@ import math
 import random
 
 from .codec import decode_ack, decode_frame, encode_ack, encode_frame
+from .metrics import RunningStats
 
 
 @dataclass(frozen=True)
@@ -41,13 +42,22 @@ class Transmission:
 
 
 class RadioLink:
-    def __init__(self, config: LinkConfig):
+    def __init__(self, config: LinkConfig, *, history_capacity=4096):
+        if type(history_capacity) is not int or history_capacity < 1:
+            raise ValueError("positive link history capacity required")
         self.config = config
         self.random = random.Random(config.seed)
         self.available_at = 0.
         self.data_sent = self.data_lost = self.ack_sent = self.ack_lost = 0
         self.data_bytes = self.ack_bytes = 0
-        self._data_attempts = []
+        self.history_capacity = history_capacity
+        self._data_attempts = deque()
+        self._history_baseline = None
+        self._last_send_time = 0.
+
+    @property
+    def history_size(self):
+        return len(self._data_attempts)
 
     @property
     def packets_sent(self):
@@ -82,14 +92,25 @@ class RadioLink:
         """
         if not math.isfinite(captured_at_s) or captured_at_s < 0:
             raise ValueError("invalid capture time")
-        attempts = [lost for when, lost in self._data_attempts if when <= captured_at_s]
-        return dict(status=self.status(captured_at_s), packetsSent=len(attempts), packetsLost=sum(attempts))
+        sent = lost = 0
+        if self._history_baseline is not None:
+            floor, sent, lost = self._history_baseline
+            if captured_at_s < floor:
+                raise ValueError("capture predates retained radio history; increase --link-history")
+        for when, cumulative_sent, cumulative_lost in self._data_attempts:
+            if when > captured_at_s:
+                break
+            sent, lost = cumulative_sent, cumulative_lost
+        return dict(status=self.status(captured_at_s), packetsSent=sent, packetsLost=lost)
 
     def send(self, payload: bytes, now: float, kind: str) -> Transmission:
         if kind not in ("data", "ack") or not isinstance(payload, bytes) or not payload:
             raise ValueError("expected nonempty bytes and data/ack kind")
         if not math.isfinite(now) or now < 0:
             raise ValueError("invalid transmission time")
+        if now < self._last_send_time:
+            raise ValueError("transmission time must be monotonic")
+        self._last_send_time = now
         start = max(now, self.available_at)
         self.available_at = start + len(payload) / self.config.bytes_per_second
         arrival = self.available_at + self.config.latency_s + self.random.uniform(0, self.config.jitter_s)
@@ -100,7 +121,9 @@ class RadioLink:
             self.data_sent += 1
             self.data_lost += int(lost)
             self.data_bytes += len(payload)
-            self._data_attempts.append((now, int(lost)))
+            if len(self._data_attempts) == self.history_capacity:
+                self._history_baseline = self._data_attempts.popleft()
+            self._data_attempts.append((now, self.data_sent, self.data_lost))
         else:
             self.ack_sent += 1
             self.ack_lost += int(lost)
@@ -149,7 +172,7 @@ class ReliableTransport:
         self.queue_dropped = self.abandoned = self.retransmissions = 0
         self.generated = self.accepted = 0
         self.max_pending = 0
-        self.latencies = []
+        self._latency_stats = RunningStats()
 
     @property
     def pending(self):
@@ -215,7 +238,7 @@ class ReliableTransport:
                     self._last_received = frame["sequence"]
                     latency = when - value.enqueued_at
                     self._deliveries.append(Delivery(frame, when, latency))
-                    self.latencies.append(latency)
+                    self._latency_stats.add(latency)
                     self.delivered += 1
                 else:
                     self.duplicates += 1
@@ -255,5 +278,5 @@ class ReliableTransport:
                     dataBytesSent=self.link.data_bytes, ackBytesSent=self.link.ack_bytes,
                     totalBytesSent=self.link.bytes_sent,
                     deliveryRate=self.delivered / self.generated if self.generated else 0,
-                    meanDeliveryLatencyS=sum(self.latencies)/len(self.latencies) if self.latencies else None,
-                    maxDeliveryLatencyS=max(self.latencies) if self.latencies else None)
+                    meanDeliveryLatencyS=self._latency_stats.mean,
+                    maxDeliveryLatencyS=self._latency_stats.maximum)

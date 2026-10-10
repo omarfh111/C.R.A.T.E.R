@@ -168,9 +168,16 @@ du temps de vidage laisse une file non vide dans le rapport et renvoie le code 2
 Le bridge est limité à localhost. Les clients lents ont une file bornée et sont
 déconnectés avec le code 1013 ; leur lenteur ne bloque pas le simulateur radio.
 CRC32 détecte les corruptions ; ce n'est ni une signature ni une authentification.
-Les statistiques détaillées conservent les échantillons en mémoire pendant la
-mission. Utiliser des missions de durée finie ; une exploitation continue exige
-des agrégats et une limite sur l'historique des rejets.
+M2 agrège les latences, erreurs et tailles sans conserver tous les échantillons.
+Les détails de rejet sont limités à 100 par défaut (`--rejection-samples`) ;
+`source.rejectedDetections` reste le total, et `rejectedDetectionsOmitted` indique
+les détails omis. L'historique radio est limité à 4096 tentatives DATA
+(`--link-history`) ; ses instantanés conservent les compteurs cumulatifs complets.
+Une capture antérieure à l'historique disponible provoque un échec explicite,
+avec un rapport incomplet, au lieu de recevoir des compteurs inventés. Augmenter
+la limite lorsque l'inférence ou le tampon produit un retard important.
+Ces limites concernent M2 ; les ressources et statistiques internes de M1
+dépendent de son backend. Les journaux JSONL sur disque croissent avec la mission.
 
 ## Validation avec le code de M3
 
