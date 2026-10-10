@@ -32,3 +32,8 @@ livre egalement chaque observation pendant l'analyse. M2 peut appeler
 est synchrone : un consommateur lent ralentit M1. La latence mesuree inclut ce
 cout quand un callback est installe. Le lecteur CLI actuel de M2 consomme un
 fichier deja disponible, sans lecture suivie (tail).
+
+Sur la branche d'intégration `feat/spatial-telemetry`, M2 fournit aussi
+`--perception-video` avec `--calibration` pour lancer le callback M1 et le
+transport radio ensemble, sans relecture du JSONL. Voir `M2_README.md` pour
+la commande, la file bornée, les limites d'arrêt et la durée de mission.

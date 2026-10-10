@@ -1,0 +1,60 @@
+{
+  "schemaVersion": 1,
+  "mode": "live",
+  "simulatedElapsedS": 21.506961499999306,
+  "wallElapsedS": 21.50754819999929,
+  "completed": true,
+  "cancelled": false,
+  "source": {
+    "source": "m1-live-callback",
+    "rejectedDetections": 0,
+    "producerCompleted": true,
+    "interrupted": false,
+    "offeredObservations": 30,
+    "consumedObservations": 30,
+    "discardedAtStop": 0,
+    "timing": "mission window includes local model startup; capturedAt remains M1 capture time"
+  },
+  "transport": {
+    "generated": 30,
+    "enqueued": 30,
+    "delivered": 30,
+    "acknowledged": 30,
+    "pending": 0,
+    "maxPending": 27,
+    "queueDropped": 0,
+    "abandoned": 0,
+    "retransmissions": 20,
+    "radioDuplicates": 7,
+    "dataPacketsSent": 50,
+    "dataPacketsLost": 13,
+    "ackPacketsSent": 37,
+    "ackPacketsLost": 7,
+    "dataBytesSent": 8850,
+    "ackBytesSent": 407,
+    "totalBytesSent": 9257,
+    "deliveryRate": 1.0,
+    "meanDeliveryLatencyS": 8.21931819842025,
+    "maxDeliveryLatencyS": 16.892137436998873
+  },
+  "meanBinaryFrameBytes": 177.0,
+  "meanJsonFrameBytes": 955.6666666666666,
+  "totalRadioBytesPerOriginalJsonByte": 0.32288106034182074,
+  "maxDeliveredLocalizationErrorM": null,
+  "rejectedDetections": [],
+  "slowWebSocketClients": 0,
+  "link": {
+    "bytesPerSecond": 4096.0,
+    "latencyS": 0.1,
+    "jitterS": 0.05,
+    "lossProbability": 0.2,
+    "blackouts": [
+      [
+        1.0,
+        2.0
+      ]
+    ],
+    "seed": 7
+  },
+  "byteAccounting": "application packets including CRC, DATA retries and ACK; excludes TCP/WS/IP headers"
+}

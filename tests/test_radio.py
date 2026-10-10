@@ -23,6 +23,16 @@ def test_byte_bandwidth_and_shared_ack_budget():
     assert link.bytes_sent == 150
 
 
+def test_link_snapshot_uses_capture_time_not_current_counters():
+    link = RadioLink(LinkConfig(bytes_per_second=100, blackouts=((1., 2.),)))
+    link.send(b"x", .5, "data")
+    link.send(b"x", 1.5, "data")
+    link.send(b"x", 2.5, "ack")
+    assert link.snapshot(.4) == dict(status="connected", packetsSent=0, packetsLost=0)
+    assert link.snapshot(1.6) == dict(status="disconnected", packetsSent=2, packetsLost=1)
+    assert link.snapshot(3.) == dict(status="connected", packetsSent=2, packetsLost=1)
+
+
 def test_blackout_intersecting_transmission_is_loss():
     link = RadioLink(LinkConfig(bytes_per_second=100, blackouts=((.5, 2.),)))
     assert link.send(b"x" * 100, 0, "data").lost

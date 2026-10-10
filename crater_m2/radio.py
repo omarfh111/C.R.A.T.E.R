@@ -47,6 +47,7 @@ class RadioLink:
         self.available_at = 0.
         self.data_sent = self.data_lost = self.ack_sent = self.ack_lost = 0
         self.data_bytes = self.ack_bytes = 0
+        self._data_attempts = []
 
     @property
     def packets_sent(self):
@@ -73,6 +74,17 @@ class RadioLink:
             return "disconnected"
         return "degraded" if self.config.loss_probability > 0 or self.config.latency_s > .25 else "connected"
 
+    def snapshot(self, captured_at_s):
+        """Capture-time DATA attempt counters for delayed local perception.
+
+        Attempts use the simulator's send-call time, as its cumulative counters
+        do; loss is the simulated outcome, not a physical loss estimator.
+        """
+        if not math.isfinite(captured_at_s) or captured_at_s < 0:
+            raise ValueError("invalid capture time")
+        attempts = [lost for when, lost in self._data_attempts if when <= captured_at_s]
+        return dict(status=self.status(captured_at_s), packetsSent=len(attempts), packetsLost=sum(attempts))
+
     def send(self, payload: bytes, now: float, kind: str) -> Transmission:
         if kind not in ("data", "ack") or not isinstance(payload, bytes) or not payload:
             raise ValueError("expected nonempty bytes and data/ack kind")
@@ -88,6 +100,7 @@ class RadioLink:
             self.data_sent += 1
             self.data_lost += int(lost)
             self.data_bytes += len(payload)
+            self._data_attempts.append((now, int(lost)))
         else:
             self.ack_sent += 1
             self.ack_lost += int(lost)

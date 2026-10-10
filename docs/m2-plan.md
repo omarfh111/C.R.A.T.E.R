@@ -99,3 +99,21 @@ live integration without waiting for file completion. Uncalibrated NASA/remote
 perception must never acquire invented metric coordinates. Next bounded change:
 connect that callback through a bounded handoff to the existing M2 radio/WS loop,
 with finite source, error propagation, shutdown and real client tests.
+
+Live integration: added `--perception-video` (local Grounding DINO or controlled
+contrast backend), calibration required, bounded callback handoff and one worker.
+RED tests for missing stream, late producer errors, input/output collisions,
+capture-time snapshots and live deadline boundary; guards and historic DATA
+snapshots corrected them. Duration includes model startup explicitly; a mission
+with zero observations is incomplete rather than successful. Worker shutdown is
+cooperative and waits for ongoing inference; residual observations are counted.
+Read-only review findings addressed; detailed histories remain finite-mission
+scope. Local full suite: 129 passed, 1 opt-in learned-model smoke skipped.
+Actual local CLI controlled-video run: 30 observations offered/consumed/delivered/
+ACKed, 20 retransmissions, 7 station-suppressed radio duplicates, no discarded
+observations, finish 21.51 wall seconds. Radio 4096 bytes/s, latency 0.1 s,
+jitter 0.05 s, loss probability 20%, blackout 1-2 s, seed 7, drain allowance 60 s.
+Initial 6 s drain run correctly reported 19 delivered and 11 pending (incomplete).
+Final 30 JSONs accepted by M3's actual parser. Its contract is unchanged on the
+newer `feat/mission-control` head. See `docs/validation/m1-m2-live.json`.
+Merge increment `917d7d1` CI succeeded before the live increment was published.

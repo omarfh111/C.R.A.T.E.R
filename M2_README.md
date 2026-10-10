@@ -92,6 +92,40 @@ représentent pas la consommation d'une radio physique.
 
 ## Brancher M1
 
+### Analyse vidéo et télémétrie dans la même exécution
+
+```powershell
+python -m crater_m1 simulate --frames 30 --output outputs/live-scene
+python -m crater_m2 --perception-video outputs/live-scene/scene.mp4 --calibration outputs/live-scene/calibration.json --perception-backend synthetic-contrast --perception-output outputs/m1-live-run --duration 30 --bandwidth 512
+```
+
+M1 analyse les pixels dans un worker local et transmet chaque observation par
+callback. La station continue à traiter radio et WebSocket pendant l'inférence.
+La file intermédiaire contient quatre observations au maximum, configurable par
+`--perception-buffer` ; lorsqu'elle est pleine, le callback attend et ralentit M1.
+`--fps` limite leur prise en charge par M2, sans remplacer leurs heures de capture.
+Le statut et les compteurs DATA sont reconstruits à l'heure de capture à partir
+de l'historique du simulateur, même si l'inférence termine pendant une coupure.
+Les pertes du simulateur sont connues par construction ; ce n'est pas un
+estimateur de pertes pour une radio physique.
+
+Pour Grounding DINO local, installer `.[ai]`, préparer les poids avec la commande
+M1 `download-model`, puis retirer `--perception-backend synthetic-contrast` et
+fournir une vidéo et une calibration réelles compatibles. Aucun backend cloud
+n'est proposé par cette commande d'intégration. Le modèle suit le cache local.
+
+`--duration` inclut le chargement du modèle : prévoir une durée adaptée, par
+exemple 120 secondes pour un premier essai. Zéro observation donne un rapport
+incomplet et le code de sortie 2. Une erreur M1 donne un échec explicite, y compris
+si elle survient lors de l'arrêt. L'arrêt attend la fin de l'inférence en cours,
+puis interrompt le prochain callback ; il ne peut pas interrompre une opération
+native bloquée. Les observations restantes à la limite sont comptées dans
+`source.discardedAtStop`. Les écritures M1 partielles peuvent ne pas avoir de
+`metrics.json` si la mission interrompt son callback avant la fin de la vidéo.
+Choisir des répertoires de sortie distincts et un nouveau répertoire M1 par essai.
+
+### Relecture d'un fichier déjà produit
+
 ```powershell
 .\.venv\Scripts\python.exe -m crater_m2 --input examples/m1-observations.jsonl --no-blackout --loss 0
 ```
