@@ -6,6 +6,9 @@ sources M1. Sur le PC d'Omar, aucun poids ONNX n'a été téléchargé. Les essa
 locaux utilisent des fixtures et le détecteur `synthetic-contrast` **explicitement**
 pour vérifier les interfaces, pas pour annoncer des performances ONNX.
 
+Pour publier les véritables artefacts du PC M1 et permettre leur relecture sur
+le PC M2 : [export vérifié et publication du bundle](m1-calibrated-handoff.md).
+
 ## Préparer les checkouts sans modifier la branche M1
 
 Sur le PC du développeur M1, ces étapes de préparation peuvent utiliser internet.

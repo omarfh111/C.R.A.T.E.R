@@ -214,3 +214,6 @@ Le schéma M3 n'a pas changé. Documentation technique :
 
 Procédure ONNX sur le PC M1 :
 [commandes JSONL, callback DirectML et validation M3](docs/m1-m2-onnx-integration.md).
+
+Partage des petits artefacts ONNX existants :
+[export vérifié et publication Git depuis le PC M1](docs/m1-calibrated-handoff.md).
