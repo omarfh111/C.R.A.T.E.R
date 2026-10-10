@@ -17,6 +17,7 @@ function mockConfigFromEnv(): MockConfig {
     ...defaultMockConfig,
     intervalMs: Math.max(100, integer('VITE_MOCK_INTERVAL_MS', defaultMockConfig.intervalMs)),
     seed: integer('VITE_MOCK_SEED', defaultMockConfig.seed),
+    totalTicks: integer('VITE_MOCK_TOTAL_TICKS', defaultMockConfig.totalTicks),
     latencyTicks: integer('VITE_MOCK_LATENCY_TICKS', defaultMockConfig.latencyTicks),
     lossEvery: integer('VITE_MOCK_LOSS_EVERY', defaultMockConfig.lossEvery),
     duplicateEvery: integer('VITE_MOCK_DUPLICATE_EVERY', defaultMockConfig.duplicateEvery),
