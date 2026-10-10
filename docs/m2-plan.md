@@ -15,10 +15,10 @@ Dependencies: Python >=3.11, NumPy >=1.26,<3, websockets >=15,<16; pytest >=8,<9
 
 ## 1. Geometry and canonical JSON
 
-- [ ] Tests first: `tests/test_geometry.py`, `tests/test_contract.py`, observe RED.
-- [ ] Implement `crater_m2/geometry.py`, `crater_m2/contract.py` and package config.
-- [ ] Verify round trip on known ENU points, bad rays, rotation and strict JSON.
-- [ ] Run full suite; commit and push this verified increment.
+- [x] Tests first: `tests/test_geometry.py`, `tests/test_contract.py`, observe RED.
+- [x] Implement `crater_m2/geometry.py`, `crater_m2/contract.py` and package config.
+- [x] Verify round trip on known ENU points, bad rays, rotation and strict JSON.
+- [x] Run full suite; commit and push this verified increment.
 
 ## 2. Binary codec
 
@@ -53,3 +53,6 @@ Dependencies: Python >=3.11, NumPy >=1.26,<3, websockets >=15,<16; pytest >=8,<9
 
 Initial: design reconciled with M3 contract; main has no application baseline.
 User explicitly requested immediate execution; no further design gate imposed.
+Task 1: RED missing package, then GREEN 31/31 tests on Python 3.12. Verified
+known ENU projections, strict schema and invalid geometry. Existing local Python
+has required dependencies; no model/download or environment installation needed.

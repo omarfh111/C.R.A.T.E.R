@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "crater-m2"
+version = "0.1.0"
+description = "Calibrated localization and constrained telemetry for C.R.A.T.E.R."
+requires-python = ">=3.11"
+dependencies = ["numpy>=1.26,<3", "websockets>=15,<16"]
+
+[project.optional-dependencies]
+test = ["pytest>=8,<9"]
+
+[project.scripts]
+crater-m2 = "crater_m2.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["crater_m2*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+asyncio_default_fixture_loop_scope = "function"
