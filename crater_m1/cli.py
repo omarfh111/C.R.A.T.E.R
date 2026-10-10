@@ -23,6 +23,7 @@ def main():
     run.add_argument("--cache-dir",default=".cache/huggingface"); run.add_argument("--calibration")
     run.add_argument("--no-preview",action="store_true")
     run.add_argument("--env-file",default=".env")
+    run.add_argument("--tiles",choices=["off","2x2"],default="off",help="ONNX full image plus four overlapping crops")
     run.add_argument("--max-rock-area",type=float,default=.5,help="ONNX/hf-space maximum box fraction of image area (default .5)")
     check=sub.add_parser("hf-check",help="validate .env without an API call"); check.add_argument("--env-file",default=".env")
     simulate=sub.add_parser("simulate"); simulate.add_argument("--output",required=True); simulate.add_argument("--frames",type=int,default=90)
@@ -101,6 +102,10 @@ def main():
                 detector=SyntheticContrastDetector() if args.backend=="synthetic-contrast" else GroundingDino(
                     device=args.device,threshold=args.threshold,text_threshold=args.text_threshold,prompt=args.prompt or "a rock.",
                     cache_dir=args.cache_dir,image_size=args.image_size or 640)
+            if args.tiles!="off":
+                if args.backend!="onnx-grounding-dino": raise ValueError("tiling requires the local ONNX backend")
+                from .tiling import TiledDetector
+                detector=TiledDetector(detector)
             result=run_pipeline(args.video,args.output,detector,view=args.view,crop=args.crop,stride=args.stride,
                 max_frames=args.max_frames,calibration=args.calibration,preview=not args.no_preview)
             result["backend"]=args.backend

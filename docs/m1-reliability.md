@@ -26,3 +26,13 @@ selection remains .25; the default is intentionally retained.
 ```powershell
 .\.venv\Scripts\python -m crater_m1 tune-threshold outputs/reliability-raw-scores/observations.jsonl examples/nasa-pilot-annotations.json --output outputs/reliability-thresholds.json
 ```
+
+## Overlapping crops
+
+`--tiles 2x2` runs the full image plus four overlapping crops through the same
+model. Crop boxes are mapped to original pixels; internal seam-truncated
+boxes are discarded and duplicates are merged. Any crop failure rejects the
+whole frame. The tuning set improved from 6/8 to 7/8 matched rocks with no
+additional scoped false positive. Five inference calls increase processing
+latency to about 2.9 seconds/image in the eight-frame check, so crops are opt-in.
+[Crop tuning, reserved results and timing](validation/reliability-tiles.json).

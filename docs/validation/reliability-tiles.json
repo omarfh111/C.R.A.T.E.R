@@ -1,0 +1,112 @@
+{
+  "stage": "overlapping crop detection",
+  "tuning": {
+    "scope": "Pilot manual annotation: left view of First AutoNav, frames 0/10/20; visible individual rocks with bbox width >=30 and height >=20 pixels. Smaller stones and boundary-truncated objects excluded; preliminary visual labels, not a validated benchmark.",
+    "frames_evaluated": [
+      0,
+      10,
+      20
+    ],
+    "iou_threshold": 0.5,
+    "prediction_min_width_px": 30,
+    "prediction_min_height_px": 20,
+    "true_positives": 7,
+    "false_positives": 0,
+    "false_negatives": 1,
+    "precision": 1.0,
+    "recall": 0.875,
+    "matched_mean_iou": 0.7668131690461022,
+    "id_switches": 1,
+    "tracking_note": "ID switches between successive matches of an annotated ID, including gaps; not IDF1/MOTA."
+  },
+  "validation": {
+    "scope": "Provisional manual visual labels on reserved same-video NASA frames 5/15/25/35, before examining predictions. Individual visible rocks >=30x20 pixels; small stones, dunes, rover hardware and boundary-truncated objects excluded. Assistant annotations require human review; not an independent benchmark.",
+    "frames_evaluated": [
+      5,
+      15,
+      25,
+      35
+    ],
+    "iou_threshold": 0.5,
+    "prediction_min_width_px": 30,
+    "prediction_min_height_px": 20,
+    "true_positives": 3,
+    "false_positives": 3,
+    "false_negatives": 6,
+    "precision": 0.5,
+    "recall": 0.3333333333333333,
+    "matched_mean_iou": 0.7813471182034645,
+    "id_switches": null,
+    "tracking_note": "Detection-only annotations; identities were not labeled."
+  },
+  "metrics": {
+    "video": {
+      "file": "vid3.mp4",
+      "fps": 2.0,
+      "frames": 43,
+      "sha256": "d7f157de8f5bb694a614230901b4de2359dc439e0e94c8bcd5b629177ea9f461",
+      "width": 2560,
+      "height": 960
+    },
+    "processed_frames": 8,
+    "detections_total": 42,
+    "unique_track_ids": 38,
+    "wall_seconds": 23.529895799933,
+    "end_to_end_fps": 0.3399930058348486,
+    "processing_fps": 0.3501363765891737,
+    "processing_fps_excluding_first": 0.3501686622380336,
+    "latency_ms_mean": 2856.0300124809146,
+    "latency_ms_p95": 2932.4739950010553,
+    "inference_ms_mean": 2781.643187481677,
+    "cpu_seconds": 41.6875,
+    "cpu_percent_process_mean": 177.32500000000002,
+    "cpu_percent_note": "process CPU can exceed 100% on multicore",
+    "rss_peak_mb": 1287.8046875,
+    "model_resources": {
+      "device": "directml",
+      "execution": "local-onnx",
+      "model_id": "onnx-community/grounding-dino-tiny-ONNX",
+      "model_revision": "ff690b0a8050566c290287545bd059350f3e9096",
+      "source_model_file": "onnx/model_fp16.onnx",
+      "prepared_model_file": "model_fp32.onnx",
+      "precision": "FP32 promoted from FP16 source",
+      "onnxruntime_version": "1.24.4",
+      "providers": [
+        "DmlExecutionProvider",
+        "CPUExecutionProvider"
+      ],
+      "gpu_adapter": {
+        "device_id": 0,
+        "name": "NVIDIA GeForce RTX 3050 6GB Laptop GPU",
+        "vendor_id": 4318,
+        "dedicated_video_mb": 6001
+      },
+      "image_size": 800,
+      "prompt": "rock. stone. boulder.",
+      "threshold": 0.25,
+      "text_threshold": 0.2,
+      "max_rock_box_area_fraction": 0.5,
+      "rejected_large_boxes": 33,
+      "confidence_semantics": "Grounding DINO detector score; not calibrated probability",
+      "challenge_local_perception_compliant": true,
+      "provider_note": "DirectML accelerates supported operators; unsupported/shape operators may execute on CPU.",
+      "tiling": {
+        "mode": "2x2-overlap-plus-full",
+        "inference_calls_per_frame": 5,
+        "completed_frames": 8,
+        "inference_calls": 40,
+        "rejected_seam_boxes": 0,
+        "note": "Internal crop-edge boxes excluded; overlapping views merged by NMS."
+      }
+    },
+    "original_capture_fps": null,
+    "notes": [
+      "Playback FPS is not original sensor capture cadence.",
+      "Processing latency includes inference, association, JSON serialization; excludes preview encoding.",
+      "Model loading excluded; first inference included. RSS sampled once per frame.",
+      "Uncalibrated observations have null camera and rover position; no metric coordinates inferred."
+    ],
+    "backend": "onnx-grounding-dino"
+  },
+  "decision": "Expose crops as opt-in: tuning recall improves but five inference calls increase latency. No default latency regression."
+}
