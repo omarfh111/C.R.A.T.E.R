@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "mode": "benchmark",
+  "simulatedElapsedS": 3.0,
+  "wallElapsedS": 0.01983570004813373,
+  "completed": true,
+  "cancelled": false,
+  "source": {
+    "source": "m1-calibrated-jsonl",
+    "rejectedDetections": 0
+  },
+  "transport": {
+    "generated": 30,
+    "enqueued": 30,
+    "delivered": 30,
+    "acknowledged": 30,
+    "pending": 0,
+    "maxPending": 1,
+    "queueDropped": 0,
+    "abandoned": 0,
+    "retransmissions": 0,
+    "radioDuplicates": 0,
+    "dataPacketsSent": 30,
+    "dataPacketsLost": 0,
+    "ackPacketsSent": 30,
+    "ackPacketsLost": 0,
+    "dataBytesSent": 5310,
+    "ackBytesSent": 330,
+    "totalBytesSent": 5640,
+    "deliveryRate": 1.0,
+    "meanDeliveryLatencyS": 0.04821289062499995,
+    "maxDeliveryLatencyS": 0.048212890625000004
+  },
+  "meanBinaryFrameBytes": 177.0,
+  "meanJsonFrameBytes": 1001.0333333333333,
+  "totalRadioBytesPerOriginalJsonByte": 0.18780593386833605,
+  "maxDeliveredLocalizationErrorM": null,
+  "rejectedDetections": [],
+  "slowWebSocketClients": 0,
+  "rejectedDetectionsOmitted": 0,
+  "diagnosticLimits": {
+    "rejectionSamples": 100,
+    "radioHistorySnapshots": 4096
+  },
+  "link": {
+    "bytesPerSecond": 4096.0,
+    "latencyS": 0.005,
+    "jitterS": 0.0,
+    "lossProbability": 0.0,
+    "blackouts": [],
+    "seed": 7
+  },
+  "byteAccounting": "application packets including CRC, DATA retries and ACK; excludes TCP/WS/IP headers"
+}
