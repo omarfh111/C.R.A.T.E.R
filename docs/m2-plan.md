@@ -140,3 +140,26 @@ bytes without adding a generated frame. Full suite139 passed,1 optional AI smoke
 skipped. Default benchmark unchanged:30/30 delivered,8709 radio bytes,58.14 s
 virtual finish; all30 decoded JSONs accepted by M3. M1 head a0c660e CI is green;
 its latest changes remain experimental remote modes outside this M2 increment.
+
+## Local assistant increment
+
+User authorized local LLM, embeddings and RAG independently of ongoing M1 work.
+Added `crater_assistant`: explicit bounded corpus, local Ollama-only embedding
+and generation calls, cosine retrieval, source digests and embedding identity,
+deterministic M2 report facts, citation validation and separate loopback HTTP API.
+Optional PDF import preserves page references; the supplied 11-page specification
+was extracted and indexed locally without publishing its text. No M3 schema
+changes. Four controlled roles rather than autonomous rover-control agents.
+
+Tests first, independent review and regression fixes: empty-source overwrite,
+unstable Ollama parameter ordering, report snapshot coherence and long PDF lines.
+Full suite: 183 passed, 1 optional learned-model smoke skipped; benchmark 30/30 and
+actual M3 parser: 30/30 accepted. Commit fbdab2c published; CI 38083587152 succeeded
+on Python 3.11 and 3.12. Local generation quality still undergoing smoke tests:
+generic 4B resolves to Thinking 2507 and cannot disable reasoning; explicit
+Instruct 2507 download in progress. Early generation trials are not a fair model
+comparison. EmbeddingGemma 300M works on local
+Ollama 0.17.1; EmbeddingGemma 2:270m pull returns 412 requiring newer runtime.
+New M1 head a6df2e6 reviewed for schema/pipeline changes; none in the observed
+diff, integration deferred while M1 evolves. See ASSISTANT_README.md and
+docs/assistant-plan.md for architecture, model choices and deferred functions.

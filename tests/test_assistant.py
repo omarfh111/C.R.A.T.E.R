@@ -115,7 +115,7 @@ def test_local_client_validates_show_and_payload(monkeypatch):
             return {"capabilities": ["completion", "embedding"]}
         if path == "/api/embed":
             return {"embeddings": [[1, 2]]}
-        return {"message": {"content": json.dumps({"answer": "Oui", "sourceIds": ["S1"], "insufficientEvidence": False})}}
+        return {"message": {"content": "Oui [S1]."}}
     monkeypatch.setattr(client, "_post", post)
     assert client.embed(["calibration"], query=True) == [[1, 2]]
     assert calls[-1][1]["truncate"] is False
@@ -130,6 +130,45 @@ def test_show_remote_model_refused(monkeypatch):
     monkeypatch.setattr(client, "_post", lambda *args: {"remote_host": "https://ollama.com", "capabilities": ["completion"]})
     with pytest.raises(ValueError, match="cloud"):
         client.chat("question", [])
+
+
+def test_chat_uses_natural_text_and_derives_citation_ids(monkeypatch):
+    client = Ollama()
+    calls = []
+    def post(path, payload):
+        calls.append(payload)
+        if path == "/api/show":
+            return {"capabilities": ["completion"]}
+        return {"message": {"content": "Le pixel définit un rayon calibré [S1]."}}
+    monkeypatch.setattr(client, "_post", post)
+    result = client.chat("Pourquoi ?", [{"sourceId": "S1", "text": "Le rayon dépend de fx et fy."}])
+    assert result["sourceIds"] == ["S1"]
+    assert result["insufficientEvidence"] is False
+    assert "format" not in calls[-1]
+    assert 0 < calls[-1]["options"]["temperature"] <= 1
+    assert calls[-1]["model"] == "qwen3:4b-instruct-2507-q4_K_M"
+
+
+def test_thinking_only_weights_refused_before_generation(monkeypatch):
+    client = Ollama(chat_model="qwen3:4b")
+    calls = []
+    def post(path, payload):
+        calls.append(path)
+        return {"capabilities": ["completion", "thinking"],
+                "model_info": {"general.finetune": "Thinking"}}
+    monkeypatch.setattr(client, "_post", post)
+    with pytest.raises(ValueError, match="Thinking-only"):
+        client.chat("question", [])
+    assert calls == ["/api/show"]
+
+
+def test_chat_abstains_on_uncited_text(monkeypatch):
+    client = Ollama()
+    monkeypatch.setattr(client, "_post", lambda path, payload: (
+        {"capabilities": ["completion"]} if path == "/api/show" else
+        {"message": {"content": "INSUFFICIENT_EVIDENCE"}}))
+    assert client.chat("Température ?", []) == {
+        "answer": "INSUFFICIENT_EVIDENCE", "sourceIds": [], "insufficientEvidence": True}
 
 
 @pytest.mark.parametrize("origin", ["https://evil.com", "http://localhost.evil.com:5173", "null", "http://localhost:5173/path"])
@@ -170,6 +209,7 @@ def test_identity_ignores_ollama_parameter_order(monkeypatch):
         {"capabilities": ["embedding"], "modelfile": "FROM sha256:abc", "parameters": "num_ctx 2048\nnum_batch 2048"},
         {"capabilities": ["embedding"], "modelfile": "FROM sha256:abc", "parameters": "num_batch 2048\nnum_ctx 2048"}])
     monkeypatch.setattr(client, "_post", lambda *args: next(responses))
+    monkeypatch.setattr(client, "_get", lambda *args: {"models": [{"name": client.embedding_model, "digest": "a" * 64}]})
     assert client.embedding_identity() == client.embedding_identity()
 
 

@@ -12,7 +12,7 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description="Local document and M2-report assistant; no rover commands")
     parser.add_argument("--ollama-url", default="http://127.0.0.1:11434")
     parser.add_argument("--embedding-model", default="embeddinggemma:300m")
-    parser.add_argument("--llm", default="qwen3:4b")
+    parser.add_argument("--llm", default="qwen3:4b-instruct-2507-q4_K_M")
     parser.add_argument("--gpu", action="store_true", help="Allow GPU use; CPU by default to leave VRAM for M1")
     parser.add_argument("--timeout", type=int, default=180)
     sub = parser.add_subparsers(dest="command", required=True)

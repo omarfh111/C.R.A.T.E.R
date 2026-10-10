@@ -29,13 +29,16 @@ documentée pour cela. Le schéma canonique de télémétrie reste inchangé.
 
 ## Validation en cours
 
-- EmbeddingGemma300M : installé,11passages M2 indexés en CPU.
-- EmbeddingGemma2:270m : catalogue confirmé, pull refusé par Ollama0.17.1
-  avec HTTP412 (runtime trop ancien). Migration configurée, pas annoncée validée.
-- Qwen3:1.7b : inférence réelle testée mais explications trop approximatives ;
-  citations parfois absentes. Non retenu comme recommandation finale.
-- Qwen3:4b : téléchargement pour essai comparatif, sous Apache2.0.
-- PDF fourni :11pages exportées avec références conservées, sans publier le texte.
+- EmbeddingGemma 300M : installé, 11 passages M2 indexés en CPU.
+- EmbeddingGemma 2:270m : catalogue confirmé, pull refusé par Ollama 0.17.1
+  avec HTTP 412 (runtime trop ancien). Migration configurée, pas annoncée validée.
+- Premiers essais Qwen : réponses approximatives ou tronquées, pas une
+  comparaison de performance équitable entre modèles.
+- Qwen3:4b : les métadonnées locales identifient Thinking 2507, incompatible
+  avec un mode sans raisonnement ; ces poids sont refusés par le client.
+- Qwen3:4b-instruct-2507-q4_K_M : tag explicite retenu, téléchargement en cours,
+  sous Apache 2.0 ; génération directe sans raisonnement à valider localement.
+- PDF fourni : 11 pages exportées avec références conservées, sans publier le texte.
 - Revue indépendante : aucun défaut bloquant ; lecture unique des rapports et
   préfixes de page sur lignes PDF longues corrigés avec tests de régression.
 - M1 nouveau head a6df2e6 : ONNX GPU local et réglage des seuils, sans changement

@@ -8,14 +8,21 @@ pas le rover. Il fonctionne séparément du WebSocket de télémétrie M3.
 ## Choix des modèles
 
 Configuration retenue : Ollama 0.17.1,
-`embeddinggemma:300m` pour la recherche texte et `qwen3:4b` pour l'explication.
-L'indexation et l'import PDF sont validés sur cette machine ; le smoke du 4B
-est en cours pendant son téléchargement. Le premier essai Qwen3 1.7B a montré
-des explications trop approximatives ; il n'est pas le modèle recommandé.
+`embeddinggemma:300m` pour la recherche texte et
+`qwen3:4b-instruct-2507-q4_K_M` pour l'explication.
+L'indexation et l'import PDF sont validés sur cette machine ; la variante
+Instruct se télécharge et son smoke est prévu après installation.
+Les premiers essais ne constituent pas une
+comparaison de performance entre modèles : leurs réglages de génération ont
+également évolué. Le tag générique `qwen3:4b` pointe ici vers Thinking 2507,
+dont le raisonnement ne peut pas être désactivé. Le client refuse ces poids
+Thinking et recommande le tag Instruct explicite pour les réponses courtes.
 Ce sont des modèles locaux. Les variantes cloud présentes dans Ollama ne sont
 pas utilisées ; le client refuse les noms cloud et les métadonnées distantes.
 Qwen3 4B est quantifié Q4_K_M, environ 2,5 GB dans le
-[catalogue officiel](https://ollama.com/library/qwen3:4b).
+[catalogue officiel](https://ollama.com/library/qwen3:4b-instruct-2507-q4_K_M).
+La [fiche Qwen](https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507) confirme
+que cette variante produit directement la réponse, sans bloc de raisonnement.
 [EmbeddingGemma 300M](https://ollama.com/library/embeddinggemma) occupe environ
 622 MB. Il s'agit de la première génération, sous les conditions Gemma, pas
 d'EmbeddingGemma 2. La vitesse doit être mesurée sur le corpus et le matériel.
@@ -67,7 +74,7 @@ pas besoin d'internet. Aucun jeton/API payante n'est nécessaire.
 ```powershell
 python -m pip install -e '.[test,hosted]'
 ollama pull embeddinggemma:300m
-ollama pull qwen3:4b
+ollama pull qwen3:4b-instruct-2507-q4_K_M
 python -m crater_assistant index docs/assistant-knowledge.md docs/m2-design.md docs/m1-observation-contract.md
 python -m crater_assistant ask "Pourquoi la calibration est-elle nécessaire ?"
 python -m crater_assistant ask "Pourquoi 30 trames sont livrées malgré des pertes radio ?" --report artifacts/m2-report.json
