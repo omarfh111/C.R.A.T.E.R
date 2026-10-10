@@ -40,13 +40,11 @@ describe('Mission Control accepted telemetry display', () => {
     expect(screen.getByRole('region', { name: 'Packet accounting' }).textContent).toContain('ACCEPTED1')
   })
 
-  it('keeps Replay Intro separate from the mock telemetry session', () => {
+  it('shows mock DEMO controls without a Replay Intro button', () => {
     const source = telemetry('MOCK')
-    const replay = vi.fn()
-    render(<MissionControl telemetry={source} onReplayIntro={replay} />)
+    render(<MissionControl telemetry={source} />)
     expect(screen.getByRole('button', { name: /^DEMO/ })).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: /REPLAY INTRO/ }))
-    expect(replay).toHaveBeenCalledOnce()
+    expect(screen.queryByRole('button', { name: /REPLAY INTRO/ })).toBeNull()
     expect(source.demo?.restart).not.toHaveBeenCalled()
     expect(screen.getByRole('region', { name: 'Packet accounting' }).textContent).toContain('ACCEPTED1')
   })

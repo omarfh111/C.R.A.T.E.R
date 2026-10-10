@@ -18,8 +18,6 @@ import './mission-control.css'
 export type MissionControlProps = {
   /** From `useMissionTelemetry()`. All operational displays derive from this. */
   telemetry: MissionTelemetry
-  /** Wire to `useIntroPlayback().replayIntro`. Button hidden when omitted. */
-  onReplayIntro?: () => void
   /** True while the lunar intro overlay is covering the dashboard. On true→false the map replays its boot reveal. */
   introActive?: boolean
   /** Extra classes on the root, e.g. the existing `dashboard-shell` / `dashboard-shell--intro-active` crossfade classes. */
@@ -34,7 +32,7 @@ const ALL_TYPES: HazardFilters = { crater: true, rock: true, slope: true, unknow
 const ALL_LAYERS: MapLayers = { trail: true, unc: true, rings: true, envelope: true, cog: true }
 
 export function MissionControl({
-  telemetry, onReplayIntro, introActive = false, className = '', inert = false,
+  telemetry, introActive = false, className = '', inert = false,
   staleThresholdMs = THRESHOLDS.staleMs, agedHazardMs = THRESHOLDS.agedHazardMs,
 }: MissionControlProps) {
   const now = useNow(500)
@@ -93,7 +91,6 @@ export function MissionControl({
         sourceMode={telemetry.mode}
         utc={new Date(now).toISOString().slice(11, 21)}
         wide={vw >= 1560}
-        onReplayIntro={onReplayIntro}
         demo={telemetry.demo && cfg ? {
           open: demoOpen, onToggle: () => setDemoOpen((o) => !o), presetId: telemetry.demo.presetId,
           onPick: (id) => { telemetry.demo?.restart(id); setDemoOpen(false) },

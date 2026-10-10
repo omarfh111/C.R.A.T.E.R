@@ -45,12 +45,11 @@ const mockConfig = mockConfigFromEnv()
 
 function App() {
   const telemetry = useMissionTelemetry({ mode, liveUrl: import.meta.env.VITE_TELEMETRY_WS_URL, mockConfig })
-  const { introVisible, introRun, handoffStarted, startHandoff, completeIntro, replayIntro } = useIntroPlayback()
+  const { introVisible, introRun, handoffStarted, startHandoff, completeIntro } = useIntroPlayback()
 
   return <>
     <MissionControl
       telemetry={telemetry}
-      onReplayIntro={replayIntro}
       introActive={introVisible && !handoffStarted}
       inert={introVisible}
       className={`dashboard-shell ${introVisible && !handoffStarted ? 'dashboard-shell--intro-active' : ''}`}

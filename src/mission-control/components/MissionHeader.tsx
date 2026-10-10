@@ -19,12 +19,11 @@ type Props = {
   utc: string
   /** ≥ 1560 px: show SCHEMA / frame chips and the posture caption. */
   wide: boolean
-  onReplayIntro?: () => void
   /** MOCK only. Omit in LIVE mode — the DEMO control must not appear against real telemetry. */
   demo?: DemoMenuProps
 }
 
-export function MissionHeader({ posture, postureSub, sourceMode, utc, wide, onReplayIntro, demo }: Props) {
+export function MissionHeader({ posture, postureSub, sourceMode, utc, wide, demo }: Props) {
   const p = POSTURE_STYLE[posture]
   return (
     <header className="mc-header">
@@ -54,7 +53,6 @@ export function MissionHeader({ posture, postureSub, sourceMode, utc, wide, onRe
         {wide && <span className="mc-chip">SCHEMA v1</span>}
         {wide && <span className="mc-chip">LOCAL_ENU_V1 · m</span>}
         <span className="mc-clock"><span className="mc-clock__label">MC CLOCK UTC</span><span className="mc-clock__value">{utc}</span></span>
-        {onReplayIntro && <button type="button" className="mc-replay" onClick={onReplayIntro}>↺ REPLAY INTRO</button>}
       </div>
     </header>
   )

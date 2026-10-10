@@ -49,9 +49,6 @@
 .mc-clock { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; padding: 0 6px; }
 .mc-clock__label { font-size: 9px; color: var(--mc-dim); }
 .mc-clock__value { font-size: 13px; letter-spacing: 0.06em; color: var(--mc-text); font-variant-numeric: tabular-nums; }
-/* identical to .dashboard-replay in src/style.css */
-.mc-replay { border: 1px solid rgba(145,214,229,0.32); padding: 10px 12px; color: #b9dce4; background: rgba(16,42,54,0.35); font-family: var(--mc-mono); font-size: 10px; letter-spacing: 0.12em; cursor: pointer; }
-.mc-replay:hover, .mc-replay:focus-visible { border-color: var(--mc-cyan); color: #eafaff; outline: none; }
 
 /* DEMO (preview-only mock controls) */
 .mc-demo { position: relative; }
@@ -300,7 +297,6 @@
   .mc-brand__rule { display: none; }
   .mc-brand__sub { font-size: 8px; letter-spacing: 0.1em; }
   .mc-clock__label { display: none; }
-  .mc-replay { padding: 7px 9px; font-size: 9px; }
   .mc-map__heading span { font-size: 8px; }
   .mc-banner__l1, .mc-banner__l2 { font-size: 9px; }
   .mc-inv-grid { grid-template-columns: 12px minmax(0,1fr) 34px 72px 36px; gap: 4px; }
