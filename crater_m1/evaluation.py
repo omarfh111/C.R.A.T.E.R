@@ -50,5 +50,5 @@ def evaluate(predictions,annotations,threshold=.5):
     return {"scope":truth.get("scope","unspecified"),"frames_evaluated":evaluated,"iou_threshold":threshold,"prediction_min_width_px":truth.get("min_width_px",0),"prediction_min_height_px":truth.get("min_height_px",0),
         "true_positives":tp,"false_positives":fp,"false_negatives":fn,
         "precision":tp/(tp+fp) if tp+fp else None,"recall":tp/(tp+fn) if tp+fn else None,
-        "matched_mean_iou":float(np.mean(overlaps)) if overlaps else None,"id_switches":switches,
-        "tracking_note":"ID switches between successive matches of an annotated ID, including gaps; not IDF1/MOTA."}
+        "matched_mean_iou":float(np.mean(overlaps)) if overlaps else None,"id_switches":switches if truth.get("identity_labels",True) else None,
+        "tracking_note":"ID switches between successive matches of an annotated ID, including gaps; not IDF1/MOTA." if truth.get("identity_labels",True) else "Detection-only annotations; identities were not labeled."}

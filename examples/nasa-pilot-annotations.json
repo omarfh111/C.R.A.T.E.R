@@ -103,5 +103,6 @@
       "frame_index": 20,
       "detections": []
     }
-  ]
+  ],
+  "split": "tuning"
 }
