@@ -85,7 +85,7 @@ export function ageView(d: CommsDerivation) {
     pct: a != null ? Math.min(100, (a / d.staleMs) * 100) : 0,
     degradedPct: (d.degradedMs / d.staleMs) * 100,
     degradedS: (d.degradedMs / 1000).toFixed(0), staleS: (d.staleMs / 1000).toFixed(0),
-    state: a == null ? 'NO DATA' : a > d.staleMs ? 'STALE' : a > d.degradedMs ? 'AGING' : 'FRESH',
+    state: d.posture === 'BLACKOUT' || d.posture === 'TRANSPORT_DOWN' ? 'LAST KNOWN' : a == null ? 'NO DATA' : a > d.staleMs ? 'STALE' : a > d.degradedMs ? 'AGING' : 'FRESH',
   }
 }
 
