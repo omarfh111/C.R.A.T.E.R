@@ -24,6 +24,8 @@ def run(video,output,detector,*,view="full",crop=None,stride=1,max_frames=None,
     poses=None
     if calibration is not None:
         poses=json.loads(Path(calibration).read_text(encoding="utf-8"))
+    initial_resources=detector.resources()
+    is_remote=initial_resources.get("device")=="remote"
     process=psutil.Process(); before=process.cpu_times(); start=time.perf_counter()
     latencies=[]; inference=[]; memory=[]; counts=[]; writer=None; cpu=[]
     process.cpu_percent(None)
@@ -43,7 +45,10 @@ def run(video,output,detector,*,view="full",crop=None,stride=1,max_frames=None,
                     validate_pose(camera,rover_position,pose_uncertainty,w,h)
                     if camera["width"]!=w or camera["height"]!=h or rect != (0,0,info["width"],info["height"]):
                         raise ValueError("calibration must match uncropped video resolution")
-                payload={"schemaVersion":1,"roverId":rover_id,"sequence":sequence,"capturedAt":captured,
+                payload={"perception":{"execution":"remote" if is_remote else "local",
+                        "confidence_semantics":initial_resources.get("confidence_semantics","detector score; not calibrated"),
+                        "challenge_local_perception_compliant":not is_remote},
+                    "schemaVersion":1,"roverId":rover_id,"sequence":sequence,"capturedAt":captured,
                     "source":{"file":Path(video).name,"file_sha256":info["sha256"],"frame_index":frame_index,"video_time_s":video_time,
                         "capture_timing":"simulated_known_pose" if poses is not None else "video_playback_unknown_original_cadence"},
                     "image":{"width":w,"height":h,"crop_xywh":list(rect)},"camera":camera,
@@ -62,7 +67,7 @@ def run(video,output,detector,*,view="full",crop=None,stride=1,max_frames=None,
                         cv2.putText(display,f"{track.id} {track.detection.type} {track.detection.confidence:.2f}",
                             (x1,max(15,y1-5)),cv2.FONT_HERSHEY_SIMPLEX,.45,(30,180,40),1)
                         cv2.circle(display,tuple(map(int,track.detection.contact_pixel)),3,(0,100,255),-1)
-                    text=f"M1 | frame {frame_index} | {1000/elapsed:.1f} processing FPS | {len(observed)} observations"
+                    text=f"M1 {'CLOUD' if is_remote else 'LOCAL'} | frame {frame_index} | {1000/elapsed:.1f} processing FPS | {len(observed)} observations"
                     cv2.rectangle(display,(0,0),(w,32),(15,20,30),-1)
                     cv2.putText(display,text,(10,22),cv2.FONT_HERSHEY_SIMPLEX,.48,(255,255,255),1)
                     if writer is None:

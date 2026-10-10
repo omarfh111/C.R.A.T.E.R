@@ -1,4 +1,4 @@
-"""CLI with explicit online setup and offline inference by default."""
+"""CLI for local perception and explicitly selected hosted experiments."""
 import argparse
 import json
 from pathlib import Path
@@ -11,7 +11,7 @@ def main():
     inspect=sub.add_parser("inspect"); inspect.add_argument("video")
     download=sub.add_parser("download-model"); download.add_argument("--cache-dir",default=".cache/huggingface")
     run=sub.add_parser("run"); run.add_argument("video"); run.add_argument("--output",required=True)
-    run.add_argument("--backend",choices=["grounding-dino","synthetic-contrast"],default="grounding-dino")
+    run.add_argument("--backend",choices=["grounding-dino","synthetic-contrast","hf-hosted"],default="grounding-dino")
     run.add_argument("--view",choices=["full","left","right"],default="full")
     run.add_argument("--crop",type=int,nargs=4,metavar=("X","Y","W","H"))
     run.add_argument("--stride",type=int,default=1); run.add_argument("--max-frames",type=int)
@@ -20,6 +20,8 @@ def main():
     run.add_argument("--device",choices=["auto","cpu","cuda"],default="auto")
     run.add_argument("--cache-dir",default=".cache/huggingface"); run.add_argument("--calibration")
     run.add_argument("--no-preview",action="store_true")
+    run.add_argument("--env-file",default=".env")
+    check=sub.add_parser("hf-check",help="validate .env without an API call"); check.add_argument("--env-file",default=".env")
     simulate=sub.add_parser("simulate"); simulate.add_argument("--output",required=True); simulate.add_argument("--frames",type=int,default=90)
     evaluate=sub.add_parser("evaluate"); evaluate.add_argument("predictions"); evaluate.add_argument("annotations"); evaluate.add_argument("--output"); evaluate.add_argument("--iou",type=float,default=.5)
     args=parser.parse_args()
@@ -31,6 +33,12 @@ def main():
             location=snapshot_download(MODEL_ID,revision=MODEL_REVISION,cache_dir=args.cache_dir,
                 allow_patterns=["*.json","*.txt","*.safetensors"])
             result={"model":MODEL_ID,"snapshot":location}
+        elif args.command=="hf-check":
+            from .hf_config import HFConfig
+            config=HFConfig.load(args.env_file)
+            result={"model":config.model,"provider":config.provider,"token_configured":True,
+                "api_call_made":False,"max_side":config.max_side,"max_requests":config.max_requests,
+                "challenge_local_perception_compliant":False}
         elif args.command=="simulate":
             from .simulation import generate
             result=generate(args.output,args.frames)
@@ -42,9 +50,19 @@ def main():
             if not 0<args.threshold<1 or not 0<args.text_threshold<1 or args.image_size<128: raise ValueError("invalid model settings")
             from .detectors import GroundingDino,SyntheticContrastDetector
             from .pipeline import run as run_pipeline
-            detector=SyntheticContrastDetector() if args.backend=="synthetic-contrast" else GroundingDino(
-                device=args.device,threshold=args.threshold,text_threshold=args.text_threshold,prompt=args.prompt,
-                cache_dir=args.cache_dir,image_size=args.image_size)
+            if args.backend=="hf-hosted":
+                from .hf_config import HFConfig
+                from .hf_detector import HostedGrounding
+                config=HFConfig.load(args.env_file)
+                limit=args.max_frames if args.max_frames is not None else 3
+                if limit>config.max_requests: raise ValueError("max-frames exceeds HF_MAX_REQUESTS")
+                args.max_frames=limit
+                detector=HostedGrounding(config,threshold=args.threshold)
+                print(f"Hosted experimental perception: {config.model} via {config.provider}; at most {limit} requests. Not local edge inference.",flush=True)
+            else:
+                detector=SyntheticContrastDetector() if args.backend=="synthetic-contrast" else GroundingDino(
+                    device=args.device,threshold=args.threshold,text_threshold=args.text_threshold,prompt=args.prompt,
+                    cache_dir=args.cache_dir,image_size=args.image_size)
             result=run_pipeline(args.video,args.output,detector,view=args.view,crop=args.crop,stride=args.stride,
                 max_frames=args.max_frames,calibration=args.calibration,preview=not args.no_preview)
             result["backend"]=args.backend

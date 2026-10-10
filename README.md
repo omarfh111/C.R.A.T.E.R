@@ -84,3 +84,10 @@ Les annotations pilotes dans `examples/nasa-pilot-annotations.json` portent
 sur trois images NASA et un seuil de taille explicite. Le SHA256 de la video
 est controle avant evaluation. Ce petit jeu manuel ne permet pas de generaliser
 les performances a toute une mission lunaire.
+
+## Hosted Hugging Face experiment
+
+See `docs/m1-hosted.md` for the selected hosted grounding model, lightweight
+installation, fine-grained token permissions and smoke test. Select
+`--backend hf-hosted` explicitly. This remote mode is marked CLOUD in preview
+and reports; it does not satisfy the challenge's local-only perception rule.
