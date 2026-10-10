@@ -8,7 +8,8 @@ LLM/RAG est un bonus ultérieur, indépendant du transport et des calculs spatia
 
 ## Contrat M3
 
-Source : `feat/mission-control`, contrat `a03880f5a6108e477283154bfc49027a40d9cb81`.
+Source : `feat/mission-control`, commit de validation
+`2015192b51ed1b4485faff1fa48bff5442cb3c82`.
 https://github.com/omarfh111/C.R.A.T.E.R/blob/feat/mission-control/docs/telemetry-contract.md
 
 Le JSON canonique v1 est conservé sans nouveaux champs. WebSocket local :
@@ -22,6 +23,21 @@ Les compteurs du JSON sont un instantané à la capture, non à la réception.
 
 Package Python `crater_m2`, indépendant des fichiers React de M3 :
 géométrie -> JSON canonique -> binaire -> simulateur radio -> décodage -> WS.
+
+```mermaid
+flowchart LR
+    M1["M1 : détections + calibration + pose"] --> G["M2 : pixel vers position ENU"]
+    S["Démo : pixels synthétiques calibrés"] --> G
+    G --> B["JSON validé puis binaire + CRC"]
+    B --> Q["File FIFO + retransmissions"]
+    Q --> R["Radio simulée : débit, pertes, coupures"]
+    R --> D["Station : décodage + suppression des doublons"]
+    D -->|ACK| R
+    R -->|ACK| Q
+    D --> W["WebSocket local : JSON canonique"]
+    W --> M3["M3 : Mission Control"]
+```
+
 Le simulateur est un script de transport à événements, conforme au format
 logiciel imposé ; il n'impose pas UDP et mesure les octets applicatifs seulement.
 Une liaison partagée sérialise données et ACK selon le débit ; pertes et délais

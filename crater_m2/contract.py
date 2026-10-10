@@ -14,6 +14,8 @@ _ISO = re.compile(r"^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}
 def timestamp(value: str) -> datetime:
     if not isinstance(value, str) or not _ISO.fullmatch(value):
         raise ValueError("timestamp must be ISO 8601 with timezone")
+    if not value.endswith("Z") and (int(value[-5:-3]) > 23 or int(value[-2:]) > 59):
+        raise ValueError("invalid timezone offset")
     try:
         return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(timezone.utc)
     except ValueError as exc:

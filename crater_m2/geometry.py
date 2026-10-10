@@ -65,17 +65,24 @@ def _pixel(camera, pixel):
 
 
 def _intersect(camera, pixel, ground_z_m, max_range_m):
-    ray = camera.rotation_camera_to_enu @ np.array([
+    local_ray = np.array([
         (pixel[0] - camera.cx) / camera.fx, (pixel[1] - camera.cy) / camera.fy, 1.])
+    if not np.isfinite(local_ray).all():
+        raise ValueError("nonfinite camera ray")
+    ray = camera.rotation_camera_to_enu @ local_ray
+    if not np.isfinite(ray).all():
+        raise ValueError("nonfinite ENU ray")
     if abs(ray[2]) < 1e-9:
         raise ValueError("ray parallel to ground")
     distance = (ground_z_m - camera.center_enu_m[2]) / ray[2]
-    if distance <= 0:
+    if not math.isfinite(distance) or distance <= 0:
         raise ValueError("ground is behind camera")
     displacement = distance * ray
-    if np.linalg.norm(displacement) > max_range_m:
+    if not np.isfinite(displacement).all() or np.linalg.norm(displacement) > max_range_m:
         raise ValueError("ground intersection exceeds range")
     point = np.asarray(camera.center_enu_m) + displacement
+    if not np.isfinite(point).all():
+        raise ValueError("nonfinite ground intersection")
     point[2] = ground_z_m
     return point
 

@@ -54,3 +54,10 @@ def test_uncertainty_grows_with_pixel_error():
     a = locate_ground(camera, (320, 240), pixel_error_px=1)
     b = locate_ground(camera, (320, 240), pixel_error_px=4)
     assert b.uncertainty_radius_m > a.uncertainty_radius_m
+
+
+def test_extreme_intrinsics_reject_nonfinite_ray():
+    camera = Camera(640, 480, 5e-324, 400, 320, 240,
+                    (0, 0, 2), np.diag([1., -1., -1.]))
+    with pytest.raises(ValueError):
+        locate_ground(camera, (321, 240))

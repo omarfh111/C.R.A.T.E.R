@@ -1,0 +1,42 @@
+name: M2 spatial telemetry
+
+on:
+  push:
+    branches: [feat/spatial-telemetry, main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install -e '.[test]'
+      - run: python -m pytest -q
+      - run: python -m crater_m2 --benchmark --duration 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m2-report-python-${{ matrix.python-version }}
+          path: artifacts/
+      - uses: actions/checkout@v4
+        if: matrix.python-version == '3.12'
+        with:
+          ref: 2015192b51ed1b4485faff1fa48bff5442cb3c82
+          path: tmp/m3-validation
+      - uses: actions/setup-node@v4
+        if: matrix.python-version == '3.12'
+        with:
+          node-version: '24'
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        if: matrix.python-version == '3.12'
+        working-directory: tmp/m3-validation
+      - run: node scripts/validate-m3-contract.mjs tmp/m3-validation/src/telemetry/contract.ts artifacts/received-frames.jsonl
+        if: matrix.python-version == '3.12'

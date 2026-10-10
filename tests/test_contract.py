@@ -1,6 +1,6 @@
 import pytest
 
-from crater_m2.contract import validate_frame
+from crater_m2.contract import timestamp, validate_frame
 
 
 def test_canonical_frame_is_valid_and_copied(frame):
@@ -15,6 +15,8 @@ def test_canonical_frame_is_valid_and_copied(frame):
     ("sequence", 1.5), ("sequence", True), ("roverId", ""),
     ("capturedAt", "2026-10-10T12:00:00"),
     ("capturedAt", "2026-02-30T12:00:00Z"),
+    ("capturedAt", "2026-10-10T12:00:00+00:99"),
+    ("capturedAt", "2026-10-10T12:00:00-24:00"),
     ("positionUncertaintyRadiusM", float("nan")),
 ])
 def test_reject_invalid_frame_fields(frame, field, value):
@@ -53,3 +55,8 @@ def test_timezone_offsets_and_empty_hazards(frame):
     assert validate_frame(frame) == frame
     frame["hazards"] = []
     assert validate_frame(frame)["hazards"] == []
+
+
+def test_invalid_offset_is_not_normalized():
+    with pytest.raises(ValueError):
+        timestamp("2026-10-10T12:00:00+00:99")

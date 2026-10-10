@@ -39,14 +39,14 @@ Dependencies: Python >=3.11, NumPy >=1.26,<3, websockets >=15,<16; pytest >=8,<9
 
 ## 4. Source adapters, WebSocket bridge and reproducible demo
 
-- [ ] Tests first: `tests/test_source.py`, `tests/test_bridge.py`, observe RED.
-- [ ] Implement calibrated scenario and JSONL M1 adapter in `crater_m2/source.py`.
-- [ ] Implement `TelemetryBridge` in `crater_m2/bridge.py`, loopback bind, exact
+- [x] Tests first: `tests/test_source.py`, `tests/test_bridge.py`, observe RED.
+- [x] Implement calibrated scenario and JSONL M1 adapter in `crater_m2/source.py`.
+- [x] Implement `TelemetryBridge` in `crater_m2/bridge.py`, loopback bind, exact
   path and bounded per-client output queues. Clients see decoded deliveries only.
-- [ ] Implement CLI `python -m crater_m2`: configurable link/source, report file,
+- [x] Implement CLI `python -m crater_m2`: configurable link/source, report file,
   finite benchmark or live demo; graceful shutdown and queue drain timeout.
-- [ ] Add M2-specific docs, example M1 file, GitHub Actions Python workflow.
-- [ ] Run suite, benchmark and actual websocket reception; validate the generated
+- [x] Add M2-specific docs, example M1 file, GitHub Actions Python workflow.
+- [x] Run suite, benchmark and actual websocket reception; validate the generated
   JSON fixture against the Zod contract on M3's branch. Review, commit and push.
 
 ## Progress
@@ -63,3 +63,17 @@ Task 3: RED missing transport, GREEN 60/60. Seeded 45% packet loss recovered
 10/10 ordered observations; lost ACK generated radio duplicates removed before
 station publication. Verified shared byte budget, blackout buffering, retry
 exhaustion, capture preservation and adaptive timeout at 10 bytes/s.
+Task 4: RED missing source/bridge, then GREEN 73/73 including real WebSocket
+reception across blackout, CLI report and reconnect. Independent read-only review
+found no Critical/Important issues. Added regression tests for nonfinite rays and
+invalid timezone offsets (RED), corrected guards, GREEN 77/77. Metric histories
+grow with mission duration; documented finite-mission scope rather than claiming
+all runtime state is bounded. Defaults reduced from 2 to 1 FPS and drain extended
+to 60 s after the 256 bytes/s experiment demonstrated queue overload at 2 FPS.
+Default 30 s benchmark: 30/30 delivered/ACKed, 163 bytes/frame, 8709 total radio
+bytes, 58.14 s virtual finish, maximum decoded localization error 0.0232 m.
+All 30 messages accepted by M3's actual pinned Zod parser; M3's 16 tests and
+production build passed in an ignored temporary checkout. Python wheel built.
+Windows sandbox denies asyncio's local sockets and pip metadata renaming;
+reruns with authorized elevated execution passed. No application workaround
+or skipped network test introduced.
