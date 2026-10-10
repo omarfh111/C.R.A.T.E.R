@@ -106,3 +106,17 @@ No model weights or GPU are required locally. The current `.env` token works.
 This experimental cloud mode remains subject to queues/daily quotas and the
 challenge's local-perception restriction. It emits normal tracked JSONL,
 preview and measured metrics for M1; it does not invent 3D coordinates.
+
+## Recommended local GPU route on the tested Windows PC
+
+The RTX 3050 6 GB is usable for local inference. The prepared ONNX backend
+uses DirectML and needs no CUDA PyTorch installation or HF_TOKEN. See
+[local setup and hardware checks](docs/m1-local-gpu.md).
+
+```powershell
+.\.venv\Scripts\python -m crater_m1 run ..\vid3.mp4 --backend onnx-grounding-dino --device directml --view left --output outputs/nasa-local-gpu
+```
+
+Weights and dependencies are already prepared on this PC. This local mode
+avoids HF API quotas. Accuracy and throughput must still be read from the
+measured validation report; rock detection does not establish terrain safety.
