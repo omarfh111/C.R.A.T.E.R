@@ -44,13 +44,53 @@ export function createMockAdapter(config: MockConfig = defaultMockConfig, now: (
 export function createLiveAdapter(url: string, WebSocketClass: typeof WebSocket = WebSocket): TelemetryAdapter {
   return {
     start(emit) {
+      let stopped = false
+      let socket: WebSocket | null = null
+      let retryTimer: ReturnType<typeof setTimeout> | null = null
+      let failures = 0
       emit({ type: 'status', status: 'connecting' })
-      const socket = new WebSocketClass(url)
-      socket.onopen = () => emit({ type: 'status', status: 'connected' })
-      socket.onclose = () => emit({ type: 'status', status: 'disconnected' })
-      socket.onerror = () => emit({ type: 'status', status: 'disconnected' })
-      socket.onmessage = (message) => emit({ type: 'packet', raw: message.data, receivedAt: new Date().toISOString() })
-      return () => socket.close()
+
+      const retry = () => {
+        if (stopped || retryTimer) return
+        // Retry indefinitely while the view is mounted, with a bounded 8 s delay.
+        const delay = Math.min(500 * 2 ** Math.min(failures++, 4), 8000)
+        retryTimer = setTimeout(() => { retryTimer = null; connect() }, delay)
+      }
+      const connect = () => {
+        if (stopped || socket) return
+        let current: WebSocket
+        try { current = new WebSocketClass(url) }
+        catch { emit({ type: 'status', status: 'disconnected' }); retry(); return }
+        socket = current
+        const dropped = () => {
+          if (stopped || socket !== current) return
+          current.onopen = current.onclose = current.onerror = current.onmessage = null
+          socket = null
+          emit({ type: 'status', status: 'disconnected' })
+          retry()
+        }
+        current.onopen = () => {
+          if (stopped || socket !== current) return
+          failures = 0
+          emit({ type: 'status', status: 'connected' })
+        }
+        current.onclose = dropped
+        current.onerror = () => { current.close(); dropped() }
+        current.onmessage = (message) => {
+          if (!stopped && socket === current) emit({ type: 'packet', raw: message.data, receivedAt: new Date().toISOString() })
+        }
+      }
+      connect()
+      return () => {
+        stopped = true
+        if (retryTimer) clearTimeout(retryTimer)
+        retryTimer = null
+        if (socket) {
+          socket.onopen = socket.onclose = socket.onerror = socket.onmessage = null
+          socket.close()
+          socket = null
+        }
+      }
     },
   }
 }

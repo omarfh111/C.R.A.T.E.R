@@ -83,9 +83,83 @@ describe('live adapter', () => {
     FakeSocket.instance.onmessage?.({ data: JSON.stringify(buildMockTimeline(config, startMs).generated[0]) })
     stop()
     expect(FakeSocket.instance.url).toBe('ws://localhost:8765/telemetry')
-    expect(events.map((event) => event.type)).toEqual(['status', 'status', 'packet', 'status'])
+    expect(events.map((event) => event.type)).toEqual(['status', 'status', 'packet'])
     const packetEvent = events[2]
     if (packetEvent.type !== 'packet') throw new Error('expected packet')
     expect(ingestTelemetry(initialTelemetryState, packetEvent).accepted).toBe(1)
+  })
+
+  it('backs off after disconnect, keeps one socket, and cancels retries on stop', () => {
+    vi.useFakeTimers()
+    try {
+      class FakeSocket {
+        static instances: FakeSocket[] = []
+        onopen: (() => void) | null = null
+        onclose: (() => void) | null = null
+        onerror: (() => void) | null = null
+        onmessage: ((event: { data: string }) => void) | null = null
+        closed = false
+        constructor() { FakeSocket.instances.push(this) }
+        close() { this.closed = true; this.onclose?.() }
+      }
+      const events: AdapterEvent[] = []
+      const stop = createLiveAdapter('ws://localhost:8765/telemetry', FakeSocket as unknown as typeof WebSocket).start((event) => events.push(event))
+      expect(FakeSocket.instances).toHaveLength(1)
+      FakeSocket.instances[0].onopen?.()
+      FakeSocket.instances[0].onclose?.()
+      expect(events.filter((e) => e.type === 'status').map((e) => e.type === 'status' && e.status)).toEqual(['connecting', 'connected', 'disconnected'])
+      vi.advanceTimersByTime(499)
+      expect(FakeSocket.instances).toHaveLength(1)
+      vi.advanceTimersByTime(1)
+      expect(FakeSocket.instances).toHaveLength(2)
+      FakeSocket.instances[1].onerror?.()
+      expect(FakeSocket.instances[1].closed).toBe(true)
+      vi.advanceTimersByTime(999)
+      expect(FakeSocket.instances).toHaveLength(2)
+      vi.advanceTimersByTime(1)
+      expect(FakeSocket.instances).toHaveLength(3)
+      FakeSocket.instances[2].onopen?.()
+      FakeSocket.instances[2].onclose?.()
+      stop()
+      vi.advanceTimersByTime(60_000)
+      expect(FakeSocket.instances).toHaveLength(3)
+      expect(events.filter((e) => e.type === 'status').map((e) => e.type === 'status' && e.status)).toEqual(['connecting', 'connected', 'disconnected', 'disconnected', 'connected', 'disconnected'])
+    } finally { vi.useRealTimers() }
+  })
+
+  it('preserves accepted state and ordering across reconnection and sequence restart', () => {
+    vi.useFakeTimers()
+    try {
+      class FakeSocket {
+        static instances: FakeSocket[] = []
+        onopen: (() => void) | null = null
+        onclose: (() => void) | null = null
+        onerror: (() => void) | null = null
+        onmessage: ((event: { data: string }) => void) | null = null
+        constructor() { FakeSocket.instances.push(this) }
+        close() { this.onclose?.() }
+        send(raw: unknown) { this.onmessage?.({ data: typeof raw === 'string' ? raw : JSON.stringify(raw) }) }
+      }
+      const frames = buildMockTimeline(config, startMs).generated
+      let state = initialTelemetryState
+      const stop = createLiveAdapter('ws://localhost:8765/telemetry', FakeSocket as unknown as typeof WebSocket).start((event) => {
+        state = ingestTelemetry(state, event)
+      })
+      FakeSocket.instances[0].onopen?.()
+      FakeSocket.instances[0].send({ ...frames[4], sequence: 25 })
+      const frozen = state.latest
+      FakeSocket.instances[0].onclose?.()
+      vi.advanceTimersByTime(500)
+      FakeSocket.instances[1].onopen?.()
+      FakeSocket.instances[1].send({ ...frames[0], sequence: 1 })
+      FakeSocket.instances[1].send({ ...frames[4], sequence: 25 })
+      FakeSocket.instances[1].send('{')
+      expect(state.latest).toBe(frozen)
+      expect([state.outOfOrder, state.duplicates, state.invalid]).toEqual([1, 1, 1])
+      FakeSocket.instances[1].send({ ...frames[5], sequence: 26 })
+      expect(state.latest?.frame.sequence).toBe(26)
+      expect(state.accepted).toBe(2)
+      stop()
+    } finally { vi.useRealTimers() }
   })
 })
