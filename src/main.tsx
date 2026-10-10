@@ -55,7 +55,6 @@ function App() {
 
   return <main className="mx-auto max-w-4xl space-y-6 p-6 text-slate-100">
     <header className="border-b border-slate-700 pb-4">
-      <p className="text-sm uppercase tracking-widest text-cyan-300">ATEC'26 · Phase 1</p>
       <h1 className="text-2xl font-semibold">C.R.A.T.E.R Mission Control</h1>
       <p className="mt-2 text-sm text-slate-400">Telemetry foundation · local ENU coordinates in meters</p>
     </header>
