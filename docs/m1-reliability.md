@@ -36,3 +36,13 @@ whole frame. The tuning set improved from 6/8 to 7/8 matched rocks with no
 additional scoped false positive. Five inference calls increase processing
 latency to about 2.9 seconds/image in the eight-frame check, so crops are opt-in.
 [Crop tuning, reserved results and timing](validation/reliability-tiles.json).
+
+## Large close rocks
+
+The default ONNX `--terrain-filter edges` rejects oversized boxes only when
+they span almost the entire image width. Localized close rocks survive even
+above the .5 area limit. `area` restores the legacy blanket area filter, and
+`off` disables this heuristic for ambiguous full-width close objects. This
+is a box heuristic, not terrain classification. Unit tests cover large close
+rocks and wide ground boxes; the eight-frame NASA comparison was unchanged.
+[Terrain evidence](validation/reliability-terrain.json).

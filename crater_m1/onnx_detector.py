@@ -4,13 +4,14 @@ import cv2
 import numpy as np
 from .schema import Detection
 from .tracking import suppress_duplicates
+from .terrain import reject_terrain_box
 
 MODEL_ID="onnx-community/grounding-dino-tiny-ONNX"
 MODEL_REVISION="ff690b0a8050566c290287545bd059350f3e9096"
 MODEL_FILE="onnx/model_fp16.onnx"
 
 
-def convert_boxes(boxes,scores,width,height,threshold,max_area=.5):
+def convert_boxes(boxes,scores,width,height,threshold,max_area=.5,terrain_policy="edges"):
     found=[];rejected=0
     for box,score in zip(boxes,scores):
         x1,y1,x2,y2=(float(v) for v in box);score=float(score)
@@ -19,7 +20,7 @@ def convert_boxes(boxes,scores,width,height,threshold,max_area=.5):
         x1,x2=max(0.,min(x1,width-1.)),max(0.,min(x2,width-1.))
         y1,y2=max(0.,min(y1,height-1.)),max(0.,min(y2,height-1.))
         if score<threshold or x2-x1<4 or y2-y1<4: continue
-        if (x2-x1)*(y2-y1)/(width*height)>max_area:
+        if reject_terrain_box((x1,y1,x2,y2),width,height,max_area,terrain_policy):
             rejected+=1;continue
         found.append(Detection((x1,y1,x2,y2),score,"rock"))
     return suppress_duplicates(found),rejected
@@ -27,12 +28,12 @@ def convert_boxes(boxes,scores,width,height,threshold,max_area=.5):
 
 class OnnxGroundingDino:
     def __init__(self,*,device="auto",cache_dir=".cache/huggingface",image_size=800,
-                 threshold=.25,text_threshold=.2,max_area=.5,profile=False):
+                 threshold=.25,text_threshold=.2,max_area=.5,profile=False,terrain_policy="edges"):
         import onnxruntime as ort
         import torch
         from transformers import AutoProcessor
         if device not in {"auto","cpu","directml"}: raise ValueError("ONNX device must be auto, cpu or directml")
-        if not 0<threshold<1 or not 0<text_threshold<1 or not 0<max_area<=1 or image_size!=800:
+        if not 0<threshold<1 or not 0<text_threshold<1 or not 0<max_area<=1 or image_size!=800 or terrain_policy not in {"edges","area","off"}:
             raise ValueError("invalid ONNX settings")
         # Local cache lookup only. Preparation is a separate explicit command.
         from .onnx_prepare import prepare
@@ -40,7 +41,7 @@ class OnnxGroundingDino:
         self.torch=torch;torch.set_num_threads(4)
         self.processor=AutoProcessor.from_pretrained(str(folder),local_files_only=True)
         self.processor.image_processor.size={"height":800,"width":800}
-        self.image_size=image_size;self.threshold=threshold;self.text_threshold=text_threshold;self.max_area=max_area
+        self.image_size=image_size;self.threshold=threshold;self.text_threshold=text_threshold;self.max_area=max_area;self.terrain_policy=terrain_policy
         self.prompt="rock. stone. boulder.";self.rejected_large_boxes=0;self.adapter=None
         ort.disable_telemetry_events()
         providers=ort.get_available_providers()
@@ -80,7 +81,7 @@ class OnnxGroundingDino:
             pred_boxes=self.torch.from_numpy(outputs["pred_boxes"].astype(np.float32)))
         grounded=self.processor.post_process_grounded_object_detection(result,self.torch.from_numpy(encoded["input_ids"]),
             threshold=self.threshold,text_threshold=self.text_threshold,target_sizes=[image.shape[:2]])[0]
-        detections,rejected=convert_boxes(grounded["boxes"].tolist(),grounded["scores"].tolist(),image.shape[1],image.shape[0],self.threshold,self.max_area)
+        detections,rejected=convert_boxes(grounded["boxes"].tolist(),grounded["scores"].tolist(),image.shape[1],image.shape[0],self.threshold,self.max_area,self.terrain_policy)
         self.rejected_large_boxes+=rejected
         return detections
 
@@ -91,7 +92,7 @@ class OnnxGroundingDino:
             "source_model_file":MODEL_FILE,"prepared_model_file":"model_fp32.onnx","precision":"FP32 promoted from FP16 source","onnxruntime_version":self.ort_version,
             "providers":self.session.get_providers(),"gpu_adapter":self.adapter,"image_size":self.image_size,
             "prompt":self.prompt,"threshold":self.threshold,"text_threshold":self.text_threshold,
-            "max_rock_box_area_fraction":self.max_area,"rejected_large_boxes":self.rejected_large_boxes,
+            "max_rock_box_area_fraction":self.max_area,"terrain_filter_policy":self.terrain_policy,"rejected_large_boxes":self.rejected_large_boxes,
             "confidence_semantics":"Grounding DINO detector score; not calibrated probability",
             "challenge_local_perception_compliant":True,
             "provider_note":"DirectML accelerates supported operators; unsupported/shape operators may execute on CPU."}

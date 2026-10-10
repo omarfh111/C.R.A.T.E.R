@@ -23,6 +23,7 @@ def main():
     run.add_argument("--cache-dir",default=".cache/huggingface"); run.add_argument("--calibration")
     run.add_argument("--no-preview",action="store_true")
     run.add_argument("--env-file",default=".env")
+    run.add_argument("--terrain-filter",choices=["edges","area","off"],default="edges",help="ONNX terrain filtering; edges preserves localized large rocks")
     run.add_argument("--tiles",choices=["off","2x2"],default="off",help="ONNX full image plus four overlapping crops")
     run.add_argument("--max-rock-area",type=float,default=.5,help="ONNX/hf-space maximum box fraction of image area (default .5)")
     check=sub.add_parser("hf-check",help="validate .env without an API call"); check.add_argument("--env-file",default=".env")
@@ -80,7 +81,7 @@ def main():
                 from .onnx_detector import OnnxGroundingDino
                 if args.prompt is not None: raise ValueError("ONNX backend uses the validated rock. stone. boulder. prompt")
                 detector=OnnxGroundingDino(device=args.device,cache_dir=args.cache_dir,image_size=args.image_size or 800,
-                    threshold=args.threshold,text_threshold=args.text_threshold,max_area=args.max_rock_area)
+                    threshold=args.threshold,text_threshold=args.text_threshold,max_area=args.max_rock_area,terrain_policy=args.terrain_filter)
             elif args.backend in {"hf-hosted","hf-space"}:
                 from .hf_config import HFConfig
                 from .hf_detector import HostedGrounding
