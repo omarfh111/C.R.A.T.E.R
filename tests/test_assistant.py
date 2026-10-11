@@ -5,7 +5,7 @@ import pytest
 
 from crater_assistant.core import Assistant, Index, chunks_from_files, report_facts
 from crater_assistant.ollama import Ollama
-from crater_assistant.server import allowed_origin, echoable_origin, parse_question
+from crater_assistant.server import DEFAULT_ORIGINS, allowed_origin, parse_question, validate_origin
 from crater_assistant.pdf import export_pdf
 
 
@@ -378,19 +378,17 @@ def test_real_http_contract_and_origin(tmp_path):
     "http://localhost:5173 ",
 ])
 def test_http_origin_with_control_characters_refused(origin):
-    # urlsplit() removes ASCII tabs and newlines before parsing, so most of these satisfied
-    # every parsed check and were then echoed verbatim into Access-Control-Allow-Origin.
+    # urlsplit() removes ASCII tabs and newlines before parsing, so a header carrying CR, LF or
+    # TAB inside the port satisfies every parsed check on its own. Only the canonical
+    # round-trip comparison in validate_origin keeps it out of Access-Control-Allow-Origin.
+    assert not validate_origin(origin)
     assert not allowed_origin(origin)
-    assert echoable_origin(origin) is None
 
 
-@pytest.mark.parametrize("origin", [
-    "http://localhost:5173", "http://127.0.0.1:5173", "http://[::1]:5173",
-    "http://localhost:4173", "http://127.0.0.1:4173", "http://[::1]:4173",
-])
+@pytest.mark.parametrize("origin", DEFAULT_ORIGINS)
 def test_local_dev_origins_still_accepted(origin):
+    assert validate_origin(origin)
     assert allowed_origin(origin)
-    assert echoable_origin(origin) == origin
 
 
 def test_http_response_headers_cannot_be_injected_through_the_origin(tmp_path):
@@ -426,4 +424,6 @@ def test_http_response_headers_cannot_be_injected_through_the_origin(tmp_path):
         worker.join(timeout=5)
     head = raw.split(b"\r\n\r\n", 1)[0]
     assert b"Access-Control-Allow-Origin" not in head
-    assert b"73" not in head and b"X-Injected" not in head
+    # No obs-fold continuation: every response header line starts its own field.
+    assert all(not line.startswith((b" ", b"\t")) for line in head.split(b"\r\n"))
+    assert b"\r" not in head.replace(b"\r\n", b"")

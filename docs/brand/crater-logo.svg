@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="460" height="132" viewBox="0 0 460 132" role="img" aria-labelledby="crater-logo-title">
+  <title id="crater-logo-title">C.R.A.T.E.R. — lunar hazard reconnaissance</title>
+  <style>
+    .cl-word { font-family: 'Space Grotesk', -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; font-weight: 600; }
+    .cl-mono { font-family: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace; font-weight: 500; }
+  </style>
+  <rect width="460" height="132" fill="#03070c"/>
+  <rect x=".5" y=".5" width="459" height="131" fill="none" stroke="#9bddea" stroke-opacity=".16"/>
+  <g transform="translate(28,30) scale(1.125)">
+    <!-- Navigation reticle, echoing the Mission Control header symbol. -->
+    <path d="M32 3.5 L60.5 32 L32 60.5 L3.5 32 Z" fill="none" stroke="#9bddea" stroke-width="2" stroke-linejoin="miter"/>
+    <!-- Bearing ticks on the cardinal axes. -->
+    <g stroke="#86c9d7" stroke-width="1.7" stroke-linecap="butt" opacity=".9">
+    <path d="M32 8 V12.5"/><path d="M32 51.5 V56"/><path d="M8 32 H12.5"/><path d="M51.5 32 H56"/>
+    </g>
+    <!-- Crater topography: concentric rim rings seen from above. -->
+    <circle cx="32" cy="32" r="17" fill="none" stroke="#9bddea" stroke-width="2"/>
+    <circle cx="32" cy="32" r="9.5" fill="none" stroke="#9bddea" stroke-width="1.1" opacity=".4"/>
+    <circle cx="32" cy="32" r="3.2" fill="#9bddea" opacity=".55"/>
+    <!-- Rover traverse terminating at the acquired hazard fix. -->
+    <path d="M14.5 42 C21.5 40.5 28.5 36.5 40 28.8" fill="none" stroke="#f2b54a" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="4.6 3.2"/>
+    <circle cx="41" cy="28" r="5" fill="none" stroke="#f2b54a" stroke-width="1" opacity=".55"/>
+    <circle cx="41" cy="28" r="2.4" fill="#f2b54a"/>
+  </g>
+  <path d="M124 38 V94" stroke="#9bddea" stroke-opacity=".22" stroke-width="1"/>
+  <text class="cl-word" x="150" y="68" font-size="34" letter-spacing="5.4" fill="#e9f0f3">C.R.A.T.E.R.</text>
+  <text class="cl-mono" x="152" y="92" font-size="10.5" letter-spacing="3.1" fill="#86c9d7">LUNAR HAZARD RECONNAISSANCE</text>
+</svg>

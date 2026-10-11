@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "validationDate": "2026-10-11",
+  "branch": "feat/m2-assistant-integration",
+  "pinnedM2": "57b29439ced649fc5ca9bb39918beef2aa387c83",
+  "artifacts": [
+    {
+      "file": "nvidia-benchmark.json",
+      "originalArtifact": "outputs/mission-intelligence-nvidia-01.json",
+      "originalSha256": "b383006a1fcbb0aaa27521c21635963941043fdf6a5418662e8a2fad8c981ee8",
+      "bundleSha256": "b383006a1fcbb0aaa27521c21635963941043fdf6a5418662e8a2fad8c981ee8",
+      "bytes": 47584,
+      "absolutePathsReplaced": 0,
+      "omittedFields": [],
+      "omittedArrays": [],
+      "preservedLeafCounts": {
+        "numericValues": 288,
+        "strings": 315,
+        "arrays": 58
+      }
+    },
+    {
+      "file": "runtime.json",
+      "originalArtifact": "outputs/mission-intelligence-runtime-03.json",
+      "originalSha256": "14d5b00195cf33c19bac5c857e03215d970ae7a2e1429d294e71620764ea5ff1",
+      "bundleSha256": "14d5b00195cf33c19bac5c857e03215d970ae7a2e1429d294e71620764ea5ff1",
+      "bytes": 47011,
+      "absolutePathsReplaced": 0,
+      "omittedFields": [],
+      "omittedArrays": [],
+      "preservedLeafCounts": {
+        "numericValues": 210,
+        "strings": 305,
+        "arrays": 28
+      }
+    },
+    {
+      "file": "coexistence.json",
+      "originalArtifact": "artifacts/assistant-coexistence-02/coexistence.json",
+      "originalSha256": "33cf1ba07936ba0a25ccf1315242c092a23c3eb838ad493c66620e9627239840",
+      "bundleSha256": "33cf1ba07936ba0a25ccf1315242c092a23c3eb838ad493c66620e9627239840",
+      "bytes": 27123,
+      "absolutePathsReplaced": 0,
+      "omittedFields": [],
+      "omittedArrays": [],
+      "preservedLeafCounts": {
+        "numericValues": 336,
+        "strings": 188,
+        "arrays": 23
+      }
+    }
+  ],
+  "sanitization": {
+    "policy": "Replace absolute integration-worktree, M1-worktree and user-profile prefixes with <worktree>, <m1-worktree> and <user-home>; reject unclassified absolute local paths. Preserve relative source paths, official reference URLs, loopback endpoints, model digests, all answers and every numeric measurement.",
+    "result": "No absolute local paths were present in these three originals. Copies are byte-for-byte identical to their originals; no substitutions or omissions were necessary.",
+    "secretScan": "All JSON string values checked for private keys, GitHub tokens, OpenAI token patterns, AWS access keys, Google API keys and credential-bearing HTTP URLs; no matches. This is a pattern scan, not a comprehensive secret-detection guarantee."
+  },
+  "timingCaveat": "In nvidia-benchmark.json, legacy case/indexBuild/retrieval elapsedS includes resource-monitor shutdown/cleanup and must not be treated as isolated answer latency. The individual calls[].elapsedS for /api/chat and /api/embed remain measured HTTP-call latencies; Ollama duration/count fields retain their original units and values. Runtime response.elapsedS is separately measured end-to-end HTTP response latency.",
+  "omissions": "None. No large raw resource-sample arrays are present in these summary artifacts; all existing arrays and fields are retained.",
+  "scope": "Single-machine local measurements and prepared questions. Preserve recorded failed/truncated results and semantic-review limitations; passing structural gates do not certify generated scientific truth.",
+  "derivedArtifacts": [
+    {
+      "file": "quick-demo.json",
+      "sha256": "74c4575b4ab48939a0f82d11812a166a669a99e9a93b57c2cb3b3f5bbb19cc1e",
+      "provenance": "Fresh base-only archived-checkout replay and actual browser counters; selected fields and original M2 report."
+    },
+    {
+      "file": "gpu-runtime.json",
+      "sha256": "462deacd438f2cd3265f2fff028b8ea43c6d1b44c117f6c6c97c1b4e40753206",
+      "provenance": "Allowlisted actual isolated CUDA log lines plus raw measured model residency; source-log SHA included."
+    },
+    {
+      "file": "launcher-guard.json",
+      "sha256": "1945482428118878d03d5da2baf726141a77ac08fa9a6b28f4bc6d15d0964980",
+      "provenance": "Actual owned dummy capture-process safeguard, GPU/HTTP cleanup and unchanged shared Ollama check."
+    },
+    {
+      "file": "mission-intelligence.jpg",
+      "sha256": "e278a042473c21f5508b3f70170dd246888b04d54bba745e6d6cba559711c60e",
+      "provenance": "Actual local browser screenshot of real generated answer and accepted hazard inspector."
+    }
+  ]
+}
