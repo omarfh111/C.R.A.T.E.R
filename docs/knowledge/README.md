@@ -30,32 +30,62 @@ revue exhaustive des expériences des articles. Les pages évolutives sans date
 de publication explicite sont signalées. `Verified on` est la consultation,
 pas la publication. Les versions arXiv sont fixées dans les URL.
 
-Indexer seulement les fichiers choisis, sans ce README :
+## Usage actuel dans Mission Intelligence
+
+Le [guide Mission Intelligence](../mission-intelligence.md) décrit le lancement
+Windows, les modèles déjà installés, les mesures NVIDIA et la règle : lancer
+l'IA après la capture GPU, puis fermer son lanceur avant une nouvelle capture.
+Le [contrat HTTP actuel](../assistant-http-contract.md) distingue disponibilité
+HTTP, modèles, concurrence, délai et abstention. Le Quick Demo à deux commandes
+reste indépendant d'Ollama et de ce corpus.
+
+Depuis la racine du dépôt, après la capture, fournir l'origine exacte affichée
+par le lanceur du dashboard (port dynamique, sans barre finale) :
 
 ```powershell
-$corpus = Get-Content docs/knowledge/corpus.json -Raw | ConvertFrom-Json
-$sources = $corpus.files
-python -m crater_assistant index @sources --output artifacts/assistant-research-index.json
-python scripts/evaluate_assistant_corpus.py --index artifacts/assistant-research-index.json --output artifacts/assistant-corpus-retrieval.json
-python -m crater_assistant ask "Un score de confiance de 0,9 garantit-il 90 % de détections correctes ?" --index artifacts/assistant-research-index.json
-python -m crater_assistant serve --index artifacts/assistant-research-index.json --port 8766
+.\scripts\start-assistant.ps1 -DashboardOrigin 'http://127.0.0.1:50554'
 ```
+
+Ce port est un exemple à remplacer. Le lanceur utilise un serveur Ollama isolé,
+les modèles installés et un index local construit à partir de `corpus.json` ;
+il n'indexe pas ce README et ne télécharge aucun poids. Il transmet l'origine
+explicitement au sidecar, sans CORS générique. Consulter le guide pour les ports,
+le premier chargement CUDA et les commandes de validation facultatives.
 
 Les URL `sourceUrl` et dates `verifiedOn` accompagnent chaque passage indexé,
 même après découpage. Les citations `[S1]` désignent les passages réellement
 retrouvés. Le contrôle accepte les liens HTTPS NASA/ESA et le domaine exact
-arxiv.org ; il ne relit pas les pages
-pendant une question et ne certifie pas la vérité de chaque phrase du LLM.
-Les empreintes du texte local empêchent d'utiliser un index périmé après édition.
+arxiv.org ; il ne relit pas les pages pendant une question et ne certifie pas
+la vérité de chaque phrase du LLM. La reconstruction des passages détecte aussi
+la modification d'un extrait mis en cache sans modification du document source.
+Les empreintes et l'identité du modèle empêchent de réutiliser un index périmé.
 
 Le manifeste sélectionne 16 fichiers : 13 fiches externes et trois documents
-internes. L'évaluation utilise le véritable EmbeddingGemma 300M local et vérifie
-le passage attendu parmi les quatre premiers pour 13 questions préparées.
-Ce n'est ni une précision sur des questions inédites ni une validation factuelle
-du LLM. Ces commandes ne téléchargent aucun poids. Consulter manuellement une
-URL demande une connexion ; répondre avec le corpus local n'en demande pas.
-Les [mesures et traces relues](../validation/assistant-research.md) présentent
-les résultats de recherche et quatre réponses/abstentions réelles via le client M3.
+internes, soit 24 passages dans l'index évalué. Consulter manuellement une URL
+demande une connexion ; répondre avec le corpus local n'en demande pas. Les
+[traces actuelles du sidecar](../validation/mission-intelligence/runtime.json)
+conservent les réponses NASA/ESA, abstentions et erreurs réellement mesurées.
+Elles distinguent contrôle structurel et relecture sémantique.
+
+## Évaluation historique M2 épinglée
+
+Les anciennes mesures restent consultables dans le commit M2
+`57b29439ced649fc5ca9bb39918beef2aa387c83` :
+[rapport de validation](https://github.com/omarfh111/C.R.A.T.E.R/blob/57b29439ced649fc5ca9bb39918beef2aa387c83/docs/validation/assistant-research.md),
+[récupération de 13 questions](https://github.com/omarfh111/C.R.A.T.E.R/blob/57b29439ced649fc5ca9bb39918beef2aa387c83/docs/validation/assistant-corpus-retrieval.json),
+[quatre réponses HTTP](https://github.com/omarfh111/C.R.A.T.E.R/blob/57b29439ced649fc5ca9bb39918beef2aa387c83/docs/validation/assistant-research-http.json).
+Ces chemins ont été vérifiés dans l'arbre Git épinglé ; ils ne désignent pas un
+rapport local manquant ni une branche distante mouvante.
+
+Le contrôle historique EmbeddingGemma CPU retrouvait les 13 passages attendus
+en première position pour 13 questions préparées. Ce n'est ni une précision sur
+des questions inédites, ni une validation factuelle du LLM, ni une mesure du
+runtime NVIDIA actuel. Les quatre réponses historiques du LLM étaient également
+des cas préparés relus, avec leurs limites conservées. Le script conservé
+`scripts/evaluate_assistant_corpus.py` reproduit ce protocole CPU avec le serveur
+Ollama par défaut sur 11434 ; il n'est pas le lanceur GPU isolé recommandé et ne
+configure pas les origines du dashboard. Les digests actuels et les résultats
+d'intégration sont documentés dans Mission Intelligence.
 
 ## Choix des ressources en ligne
 

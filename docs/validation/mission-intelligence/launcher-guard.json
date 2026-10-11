@@ -1,0 +1,9 @@
+{
+  "scope": "Process-detection safeguard test, not simultaneous perception inference",
+  "method": "Actual Windows PowerShell 5.1 launcher, real preloaded GPU models, then a harmless owned start-live.ps1 sleep process",
+  "sharedOllamaPidUnchanged": true,
+  "limitations": "Best-effort process guard is not an atomic hardware interlock. Close optional AI before starting real capture.",
+  "validationDate": "2026-10-11",
+  "probeExited": true,
+  "ownedSidecarAndOllamaPortsReleased": true
+}

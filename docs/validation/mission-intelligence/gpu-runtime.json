@@ -1,0 +1,42 @@
+{
+  "validationDate": "2026-10-11",
+  "ollamaVersion": "0.40.2",
+  "nvidiaSmiHardware": "NVIDIA GeForce RTX 5070 Laptop GPU, 8151, 591.59",
+  "sourceLogSha256": "805f3245b8a7ab2d6394046e0b3c2c88b29cfece98ca081bb715af98de97adb8",
+  "selectedCudaLogLines": [
+    "Device 0: NVIDIA GeForce RTX 5070 Laptop GPU, compute capability 12.0, VMM: yes, VRAM: 8150 MiB",
+    "load_tensors: offloaded 25/25 layers to GPU",
+    "load_tensors:        CUDA0 model buffer size =   586.83 MiB",
+    "sched_reserve:      CUDA0 compute buffer size =    63.02 MiB",
+    "Device 0: NVIDIA GeForce RTX 5070 Laptop GPU, compute capability 12.0, VMM: yes, VRAM: 8150 MiB",
+    "load_tensors: offloaded 37/37 layers to GPU",
+    "load_tensors:        CUDA0 model buffer size =  2375.91 MiB",
+    "llama_kv_cache:      CUDA0 KV buffer size =   576.00 MiB",
+    "sched_reserve:      CUDA0 compute buffer size =    79.01 MiB"
+  ],
+  "recorded4096ModelResidency": {
+    "models": [
+      {
+        "name": "qwen3:4b-instruct-2507-q4_K_M",
+        "model": "qwen3:4b-instruct-2507-q4_K_M",
+        "size": 3178149969,
+        "digest": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+        "details": {
+          "parent_model": "",
+          "format": "gguf",
+          "family": "qwen3",
+          "families": [
+            "qwen3"
+          ],
+          "parameter_size": "4.0B",
+          "quantization_level": "Q4_K_M"
+        },
+        "expires_at": "2026-10-11T03:37:34.8383207+01:00",
+        "size_vram": 3178149969,
+        "context_length": 4096,
+        "runner": "llamacpp"
+      }
+    ]
+  },
+  "interpretation": "Actual isolated NVIDIA CUDA runtime; EmbeddingGemma25/25 and Qwen37/37 layers offloaded. /api/ps bytes are model residency, not global device peak. Log excerpt allowlist removes paths, UUIDs and unrelated environment configuration; raw log retained locally."
+}

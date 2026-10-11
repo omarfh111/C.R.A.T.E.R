@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 1,
+  "validationDate": "2026-10-11",
+  "archiveHead": "e7f21e969767ca338a4653aec0a820477ba98ee9",
+  "sourceSha256": "afd977ce8ee79f6132f155af8b96ca74c97764a0fbfd4c4632a04ba82e3a3efa",
+  "commands": [
+    ".\\scripts\\setup.ps1",
+    ".\\scripts\\start-demo.ps1 -NoBrowser"
+  ],
+  "environment": {
+    "freshBaseVenv": true,
+    "python": "3.13.7",
+    "node": "24.11.1",
+    "ollamaExecutableHiddenFromPath": true,
+    "OLLAMA_HOST": "http://127.0.0.1:1",
+    "optionalPackagesAbsent": [
+      "onnxruntime",
+      "torch",
+      "transformers",
+      "pypdf"
+    ],
+    "assistantStartedByDefaultDemo": false
+  },
+  "browserObservation": {
+    "url": "http://127.0.0.1:51796/",
+    "received": 30,
+    "accepted": 30,
+    "invalid": 0,
+    "duplicate": 0,
+    "outOfOrder": 0,
+    "sequenceGaps": 0,
+    "selectedHazard": {
+      "id": "hazard-000001",
+      "eastM": -0.98,
+      "northM": 3.95,
+      "upM": 0,
+      "confidence": 0.68,
+      "uncertaintyRadiusM": 0.11,
+      "horizontalSeparationM": 3.79
+    },
+    "method": "Actual local browser UI read after fresh launcher; no injected state."
+  },
+  "historicalTimestamps": {
+    "preserved": true,
+    "first": "2026-10-10T21:31:58.362Z",
+    "last": "2026-10-10T21:32:07.362Z"
+  },
+  "m2Report": {
+    "schemaVersion": 1,
+    "mode": "live",
+    "simulatedElapsedS": 14.65144530008547,
+    "wallElapsedS": 14.65291150007397,
+    "completed": true,
+    "cancelled": false,
+    "source": {
+      "source": "m1-calibrated-jsonl",
+      "rejectedDetections": 0
+    },
+    "transport": {
+      "generated": 30,
+      "enqueued": 30,
+      "delivered": 30,
+      "acknowledged": 30,
+      "pending": 0,
+      "maxPending": 30,
+      "queueDropped": 0,
+      "abandoned": 0,
+      "retransmissions": 28,
+      "radioDuplicates": 11,
+      "dataPacketsSent": 58,
+      "dataPacketsLost": 17,
+      "ackPacketsSent": 41,
+      "ackPacketsLost": 11,
+      "dataBytesSent": 10266,
+      "ackBytesSent": 451,
+      "totalBytesSent": 10717,
+      "deliveryRate": 1.0,
+      "meanDeliveryLatencyS": 7.871957803908438,
+      "maxDeliveryLatencyS": 11.17480500308801
+    },
+    "meanBinaryFrameBytes": 177.0,
+    "meanJsonFrameBytes": 1002.7,
+    "totalRadioBytesPerOriginalJsonByte": 0.35627140055184336,
+    "maxDeliveredLocalizationErrorM": null,
+    "rejectedDetections": [],
+    "slowWebSocketClients": 0,
+    "rejectedDetectionsOmitted": 0,
+    "diagnosticLimits": {
+      "rejectionSamples": 100,
+      "radioHistorySnapshots": 4096
+    },
+    "link": {
+      "bytesPerSecond": 4096.0,
+      "latencyS": 0.005,
+      "jitterS": 0.0,
+      "lossProbability": 0.25,
+      "blackouts": [
+        [
+          0.5,
+          5.0
+        ]
+      ],
+      "seed": 7
+    },
+    "byteAccounting": "application packets including CRC, DATA retries and ACK; excludes TCP/WS/IP headers"
+  },
+  "limitations": "Default demo ran with no assistant and inaccessible configured Ollama endpoint; the machine still has an unrelated shared Ollama installation, never stopped or removed. Optional GPU sidecar was enabled separately only after this regression completed. Replay uses real historical ONNX detections from synthetic calibrated imagery; radio effects are simulated."
+}

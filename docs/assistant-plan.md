@@ -1,5 +1,12 @@
 # Assistant local M2 — plan autorisé
 
+> **Plan historique, remplacé pour l'usage actuel.** Ce document conserve le
+> contexte et les autorisations de l'ancien incrément M2 ; il ne constitue pas
+> une autorisation de travailler sur une autre branche ni une procédure actuelle.
+> Consulter [Mission Intelligence](mission-intelligence.md) et son
+> [contrat HTTP](assistant-http-contract.md) pour le panneau livré, le runtime
+> GPU isolé, les mesures, les origines dynamiques et l'usage après capture.
+
 Omar demande de poursuivre LLM, embeddings et RAG pendant que M1 termine.
 Cette autorisation couvre l'implémentation, la validation, les commits et le push
 sur `feat/spatial-telemetry`. L'assistant ne dépend pas des nouveaux backends M1.
