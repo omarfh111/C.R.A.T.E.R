@@ -59,7 +59,19 @@ test('loads in LIVE mode, plays the intro and accepts all 30 recorded ONNX frame
   await expect(dashboard.eventStream).toBeVisible()
   await expect(dashboard.mapCanvas).toBeVisible()
   await expect(page.getByRole('heading', { name: 'Tactical Map' })).toBeVisible()
-  expect(await dashboard.transportStatus()).toBe('CONNECTED')
+
+  // --- honest age while the station is demonstrably still connected --------------------
+  // One atomic reading taken while frames are arriving. The recording is historical, so
+  // Mission Control must report it as old over a working transport, not as nominal.
+  const live = await dashboard.waitForSnapshot(
+    (snapshot) => snapshot.transport === 'CONNECTED' && snapshot.accepted > 0,
+    { what: 'an accepted frame over a connected station WebSocket' },
+  )
+  expect(live.posture).toBe('STALE')
+  expect(live.ageState).toBe('STALE')
+  expect(live.ageSeconds ?? 0).toBeGreaterThan(600)
+  expect(live.bannerKicker).toBe('MISSION CONTROL · TRANSPORT UP, DATA STALE')
+  expect(await dashboard.roverHeadLabel()).toBe('LAST KNOWN POSITION')
 
   // --- the browser's own accepted count, not M2's delivery total ------------------------
   // M2 reporting 30/30 delivered is not evidence that Mission Control accepted 30.
@@ -76,18 +88,6 @@ test('loads in LIVE mode, plays the intro and accepts all 30 recorded ONNX frame
   expect(counters['SEQ GAPS*']).toBe(0)
   expect(await dashboard.roverSequence()).toBe(29)
   expect(await dashboard.roverId()).toBe('rover-1')
-
-  // --- honest age while the station is still connected ---------------------------------
-  // The recording is historical, so Mission Control must show it as old, not as nominal.
-  expect(await dashboard.transportStatus()).toBe('CONNECTED')
-  await expect(dashboard.postureLabel).toHaveText('STALE')
-  const age = await dashboard.informationAge()
-  expect(age.state).toBe('STALE')
-  expect(age.seconds ?? 0).toBeGreaterThan(600)
-  expect(await dashboard.roverHeadLabel()).toBe('LAST KNOWN POSITION')
-  await expect(dashboard.banner.locator('.mc-banner__kicker')).toHaveText(
-    'MISSION CONTROL · TRANSPORT UP, DATA STALE',
-  )
 
   // --- displayed rover fix equals actual M2 output -------------------------------------
   // `--received-jsonl` is flushed per delivery, so it is readable before M2 exits.

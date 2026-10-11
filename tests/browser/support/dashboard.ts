@@ -13,6 +13,8 @@ export type DashboardSnapshot = {
   posture: string
   bannerKicker: string
   ageState: string
+  /** Seconds since the rover captured the latest accepted frame, or null with no frame yet. */
+  ageSeconds: number | null
 }
 
 /**
@@ -293,9 +295,11 @@ export class Dashboard {
         posture: text('.mc-posture__label'),
         bannerKicker: text('.mc-banner__kicker'),
         ageState: text('section[aria-label="Rover"] .mc-age__head span:last-child'),
+        ageText: text('section[aria-label="Rover"] .mc-age__value'),
       }
     })
     const sequence = Number(raw.sequenceText.replace(/^SEQ\s*/, ''))
+    const ageSeconds = Number(raw.ageText)
     return {
       atMs: Date.now(),
       transport: raw.transport,
@@ -308,7 +312,34 @@ export class Dashboard {
       posture: raw.posture,
       bannerKicker: raw.bannerKicker,
       ageState: raw.ageState,
+      ageSeconds: Number.isFinite(ageSeconds) ? ageSeconds : null,
     }
+  }
+
+  /**
+   * Poll `snapshot()` until one satisfies `accept`, and return that snapshot.
+   *
+   * An M2 replay is finite: it exits as soon as it has delivered the recording, so asserting
+   * "the station is still connected" with a bare read is a race against the replay finishing.
+   * Waiting for one self-consistent reading and asserting against it removes that race without
+   * weakening what is checked.
+   */
+  async waitForSnapshot(
+    accept: (snapshot: DashboardSnapshot) => boolean,
+    options: { timeout?: number; what?: string } = {},
+  ): Promise<DashboardSnapshot> {
+    const timeout = options.timeout ?? 60_000
+    const deadline = Date.now() + timeout
+    let last: DashboardSnapshot | undefined
+    while (Date.now() < deadline) {
+      last = await this.snapshot()
+      if (accept(last)) return last
+      await this.page.waitForTimeout(150)
+    }
+    throw new Error(
+      `Timed out after ${timeout} ms waiting for ${options.what ?? 'a dashboard state'}. ` +
+        `Last snapshot: ${JSON.stringify(last)}`,
+    )
   }
 
   // ---- layout ----------------------------------------------------------------------------

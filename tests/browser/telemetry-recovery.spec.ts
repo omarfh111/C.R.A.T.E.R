@@ -127,22 +127,26 @@ test('holds rover state through the simulated radio blackout and advances after 
 
 test('distinguishes a station WebSocket loss from the simulated radio blackout', async ({ page }) => {
   const diagnostics = collectBrowserDiagnostics(page, EXPECTED_STATION_LOSS)
-  station = await startStation({ label: 'station-down', durationS: 20, drainS: 20, fps: 4, loss: 0, blackout: null })
+  // One frame per second, so the replay is still running long after the ~6 s intro and this
+  // test decides when the station goes away rather than racing the end of the recording.
+  station = await startStation({ label: 'station-down', durationS: 40, drainS: 20, fps: 1, loss: 0, blackout: null })
 
   await page.goto('/')
   const dashboard = new Dashboard(page)
   await dashboard.waitForIntro()
-  await expect(dashboard.counter('ACCEPTED')).not.toHaveText('0', { timeout: 60_000 })
-  expect(await dashboard.transportStatus()).toBe('CONNECTED')
 
-  // While the socket is up, an old recording is reported as stale data over a working transport.
-  await expect(dashboard.banner.locator('.mc-banner__kicker')).toHaveText(
-    'MISSION CONTROL · TRANSPORT UP, DATA STALE',
+  // While the socket is up, an old recording is reported as stale data over a working
+  // transport. Captured as one atomic reading so the two cannot be observed out of step.
+  const held = await dashboard.waitForSnapshot(
+    (snapshot) =>
+      snapshot.transport === 'CONNECTED' &&
+      snapshot.accepted > 0 &&
+      snapshot.bannerKicker === 'MISSION CONTROL · TRANSPORT UP, DATA STALE',
+    { what: 'stale telemetry over a connected station WebSocket' },
   )
-  await expect(dashboard.postureLabel).toHaveText('STALE')
-
-  const held = await dashboard.snapshot()
+  expect(held.posture).toBe('STALE')
   expect(held.sequence).not.toBeNull()
+  expect(station.stopped, 'the station must still be replaying when it is taken away').toBe(false)
 
   // Now take the station away mid-mission. This is not a radio blackout.
   await station.stop()
