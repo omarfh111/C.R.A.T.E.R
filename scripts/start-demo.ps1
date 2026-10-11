@@ -1,3 +1,4 @@
+param([switch]$NoBrowser)
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'demo-common.ps1')
 $frontend = $null
@@ -12,8 +13,8 @@ try {
     $url = "http://127.0.0.1:$($ports.Web)/"
     Write-Host 'RECORDED ONNX REPLAY — genuine historical predictions; no live AI inference.'
     Write-Host "M3 LIVE dashboard: $url"
-    Write-Host 'Opening the dashboard; M2 will wait for a WebSocket receiver before replaying frames.'
-    Start-Process $url
+    Write-Host 'M2 will wait for a dashboard WebSocket receiver before replaying frames.'
+    if (-not $NoBrowser) { Start-Process $url }
     $run = Join-Path $script:Repo ('outputs/demo-replay-' + [guid]::NewGuid().ToString('N'))
     New-Item -ItemType Directory -Path $run -Force | Out-Null
     $env:HF_HUB_OFFLINE = '1'; $env:TRANSFORMERS_OFFLINE = '1'; $env:HF_HUB_DISABLE_TELEMETRY = '1'
