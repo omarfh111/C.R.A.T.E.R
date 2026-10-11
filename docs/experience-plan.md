@@ -9,18 +9,18 @@ peuvent inclure une trame canonique v1 et des références d'images vérifiées,
 mais les pixels ne sont jamais envoyés au modèle textuel. Les décisions réelles
 et les explications du modèle sont enregistrées séparément.
 
-- [ ] Journal et validation : types d'incidents explicites, provenance déclarée
+- [x] Journal et validation : types d'incidents explicites, provenance déclarée
   réelle/simulée/opérateur, UUID idempotent, horodatages, décision facultative,
   trame validée par M2, images relatives à une racine choisie par l'opérateur.
   Tests : persistance, conflits, entrées invalides, intégrité des images.
-- [ ] Diagnostic : contexte événement immuable et cité, questions par type,
+- [x] Diagnostic : contexte événement immuable et cité, questions par type,
   file persistante bornée, résultats/erreurs, reprise après interruption,
   modèle sérialisé sans bloquer ingestion ou polling. Tests avec modèle double
   explicitement déclaré, worker lent et défaillant.
-- [ ] HTTP/CLI/client M3 : endpoints événements/travaux, option `--journal`,
+- [x] HTTP/CLI/client M3 : endpoints événements/travaux, option `--journal`,
   relecture et export manuels, client TypeScript et contrat documentés.
   Tests HTTP réels, TypeScript strict et compatibilité `/ask` existante.
-- [ ] Vérification finale : suite complète, essai local Ollama sur un événement
+- [x] Vérification finale : suite complète, essai local Ollama sur un événement
   explicitement simulé, relecture, commits atomiques Conventional Commit et
   push de chacun sur `feat/spatial-telemetry`, CI verte.
 
@@ -28,3 +28,9 @@ Bornes : événement JSON <= 32 KiB ; journal <= 10 000 événements ; file <= 1
 travaux non terminés ; images <= 4 références et 5 MiB chacune. La file pleine
 refuse l'analyse explicitement. Pas de commande moteur, réentraînement,
 promotion automatique au corpus ni revendication de raisonnement interne du robot.
+
+Validation locale : 285 tests Python réussis (3 ignorés), 9 tests du client
+réussis, compilation TypeScript stricte et relecture indépendante sans P1/P2
+restant. Essai Ollama réel : acceptation 38,6 ms, résultat reçu en 104,1 s.
+Voir [le rapport](validation/experience-local.md). Les deux jobs Python de la
+CI du commit `b751c26` ont réussi.

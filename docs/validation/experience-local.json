@@ -1,0 +1,108 @@
+{
+  "validatedAt": "2026-10-10T23:56:35.501Z",
+  "health": {
+    "status": "ready",
+    "indexedChunks": 24,
+    "llm": "qwen3:4b-instruct-2507-q4_K_M",
+    "embedding": "embeddinggemma:300m",
+    "experience": {
+      "enabled": true,
+      "workerAlive": true,
+      "imageInference": false,
+      "capacity": 16
+    }
+  },
+  "acceptedS": 0.038623799999999986,
+  "totalS": 104.11645970000001,
+  "event": {
+    "eventId": "5bc9c13d-5a42-4d65-b59c-34aea9d3af0a",
+    "roverId": "SIMULATED_EXPERIENCE_TEST",
+    "capturedAt": "2026-10-10T23:54:51.380Z",
+    "kind": "calibration_missing",
+    "provenance": "simulated",
+    "summary": "Essai simulé : le producteur n'a fourni aucune pose caméra. Aucune position métrique n'est disponible.",
+    "question": "Quelle information manque dans cet événement et peut-on calculer une position ENU fiable ?",
+    "recordedAt": "2026-10-10T23:54:51.388Z",
+    "imageAnalysis": "not_performed"
+  },
+  "analysis": {
+    "analysisId": "0622ab05-dcf7-466f-a62b-5bd3c12941c2",
+    "attempt": 1,
+    "error": null,
+    "eventId": "5bc9c13d-5a42-4d65-b59c-34aea9d3af0a",
+    "finishedAt": "2026-10-10T23:56:35.009Z",
+    "question": "Quelle information manque dans cet événement et peut-on calculer une position ENU fiable ?",
+    "result": {
+      "answer": "L'information manquante dans cet événement est la pose caméra (position et orientation de la caméra) du rover, car la calibration nécessite ces données pour projeter un pixel en coordonnées ENU [S1]. Sans cette pose, il est impossible de construire un rayon ou d'intersecter avec un plan de sol, donc on ne peut pas calculer une position ENU fiable [S3]. Le passage [S5] confirme que le producteur n'a fourni aucune pose caméra, ce qui rend toute localisation métrique inexistante [S5].",
+      "citedSourceIds": [
+        "S1",
+        "S3",
+        "S5"
+      ],
+      "facts": null,
+      "limitations": "Les citations sont vérifiées, pas la vérité de chaque phrase. Aucun contrôle du rover.",
+      "models": {
+        "embedding": "embeddinggemma:300m",
+        "llm": "qwen3:4b-instruct-2507-q4_K_M"
+      },
+      "roles": [
+        "retriever",
+        "report_analyst",
+        "explainer",
+        "citation_verifier"
+      ],
+      "sources": [
+        {
+          "digest": "3f8248b8cd8f758085d55b257473674a20c891f8628608816c613022e7bb8fc0",
+          "lineEnd": 19,
+          "lineStart": 1,
+          "path": "assistant-knowledge.md",
+          "score": 0.4365960395521804,
+          "sourceId": "S1",
+          "text": "# Repères validés pour expliquer M2\n\n## Calibration et coordonnées\n\nDans LOCAL_ENU_V1, ENU signifie East, North, Up : x vers l'Est, y vers le Nord,\nz vers le haut. Les trois coordonnées sont en mètres et l'origine est le\nmarqueur convenu au début de la mission.\n\nUne détection M1 donne un pixel de contact dans une image. Un pixel n'est pas\nune distance en mètres. Pour projeter ce pixel, M2 utilise la calibration\n(fx, fy, cx, cy), le centre de la caméra en mètres et sa rotation vers ENU.\nIl construit un rayon puis son intersection avec un plan de sol connu.\nLa position du rover est fournie séparément par la source ; la calibration\nne permet pas à elle seule de mesurer la position du rover.\nUne vidéo NASA sans ces paramètres ne fournit pas des positions ENU métriques.\n\n## Pourquoi des pertes radio peuvent coexister avec une livraison complète\n\nUne trame est une observation unique. Un paquet DATA est une tentative de"
+        },
+        {
+          "digest": "0fffa30492e2c9fa1411b820e0d5adaa8753189a5bccb7ebd91e7e5fe46423b5",
+          "lineEnd": 75,
+          "lineStart": 61,
+          "path": "m2-design.md",
+          "score": 0.36737714530191296,
+          "sourceId": "S2",
+          "text": "Un petit scénario calibré produit des pixels à partir de points ENU connus.\nLa reconstruction utilise seulement ces pixels et la caméra ; la vérité terrain\nest utilisée uniquement pour validation. Ce scénario n'est pas un détecteur IA\net les vidéos NASA non calibrées ne sont pas déclarées localisées en mètres.\nEntrée M1 : JSONL avec pose caméra, position rover et détections (id stable,\ntype, boîte ou pixel de contact, confiance, observation UTC).\n\n## Binaire v1\n\nBig endian, magic/version, IDs UTF-8, séquence uint32, horodatages millisecondes\nUTC uint64, positions int32 millimètres, incertitudes uint32 millimètres arrondies\nvers le haut, confiance uint16. Types/statuts : enums ; CRC32 sur le paquet.\nLe CRC détecte les corruptions, sans authentifier l'expéditeur.\nRefuser débordement, NaN/inf, paquets tronqués, champs inconnus et données invalides.\nLa quantification entraîne <=0,5 mm par axe et <=1/(2*65535) sur la confiance."
+        },
+        {
+          "digest": "0fffa30492e2c9fa1411b820e0d5adaa8753189a5bccb7ebd91e7e5fe46423b5",
+          "lineEnd": 60,
+          "lineStart": 45,
+          "path": "m2-design.md",
+          "score": 0.32797996731662193,
+          "sourceId": "S3",
+          "text": "Stop-and-wait et file FIFO bornée conservent l'ordre attendu par M3. Les ACK perdus\nprovoquent des doublons radio supprimés à la station. Après limite d'essais,\nle paquet est abandonné avec une métrique explicite ; file pleine : refus du\nnouveau paquet. Un blackout conserve la file, sans diffuser de fausses réceptions.\n\n## Localisation\n\nCaméra pinhole rectifiée : fx/fy/cx/cy, résolution, centre ENU et rotation\ncaméra-vers-ENU connus. Axes caméra : x droite, y bas, z avant.\nUn pixel de contact produit un rayon ; intersection avec le plan z=ground_z_m.\nRefuser les rayons parallèles, derrière la caméra ou hors portée et les pixels\ninvalides. Pour un rover mobile, la pose doit être fournie à chaque observation.\nUn rayon ne mesure pas la hauteur d'un obstacle ni la profondeur d'un cratère.\nL'incertitude est une estimation documentée basée sur perturbation du pixel et\nincertitude de pose, pas une probabilité garantie ou un substitut à calibration."
+        },
+        {
+          "digest": "860b74e310a2fabb60ac6ede9275ff73f2f798cc76201439048197839cbbede4",
+          "lineEnd": 38,
+          "lineStart": 21,
+          "path": "m1-observation-contract.md",
+          "score": 0.3201491156103248,
+          "sourceId": "S4",
+          "text": "La matrice transforme un vecteur caméra en vecteur ENU. Centre et rotation sont\nceux de la capture, pas une pose fixe si le rover se déplace.\n\nOptions de l'observation : `groundZM` (hauteur du plan, défaut 0), `maxRangeM`\n(portée depuis la caméra, défaut 1000 m).\n\nChaque détection :\n\n- `id` stable pour le même danger ; ne pas réinitialiser à chaque image.\n- `type` : `rock`, `crater`, `slope` ou `unknown`.\n- `confidence` entre 0 et 1, indépendante de l'incertitude spatiale.\n- `contactPixel: [u,v]` **ou** `bboxPx: [x1,y1,x2,y2]` ; contact prioritaire\n  s'il est fourni. Sinon M2 utilise le milieu du bord inférieur de la boîte.\n- `observedAt` optionnel, défaut capture ; jamais après `capturedAt`.\n- `pixelErrorPx` optionnel, défaut 2 ; amplitude de perturbation par axe.\n\nLes boîtes doivent avoir une surface positive et un contact inférieur visible.\nUn contact au sol n'est pas approprié à tous les dangers : pour un cratère,"
+        },
+        {
+          "digest": "36e0fe871431d093a0055bbb001d54a6dd4b26b8d387cc436b28e98f0ec0a503",
+          "lineEnd": 2,
+          "lineStart": 1,
+          "path": "experience:5bc9c13d-5a42-4d65-b59c-34aea9d3af0a",
+          "score": null,
+          "sourceId": "S5",
+          "text": "Événement enregistré ; provenance déclarée, pas certifiée. Les images ne sont pas analysées.\n{\"capturedAt\": \"2026-10-10T23:54:51.380Z\", \"eventId\": \"5bc9c13d-5a42-4d65-b59c-34aea9d3af0a\", \"imageAnalysis\": \"not_performed\", \"kind\": \"calibration_missing\", \"provenance\": \"simulated\", \"recordedAt\": \"2026-10-10T23:54:51.388Z\", \"roverId\": \"SIMULATED_EXPERIENCE_TEST\", \"summary\": \"Essai simulé : le producteur n'a fourni aucune pose caméra. Aucune position métrique n'est disponible.\", \"summaryExcerptCharacters\": 500}"
+        }
+      ],
+      "status": "answered"
+    },
+    "startedAt": "2026-10-10T23:54:51.422Z",
+    "state": "completed",
+    "submittedAt": "2026-10-10T23:54:51.407Z"
+  },
+  "limitations": "One explicitly simulated incident with actual text models; no ONNX, pixel interpretation, motor control or general accuracy claim. Review the answer manually."
+}
