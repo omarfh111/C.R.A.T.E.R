@@ -168,7 +168,7 @@
   <g stroke="#9bddea" stroke-opacity=".38" fill="none">
     <path d="M724 174 V156 H742"/><path d="M1218 156 H1236 V174"/><path d="M1236 438 V456 H1218"/><path d="M742 456 H724 V438"/>
   </g>
-  <text class="m" x="744" y="183" font-size="9.5" letter-spacing="2.6" fill="#86c9d7">MISSION CONTROL · M3</text>
+  <text class="m" x="744" y="183" font-size="9.5" letter-spacing="2.6" fill="#86c9d7">MISSION CONTROL</text>
   <g class="pill-live">
     <rect x="1162" y="172" width="54" height="16" fill="#9bddea" fill-opacity=".10" stroke="#9bddea" stroke-opacity=".45"/>
     <circle cx="1172" cy="180" r="3" fill="#9bddea"/>

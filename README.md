@@ -47,8 +47,8 @@ The launcher opens Mission Control and prints its local `http://127.0.0.1:<port>
 |---|---|---|
 | Detections | **Recorded ONNX replay** — 30 predictions from an earlier real ONNX run | **Fresh local ONNX inference** from the committed calibrated video |
 | Detector | — | Grounding DINO Tiny ONNX on DirectML |
-| M2 geometry, binary encoding, radio | Runs now | Runs now |
-| M3 Mission Control dashboard | Runs now, LIVE telemetry view | Runs now, LIVE telemetry view |
+| Spatial projection, binary encoding, radio | Runs now | Runs now |
+| Mission Control dashboard | Runs now, LIVE telemetry view | Runs now, LIVE telemetry view |
 | GPU required | No | Yes |
 
 **Radio loss and blackout are simulated.** Original capture times stay historical, so replayed frames can legitimately show as STALE in the dashboard. Spatial accuracy figures below come from a **controlled synthetic calibrated scene only** — they are not a lunar object-detection benchmark. First-time GPU setup may require substantial downloads.
@@ -70,13 +70,13 @@ The launcher opens Mission Control and prints its local `http://127.0.0.1:<port>
 
 | Stage | Module | What it does | Evidence |
 |---|---|---|---|
-| Capture | M1 | 30-frame, 640×480 calibrated scene with camera intrinsics and per-frame pose | SHA-256 pinned in [manifest.json](examples/m1-onnx-calibrated/manifest.json) |
-| Detect | M1 | Grounding DINO Tiny ONNX via DirectML, offline from a pinned revision | 90 pixel-derived detections over 30 frames |
-| Track | M1 | Persistent hazard identity across frames | 3 track IDs, 0 ID switches |
-| Project | M2 | `observation_to_frame` maps the detected ground-contact pixel into `LOCAL_ENU_V1` | 0.097 m mean error on 90 matches |
-| Encode | M2 | 42-byte big-endian header, per-hazard records, CRC32 | [binary protocol v1](docs/m2-binary-protocol.md) |
-| Transmit | M2 | Byte-budgeted lossy radio simulation with ACK and retransmission | 30/30 delivered and acknowledged |
-| Visualise | M3 | WebSocket bridge, Zod contract validation, Mission Control dashboard | [telemetry contract v1](docs/telemetry-contract.md) |
+| Capture | Rover Perception | 30-frame, 640×480 calibrated scene with camera intrinsics and per-frame pose | SHA-256 pinned in [manifest.json](examples/m1-onnx-calibrated/manifest.json) |
+| Detect | Rover Perception | Grounding DINO Tiny ONNX via DirectML, offline from a pinned revision | 90 pixel-derived detections over 30 frames |
+| Track | Rover Perception | Persistent hazard identity across frames | 3 track IDs, 0 ID switches |
+| Project | Spatial Telemetry | `observation_to_frame` maps the detected ground-contact pixel into `LOCAL_ENU_V1` | 0.097 m mean error on 90 matches |
+| Encode | Spatial Telemetry | 42-byte big-endian header, per-hazard records, CRC32 | [binary protocol v1](docs/m2-binary-protocol.md) |
+| Transmit | Spatial Telemetry | Byte-budgeted lossy radio simulation with ACK and retransmission | 30/30 delivered and acknowledged |
+| Visualise | Mission Control | WebSocket bridge, Zod contract validation, Mission Control dashboard | [telemetry contract v1](docs/telemetry-contract.md) |
 
 Detection, calculated geometry, simulated communications and dashboard visualisation are deliberately separate concerns: **only the first is AI**, and the radio is a simulator, not hardware.
 
@@ -90,22 +90,22 @@ Detection and tracking run on the rover; only encoded geometry crosses the radio
 
 ```mermaid
 flowchart TB
-  subgraph M1["M1 · Rover perception"]
+  subgraph PERCEPTION["Rover Perception"]
     direction LR
     V["Calibrated video<br/>30 frames · 640×480"] --> D["Grounding DINO Tiny<br/>ONNX · DirectML · offline"] --> T["Tracker<br/>3 persistent hazard IDs"]
   end
 
-  subgraph M2["M2 · Spatial telemetry"]
+  subgraph TELEMETRY["Spatial Telemetry"]
     direction LR
     P["observation_to_frame<br/>pixel → LOCAL_ENU_V1 metres"] --> E["Binary encoder<br/>42 B header · CRC32<br/>mean 177 B/frame"] --> R["Lossy radio simulation<br/>4096 B/s · 25% loss · blackout"] --> S["Station decoder<br/>ACK · retransmit · dedupe"]
   end
 
-  subgraph M3["M3 · Mission Control"]
+  subgraph CONTROL["Mission Control"]
     direction LR
     W["WebSocket bridge<br/>canonical JSON"] --> Z["Zod contract parser<br/>schemaVersion 1"] --> U["Dashboard<br/>map · hazards · link state"]
   end
 
-  M1 -->|"observations"| M2 -->|"decoded JSON frames"| M3
+  PERCEPTION -->|"observations"| TELEMETRY -->|"decoded JSON frames"| CONTROL
 ```
 
 ### Radio blackout and recovery
@@ -113,7 +113,7 @@ flowchart TB
 ```mermaid
 sequenceDiagram
     autonumber
-    participant P as M2 producer
+    participant P as Telemetry producer
     participant Q as Bounded queue · 128
     participant R as Lossy radio
     participant S as Station + WebSocket
@@ -151,16 +151,16 @@ flowchart TD
     B -->|"Full Live AI · DirectML GPU"| D["setup-gpu.ps1 → start-live.ps1"]
     C --> E["RECORDED ONNX REPLAY<br/>30 genuine predictions from an earlier real run"]
     D --> F["FRESH LOCAL ONNX INFERENCE<br/>pixel-derived detections computed now"]
-    E --> G["M2 calibrated projection, binary encoding<br/>and simulated lossy radio — both run now"]
+    E --> G["Calibrated projection, binary encoding<br/>and simulated lossy radio — both run now"]
     F --> G
-    G --> H["M3 Mission Control<br/>LIVE telemetry view — runs now"]
+    G --> H["Mission Control<br/>LIVE telemetry view — runs now"]
 ```
 
 ---
 
 ## Measured validation evidence
 
-All figures below come from [integration validation](docs/integration-validation.md) and [M1 final validation](docs/m1-final-validation.md). They describe one controlled scene on one validated Windows host, not a general benchmark.
+All figures below come from [integration validation](docs/integration-validation.md) and [perception validation](docs/m1-final-validation.md). They describe one controlled scene on one validated Windows host, not a general benchmark.
 
 ### Detection and tracking — controlled synthetic scene
 
@@ -175,7 +175,7 @@ All figures below come from [integration validation](docs/integration-validation
 
 ### Spatial localisation — controlled synthetic scene
 
-Each detected box was matched to an annotation and its **detected** ground-contact pixel projected by M2. Ground-truth boxes were never used as projection input.
+Each detected box was matched to an annotation and its **detected** ground-contact pixel projected by the spatial telemetry module. Ground-truth boxes were never used as projection input.
 
 | Metric | All 90 matches | 45 held-out matches |
 |---|---|---|
@@ -198,7 +198,7 @@ Each detected box was matched to an annotation and its **detected** ground-conta
 | Mean binary frame | 177 B (vs 1,001 B JSON) |
 | Total radio application bytes | 10,717 — **35.7%** of the original JSON bytes |
 
-Byte accounting covers DATA and ACK payloads only; lower network layers are excluded. All 30 received WebSocket frames equalled the decoded M2 frames and passed the integrated M3 Zod parser.
+Byte accounting covers DATA and ACK payloads only; lower network layers are excluded. All 30 received WebSocket frames equalled the decoded telemetry frames and passed the integrated Mission Control Zod parser.
 
 ### Test status
 
@@ -220,7 +220,7 @@ Hosted CI runs portable, model-free checks and does not load the ONNX graph.
 | Spatial and transport | Python, pinhole projection on a known ground plane, custom big-endian binary protocol with CRC32, byte-budgeted lossy radio simulator |
 | Bridge | Local WebSocket station publishing canonical JSON in `LOCAL_ENU_V1` |
 | Mission Control | React, TypeScript, Vite, Tailwind, Zod schema validation |
-| Validation | pytest, Vitest, GitHub Actions (M1 / M2 / M3 workflows) |
+| Validation | pytest, Vitest, GitHub Actions (perception, telemetry and Mission Control workflows) |
 
 ---
 
@@ -234,9 +234,11 @@ Hosted CI runs portable, model-free checks and does not load the ONNX graph.
 
 **Engineering contracts**
 
-- M1 — `crater_m1/`, [perception contract](docs/m1-contract.md), [observation contract](docs/m1-observation-contract.md), [calibrated ONNX validation](docs/m1-final-validation.md)
-- M2 — `crater_m2/`, [spatial and radio guide](M2_README.md), [binary protocol v1](docs/m2-binary-protocol.md), [ONNX callback integration](docs/m1-m2-onnx-integration.md), [calibrated handoff](docs/m1-calibrated-handoff.md)
-- M3 — `src/`, [telemetry contract v1](docs/telemetry-contract.md), `src/telemetry/contract.ts`
+The three modules are labelled M1, M2 and M3 throughout the codebase, commit history and CI:
+
+- **Rover Perception** (M1) — `crater_m1/`, [perception contract](docs/m1-contract.md), [observation contract](docs/m1-observation-contract.md), [calibrated ONNX validation](docs/m1-final-validation.md)
+- **Spatial Telemetry** (M2) — `crater_m2/`, [spatial and radio guide](M2_README.md), [binary protocol v1](docs/m2-binary-protocol.md), [ONNX callback integration](docs/m1-m2-onnx-integration.md), [calibrated handoff](docs/m1-calibrated-handoff.md)
+- **Mission Control** (M3) — `src/`, [telemetry contract v1](docs/telemetry-contract.md), `src/telemetry/contract.ts`
 - Evidence — [ONNX evidence bundle](examples/m1-onnx-calibrated/README.md)
 - Optional local assistant — [ASSISTANT_README.md](ASSISTANT_README.md)
 - Brand assets — [docs/brand/](docs/brand/)
@@ -254,18 +256,18 @@ npm test
 npm run build
 ```
 
-The launchers configure an ignored `.env.local` for LIVE telemetry and print the selected local URL. For manual development, M2 defaults to `ws://127.0.0.1:8765/telemetry`; copy `.env.example` to `.env.local` and set `VITE_TELEMETRY_MODE=LIVE` before running `npm run dev`. The frontend defaults to deterministic MOCK mode until LIVE is selected.
+The launchers configure an ignored `.env.local` for LIVE telemetry and print the selected local URL. For manual development, the telemetry station defaults to `ws://127.0.0.1:8765/telemetry`; copy `.env.example` to `.env.local` and set `VITE_TELEMETRY_MODE=LIVE` before running `npm run dev`. The frontend defaults to deterministic MOCK mode until LIVE is selected.
 
 ---
 
 ## Limitations and reproducibility
 
-**What this project demonstrates:** a functional local synthetic-scene demonstration and a validated M1 → M2 → M3 contract. Nothing here has been field-validated on lunar imagery.
+**What this project demonstrates:** a functional local synthetic-scene demonstration and a validated perception → telemetry → Mission Control contract. Nothing here has been field-validated on lunar imagery.
 
 - Spatial accuracy is specific to the controlled calibrated scene. The projection assumes known calibration and a flat ground plane. **No accuracy claim is made for uncalibrated NASA footage or real lunar terrain**, and detector confidence is not a calibrated probability.
 - The NASA videos lack matching calibration, and their available annotations do not match the supplied video hashes. They remain perception-only evidence.
-- Radio loss, blackout and link degradation are **simulated** by M2. A station WebSocket disconnection does not establish a rover radio blackout.
-- Stale age is measured from capture time, so historical observation replay can legitimately remain stale. Restart a browser telemetry session when M2 sequence numbering restarts, or use an increasing `--start-sequence`.
+- Radio loss, blackout and link degradation are **simulated** by the telemetry module. A station WebSocket disconnection does not establish a rover radio blackout.
+- Stale age is measured from capture time, so historical observation replay can legitimately remain stale. Restart a browser telemetry session when telemetry sequence numbering restarts, or use an increasing `--start-sequence`.
 - The cinematic lunar introduction and the dashboard map are local assets drawn from accepted `LOCAL_ENU_V1` coordinates. They are **not** surveyed lunar imagery.
 - Exact detector-input rerun requires the local MP4 and the prepared ONNX cache, which stay outside Git. The tracked [evidence bundle](examples/m1-onnx-calibrated/README.md) supports independent hash checks and transport replay; reproducing identical predictions across different hardware is not guaranteed.
 
