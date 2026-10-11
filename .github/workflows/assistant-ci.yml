@@ -2,7 +2,7 @@ name: Mission Intelligence validation
 
 on:
   push:
-    branches: [feat/m2-assistant-integration]
+    branches: [main, 'feat/**', 'codex/**']
   pull_request:
     paths:
       - 'pyproject.toml'
@@ -11,13 +11,18 @@ on:
       - 'vite.config.ts'
       - 'vitest.config.ts'
       - 'crater_assistant/**'
+      - 'crater_m2/**'
       - 'src/assistant/**'
       - 'src/mission-control/**'
       - 'integrations/**'
       - 'tests/test_assistant*'
+      - 'tests/test_experience*'
       - 'scripts/*assistant*'
       - 'scripts/*intelligence*'
+      - 'scripts/*incident*'
       - 'docs/knowledge/**'
+      - 'docs/experience*'
+      - 'docs/validation/incident-dialogue/**'
       - '.github/workflows/assistant-ci.yml'
   workflow_dispatch:
 
@@ -58,7 +63,7 @@ jobs:
           npm test
           npm run build
       - name: Model-free calibrated WebSocket regression
-        run: python -m crater_m2.validation --output artifacts/assistant-regression --m3-contract src/telemetry/contract.ts -- --input examples/m2-calibrated-transport.jsonl --duration 4 --drain 8 --fps 10 --bandwidth 4096 --latency .005 --jitter 0 --loss .25 --blackout .15:.8 --queue 32 --seed 7
+        run: python -m crater_m2.validation --output artifacts/assistant-regression --m3-contract src/telemetry/contract.ts -- --input examples/m2-calibrated-transport.jsonl --duration 4 --drain 8 --fps 10 --bandwidth 4096 --latency .005 --jitter 0 --loss .25 --blackout .15:.8 --queue 32 --seed 7 --incident-journal artifacts/assistant-regression/incidents.sqlite3
       - name: Existing M2 WebSocket frontend smoke
         shell: bash
         env:
@@ -84,3 +89,18 @@ jobs:
           name: mission-intelligence-python-${{ matrix.python-version }}
           path: artifacts/assistant-regression/
           if-no-files-found: ignore
+
+  windows-journal:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    env:
+      HF_HUB_OFFLINE: '1'
+      TRANSFORMERS_OFFLINE: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python -m pip install -e '.[test]'
+      - name: Windows journal lease, restart, HTTP, cancellation and producer lifecycle
+        run: python -m pytest -q tests/test_experience.py tests/test_experience_analysis.py tests/test_experience_producer.py
