@@ -20,9 +20,14 @@ repository secret.
 | `m1-tests.yml` | M1 perception reliability, M1→M2 contract, ONNX portability | existing |
 | `m2-tests.yml` | M2 Python suite, benchmark, calibrated transport validation | existing |
 | `mission-control-ci.yml` | Vitest, TypeScript build, M2 WebSocket live smoke | existing |
+| `assistant-ci.yml` | Mission Intelligence: Python, adapter contract, model-free regression | existing |
 | `browser-e2e.yml` | Real Chromium against the real M2 bridge | PR to `main`, push to `ci/security-e2e` / `main`, manual |
 | `codeql.yml` | Static analysis of Python, TypeScript and the workflows | the above, plus weekly |
 | `security.yml` | Secret scanning, dependency audits, supply-chain review | the above, plus weekly |
+
+The five existing workflows also run on pushes to `ci/security-e2e`, so this branch carries
+hosted regression evidence for M1, M2, M3 and Mission Intelligence without a pull request. That
+is the only change made to them.
 
 Every workflow declares `permissions: contents: read` at the top level and widens it only where
 a step genuinely needs more. Only `codeql.yml` requests `security-events: write`, and only for
@@ -110,21 +115,32 @@ the job green.
 
 ### Finding investigated and fixed
 
-- **`py/http-response-splitting` at `crater_assistant/server.py:54`** — real, and fixed.
-  `allowed_origin()` parsed the request's `Origin` header with `urlsplit()`, which removes ASCII
-  tabs and newlines *before* parsing. A folded header such as
+- **`py/http-response-splitting` in `crater_assistant/server.py`** — real, and fixed.
+
+  On the pre-merge baseline, `allowed_origin()` parsed the request's `Origin` header with
+  `urlsplit()`, which removes ASCII tabs and newlines *before* parsing. A folded header such as
   `Origin: http://127.0.0.1:51<CRLF><TAB>73` therefore satisfied every parsed check, and the raw
   value was echoed into `Access-Control-Allow-Origin`, putting attacker-controlled CRLF into the
-  response header block. Reproduced end to end over a raw socket before changing anything.
+  response header block. That was reproduced end to end over a raw socket before anything was
+  changed.
 
-  The fix compares the whole header against a tuple of exact literals and echoes the matching
-  *literal*, never the request's own bytes, so no client-supplied text can reach a response
-  header. All six local dev-server origins (`localhost`, `127.0.0.1`, `[::1]` on 5173 and 4173)
-  still work. `tests/test_assistant.py` adds 14 regression tests, including the raw-socket
-  injection attempt; six of them fail against the previous implementation.
+  Mission Intelligence, merged from `main`, independently closed the hole from the other side:
+  `validate_origin()` now also requires the header to equal the canonical origin rebuilt from
+  its parsed parts, and `allowed_origin()` requires exact membership of the configured set, so
+  every payload above is refused. The merge keeps that implementation unchanged.
 
-  This is a loopback-only sidecar for a future M3 panel. It is not part of the M1/M2/M3
-  pipeline, and the Quick Demo is unaffected.
+  Two things were still added on top of it. `_send()` now echoes the matching literal from the
+  configured `origins` rather than the request's own bytes: `allowed_origin()` already demands
+  an exact match, so the value is identical, but selecting it from the configured set keeps
+  request text out of the response headers by construction — which is also what clears the
+  CodeQL data-flow alert, rather than suppressing it. And `tests/test_assistant.py` adds nine
+  regression tests for the control-character class, including the raw-socket injection attempt;
+  six of them fail against the pre-merge implementation. The existing Mission Intelligence
+  origin tests cover wildcards, paths, queries, userinfo, case and port form, but no CR, LF or
+  TAB payload, so this coverage is new.
+
+  This is a loopback-only read-only sidecar. It is not part of the M1/M2/M3 telemetry pipeline,
+  and the Quick Demo is unaffected.
 
 ## Security and dependency audits (Milestone D)
 
@@ -146,11 +162,13 @@ Only metadata is ever printed — detector, classification, path, line, commit. 
 is never written to a log, an annotation or the job summary, and git history is never rewritten
 from CI.
 
-**Baseline:** 0 verified secrets. One `unknown` `URI` match, at `tests/test_assistant.py:98`:
-the hostile URL `http://127.0.0.1:11434@evil.org` used as a negative test fixture asserting that
-the assistant refuses it. The generic `URI` detector matches any `scheme://userinfo@host` shape
-and cannot identify a provider-specific credential, which is why its unverifiable hits are
-advisory; it is still listed, so nothing is hidden. Every other detector blocks on `unknown`.
+**Baseline after merging Mission Intelligence: 0 verified secrets, 0 blocking.** Five matches,
+all from the generic `URI` detector: four in the Python and Node test suites and in this
+document, where hostile `scheme://userinfo@host` URLs are written down on purpose so the
+assistant's refusal of them can be asserted, and one in the scanner-policy script itself. That
+detector matches any such shape and cannot identify a provider-specific credential, which is
+why its unverifiable hits are advisory; every one is still listed, so nothing is hidden. Every
+other detector blocks on `unknown`. The built Vite bundle has no matches of any class.
 
 ### npm
 
