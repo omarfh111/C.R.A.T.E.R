@@ -128,3 +128,45 @@ def test_late_connection_cannot_be_attributed_to_finished_capture(journal):
     raw["eventAt"]=utc_iso(timestamp(closed["endedAt"])+timedelta(milliseconds=1))
     raw["triggerKey"]="ws:connected"
     with pytest.raises(ValueError,match="new connection"):journal.record(raw)
+
+
+def test_nested_media_validated_from_one_bounded_snapshot(tmp_path, monkeypatch):
+    from PIL import Image
+    media = tmp_path / "media"
+    nested = media / "capture"
+    nested.mkdir(parents=True)
+    path = nested / "frame.png"
+    Image.new("RGB", (2, 2)).save(path)
+    journal = Journal(tmp_path / "journal.db", media_root=media)
+    session = journal.begin("rover", "synthetic")
+    ref = dict(relativePath="capture/frame.png", sha256=hashlib.sha256(path.read_bytes()).hexdigest(), provenance="synthetic")
+    # PIL must see the exact in-memory bytes that were hashed, never reopen a mutable path.
+    original = Image.open
+    def memory_only(value, *args, **kwargs):
+        import io
+        assert isinstance(value, io.BytesIO)
+        return original(value, *args, **kwargs)
+    monkeypatch.setattr(Image, "open", memory_only)
+    assert journal.record(event(session, images=[ref]))["images"][0]["sha256"] == ref["sha256"]
+    path.write_bytes(b"x" * (5*1024*1024 + 1))
+    with pytest.raises(ValueError, match="unsafe media file"):
+        journal.record(event(session, images=[ref]))
+
+
+def test_media_symlink_cannot_escape_to_sibling_root(tmp_path):
+    from PIL import Image
+    media = tmp_path / "media"
+    sibling = tmp_path / "media-other"
+    media.mkdir(); sibling.mkdir()
+    image = sibling / "outside.png"
+    Image.new("RGB", (2, 2)).save(image)
+    try:
+        (media / "link").symlink_to(sibling, target_is_directory=True)
+    except OSError:
+        pytest.skip("OS does not permit directory symlinks for this user")
+    journal = Journal(tmp_path / "journal.db", media_root=media)
+    session = journal.begin("rover", "synthetic")
+    ref = dict(relativePath="link/outside.png", sha256=hashlib.sha256(image.read_bytes()).hexdigest(), provenance="operator_supplied")
+    with pytest.raises(ValueError, match="unsafe media path"):
+        journal.record(event(session, images=[ref]))
+    assert journal.list() == []

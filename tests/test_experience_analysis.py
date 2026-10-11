@@ -238,3 +238,51 @@ def test_remote_rejects_malformed_or_promoted_measurements(change):
     result={"status":"insufficient_evidence","facts":None,"answer":"Insufficient evidence","sources":[],"citedSourceIds":[],"verification":"not_generated"}
     remote.request=lambda *args:result|change
     with pytest.raises(ValueError):remote.analyze(str(uuid.uuid4()))
+
+
+@pytest.mark.parametrize("origin", [
+    b"http://127.0.0.1:54\r\n\t321",
+    b"http://127.0.0.1:54321\r\nOrigin: http://evil.test",
+    b"http://evil.test",
+])
+def test_journal_mutation_rejects_untrusted_origin_without_header_reflection(tmp_path, origin):
+    """Main's CORS hardening also protects the newly merged journal write routes."""
+    import socket
+    journal, session, _, _ = setup(tmp_path)
+    before = journal.snapshot()
+    server = make_server(None, 0, journal=journal, allowed_origins=["http://127.0.0.1:54321"])
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    try:
+        body = json.dumps(event(session)).encode()
+        request = (b"POST /incidents HTTP/1.1\r\nHost: 127.0.0.1:" + str(server.server_port).encode()
+                   + b"\r\nOrigin: " + origin + b"\r\nContent-Type: application/json\r\nContent-Length: "
+                   + str(len(body)).encode() + b"\r\nConnection: close\r\n\r\n" + body)
+        with socket.create_connection(("127.0.0.1", server.server_port), timeout=5) as client:
+            client.sendall(request)
+            response = b""
+            while chunk := client.recv(4096):
+                response += chunk
+    finally:
+        server.shutdown(); server.server_close(); thread.join(timeout=5)
+    headers = response.split(b"\r\n\r\n", 1)[0]
+    assert headers.startswith(b"HTTP/1.0 403")
+    assert b"evil.test" not in headers
+    assert all(not line.startswith((b" ", b"\t")) for line in headers.split(b"\r\n"))
+    assert journal.snapshot() == before
+
+
+def test_incident_capture_refusal_keeps_exact_dynamic_cors_and_collector_available(tmp_path):
+    from test_assistant_service import running, call, StubAssistant
+    journal, _, eid, _ = setup(tmp_path)
+    assistant = StubAssistant()
+    origin = "http://127.0.0.1:54321"
+    with running(assistant, journal=journal, capture_guard=lambda:True, allowed_origins=[origin]) as (_, url):
+        status, result, headers = call(url, "/analyze-incident", {"eventId":eid}, origin)
+        assert status == 429 and result["code"] == "busy"
+        assert headers["Access-Control-Allow-Origin"] == origin
+        assert headers["Cache-Control"] == "no-store"
+        status, result, headers = call(url, "/incidents", origin=origin)
+        assert status == 200 and result["incidents"][0]["eventId"] == eid
+        assert headers["Access-Control-Allow-Origin"] == origin
+        assert assistant.calls == 0

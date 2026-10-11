@@ -6,9 +6,12 @@ SQLite transactions serialize deduplication/admission across collector and produ
 from contextlib import contextmanager
 from datetime import datetime, timezone
 import hashlib
+import io
 import json
+import os
 from pathlib import Path, PurePosixPath
 import sqlite3
+import stat
 import uuid
 
 from crater_m2.contract import timestamp, utc_iso, validate_frame
@@ -134,14 +137,28 @@ class Journal:
             relative = PurePosixPath(text(ref["relativePath"], 300))
             if relative.is_absolute() or ".." in relative.parts or ":" in str(relative) or "\\" in str(relative):
                 raise ValueError("unsafe media path")
-            path = (self.media_root / str(relative)).resolve(strict=True)
-            if not path.is_relative_to(self.media_root) or path.suffix.lower() not in {".png", ".jpg", ".jpeg"} or path.stat().st_size > 5*1024*1024:
+            # Normalize symlinks/junctions before a separator-delimited root check.
+            # This explicit string boundary is also recognized by the security scanner.
+            canonical = os.path.realpath(self.media_root / str(relative), strict=True)
+            if not canonical.startswith(str(self.media_root).rstrip(os.sep) + os.sep):
+                raise ValueError("unsafe media path")
+            path = Path(canonical)
+            if not path.is_relative_to(self.media_root) or path.suffix.lower() not in {".png", ".jpg", ".jpeg"}:
                 raise ValueError("unsafe media file")
-            digest = hashlib.sha256(path.read_bytes()).hexdigest()
+            # Hash and verify the same bounded bytes from one handle. A growing file cannot
+            # evade the size limit between stat/read or change between hash and PIL reopen.
+            with open(canonical, "rb") as media:
+                metadata = os.fstat(media.fileno())
+                if not stat.S_ISREG(metadata.st_mode) or metadata.st_size > 5*1024*1024:
+                    raise ValueError("unsafe media file")
+                image_bytes = media.read(5*1024*1024 + 1)
+            if len(image_bytes) > 5*1024*1024:
+                raise ValueError("image exceeds size limit")
+            digest = hashlib.sha256(image_bytes).hexdigest()
             if ref["sha256"] != digest or ref["provenance"] not in {"synthetic", "historical_replay", "live_capture", "operator_supplied"}:
                 raise ValueError("image hash/provenance mismatch")
             from PIL import Image
-            with Image.open(path) as image:
+            with Image.open(io.BytesIO(image_bytes)) as image:
                 if image.width * image.height > 20000000:
                     raise ValueError("image dimensions exceed limit")
                 image.verify()
