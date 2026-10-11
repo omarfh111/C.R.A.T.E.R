@@ -11,7 +11,7 @@ on:
   pull_request:
     branches: [main]
   push:
-    branches: [ci/security-e2e, main]
+    branches: [ci/security-e2e, codex/mission-incident-dialogue, main]
   # Weekly, so a newly published advisory or a newly recognised secret format surfaces even
   # when nothing is pushed.
   schedule:

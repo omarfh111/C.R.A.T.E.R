@@ -1,0 +1,2 @@
+# Evidence text uses LF; preserve published bytes across platforms.
+* -text

@@ -1,0 +1,194 @@
+"""Journal regression tests adapted to current contracts, not legacy assistant APIs."""
+import hashlib
+import json
+import uuid
+from concurrent.futures import ThreadPoolExecutor
+
+import pytest
+
+from crater_assistant.experience import Journal, now
+from crater_m2.source import Scenario
+
+
+def event(session, **updates):
+    return dict(eventId=str(uuid.uuid4()), sessionId=session["sessionId"], kind="telemetry_stale",
+                eventAt=now(), receivedAt=None, summary="No recent accepted receipt; cause unknown",
+                triggerKey="stale", **updates)
+
+
+@pytest.fixture
+def journal(tmp_path):
+    return Journal(tmp_path / "journal.sqlite3")
+
+
+def test_persistent_incident_without_model_and_no_invented_decision(journal):
+    session = journal.begin("rover", "historical_replay")
+    raw = event(session)
+    saved = journal.record(raw)
+    reopened = Journal(journal.path)
+    assert reopened.get(raw["eventId"]) == saved
+    assert saved["provenance"]["observation"] == "historical_replay"
+    assert not saved["provenance"]["certifiedMeasurement"]
+    assert "decision" not in saved
+    assert reopened.list()[0]["job"]["state"] == "waiting_capture"
+    assert reopened.record(raw) == saved
+    raw["summary"] = "different"
+    with pytest.raises(ValueError, match="conflict"):
+        reopened.record(raw)
+
+
+def test_dedup_atomic_and_cooldown(journal):
+    session = journal.begin("rover", "synthetic")
+    with ThreadPoolExecutor(4) as pool:
+        values = list(pool.map(lambda _: journal.record(event(session), clock=100), range(4)))
+    assert len({v["eventId"] for v in values}) == 1
+    journal.record(event(session), clock=131)
+    assert len(journal.list()) == 2
+
+
+def test_queue_saturation_preserves_incident_and_bounded_retry(tmp_path):
+    journal = Journal(tmp_path / "j.db", capacity=1)
+    session = journal.begin("rover", "synthetic")
+    a, b = event(session), event(session)
+    b["kind"], b["triggerKey"] = "websocket_changed", "disconnected"
+    journal.record(a); journal.record(b)
+    assert journal.list()[0]["job"]["state"] == "saturated"
+    with pytest.raises(ValueError, match="saturated"):
+        journal.retry(b["eventId"])
+    journal.cancel(a["eventId"])
+    journal.retry(b["eventId"])
+    assert journal.list()[0]["job"]["state"] == "waiting_capture"
+    journal.finish(session["sessionId"])
+    assert journal.list()[0]["job"]["state"] == "queued"
+    journal.update_job(b["eventId"], "failed", attempt=3)
+    with pytest.raises(ValueError, match="attempt limit"):
+        journal.retry(b["eventId"])
+
+
+def test_producer_warning_authority_and_separate_review(journal):
+    session = journal.begin("rover", "live_inference")
+    raw = event(session); raw["kind"] = "producer_warning"
+    with pytest.raises(ValueError, match="authority"):
+        journal.record(raw)
+    saved = journal.record(raw, producer=True)
+    review = journal.review(saved["eventId"], "inconclusive", "Cause not established")
+    snap = journal.snapshot()
+    assert snap["reviews"] == [review]
+    assert snap["incidents"][0] == saved
+    assert "verified" not in snap["incidents"][0]
+
+
+@pytest.mark.parametrize("update", [{"question":"invent coordinates"}, {"provenance":"measured"},
+    {"eventAt":"yesterday"}, {"sessionId":str(uuid.uuid4())}, {"decision":""}])
+def test_reject_invalid_contract(journal, update):
+    session = journal.begin("rover", "synthetic")
+    raw = event(session); raw.update(update)
+    with pytest.raises((ValueError, TypeError)):
+        journal.record(raw)
+
+
+def test_image_reference_hash_root_and_no_vision(tmp_path):
+    from PIL import Image
+    media = tmp_path / "media"; media.mkdir()
+    path = media / "frame.png"; Image.new("RGB", (2,2)).save(path)
+    journal = Journal(tmp_path / "j.db", media_root=media)
+    session = journal.begin("rover", "synthetic")
+    raw = event(session)
+    ref = dict(relativePath="frame.png", sha256=hashlib.sha256(path.read_bytes()).hexdigest(), provenance="synthetic")
+    raw["images"] = [ref]
+    assert journal.record(raw)["images"][0]["imageAnalysis"] == "not_performed"
+    for relative in ("../frame.png", "C:/frame.png", "..\\frame.png", "/frame.png"):
+        raw = event(session); raw["images"] = [dict(ref, relativePath=relative)]
+        with pytest.raises((ValueError, OSError)):
+            journal.record(raw)
+    path.write_bytes(b"changed")
+    with pytest.raises(ValueError, match="hash"):
+        journal.record(raw | {"images": [ref]})
+
+
+def test_storage_bounds_are_explicit(tmp_path):
+    journal = Journal(tmp_path / "j.db", max_events=1)
+    session = journal.begin("rover", "synthetic")
+    journal.record(event(session), clock=100)
+    with pytest.raises(ValueError, match="capacity"):
+        journal.record(event(session), clock=131)
+    with pytest.raises(ValueError, match="capacity"):
+        journal.begin("rover", "synthetic")
+
+
+def test_late_connection_cannot_be_attributed_to_finished_capture(journal):
+    from datetime import timedelta
+    from crater_m2.contract import timestamp,utc_iso
+    session=journal.begin("rover","synthetic")
+    closed=journal.finish(session["sessionId"])
+    raw=event(session);raw["kind"]="websocket_changed"
+    raw["eventAt"]=utc_iso(timestamp(closed["endedAt"])+timedelta(seconds=31))
+    raw["triggerKey"]="ws:disconnected"
+    with pytest.raises(ValueError,match="closing window"):journal.record(raw)
+    raw["eventAt"]=utc_iso(timestamp(closed["endedAt"])+timedelta(milliseconds=1))
+    raw["triggerKey"]="ws:connected"
+    with pytest.raises(ValueError,match="new connection"):journal.record(raw)
+
+
+def test_nested_media_validated_from_one_bounded_snapshot(tmp_path, monkeypatch):
+    from PIL import Image
+    media = tmp_path / "media"
+    nested = media / "capture"
+    nested.mkdir(parents=True)
+    path = nested / "frame.png"
+    Image.new("RGB", (2, 2)).save(path)
+    journal = Journal(tmp_path / "journal.db", media_root=media)
+    session = journal.begin("rover", "synthetic")
+    ref = dict(relativePath="capture/frame.png", sha256=hashlib.sha256(path.read_bytes()).hexdigest(), provenance="synthetic")
+    # PIL must see the exact in-memory bytes that were hashed, never reopen a mutable path.
+    original = Image.open
+    def memory_only(value, *args, **kwargs):
+        import io
+        assert isinstance(value, io.BytesIO)
+        return original(value, *args, **kwargs)
+    monkeypatch.setattr(Image, "open", memory_only)
+    assert journal.record(event(session, images=[ref]))["images"][0]["sha256"] == ref["sha256"]
+    path.write_bytes(b"x" * (5*1024*1024 + 1))
+    with pytest.raises(ValueError, match="unsafe media file"):
+        journal.record(event(session, images=[ref]))
+
+
+def test_media_symlink_cannot_escape_to_sibling_root(tmp_path):
+    from PIL import Image
+    media = tmp_path / "media"
+    sibling = tmp_path / "media-other"
+    media.mkdir(); sibling.mkdir()
+    image = sibling / "outside.png"
+    Image.new("RGB", (2, 2)).save(image)
+    try:
+        (media / "link").symlink_to(sibling, target_is_directory=True)
+    except OSError:
+        pytest.skip("OS does not permit directory symlinks for this user")
+    journal = Journal(tmp_path / "journal.db", media_root=media)
+    session = journal.begin("rover", "synthetic")
+    ref = dict(relativePath="link/outside.png", sha256=hashlib.sha256(image.read_bytes()).hexdigest(), provenance="operator_supplied")
+    with pytest.raises(ValueError, match="unsafe media path"):
+        journal.record(event(session, images=[ref]))
+    assert journal.list() == []
+
+
+def test_concurrent_journal_instance_survives_short_external_write_lock(journal):
+    import threading
+    import time
+    session = journal.begin("rover", "synthetic")
+    other = Journal(journal.path)
+    raw = event(session)
+    started = threading.Event()
+    def record():
+        started.set()
+        return other.record(raw)
+    with ThreadPoolExecutor(1) as pool:
+        with journal.connect():
+            pending = pool.submit(record)
+            assert started.wait(2)
+            # Model a slow FULL-sync transaction on the collector/producer's other connection.
+            time.sleep(.35)
+        saved = pending.result(timeout=4)
+    assert other.get(raw["eventId"]) == saved
+    assert other.list()[0]["job"]["state"] == "waiting_capture"
+    assert "decision" not in saved

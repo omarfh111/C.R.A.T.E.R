@@ -1,0 +1,967 @@
+{
+  "schemaVersion": 1,
+  "sessions": [
+    {
+      "authority": "m2-producer",
+      "endedAt": "2026-10-11T04:40:22.706Z",
+      "phase": "completed",
+      "provenance": "historical_replay",
+      "radioProvenance": "simulated",
+      "roverId": "rover-1",
+      "sessionId": "3177da1c-c5b0-4b48-80fc-4d1276033892",
+      "startedAt": "2026-10-11T04:40:07.708Z"
+    }
+  ],
+  "incidents": [
+    {
+      "eventAt": "2026-10-11T04:40:14.442Z",
+      "eventId": "b2a8ca90-7aeb-40af-91f5-e6ffd9f66f7b",
+      "frame": {
+        "capturedAt": "2026-10-10T21:32:00.579Z",
+        "hazards": [
+          {
+            "confidence": 0.6857862211032273,
+            "id": "hazard-000001",
+            "observedAt": "2026-10-10T21:32:00.579Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": -0.988,
+              "yM": 3.951,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.122
+          },
+          {
+            "confidence": 0.6233463035019455,
+            "id": "hazard-000002",
+            "observedAt": "2026-10-10T21:32:00.579Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": 0.992,
+              "yM": 5.892,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.191
+          },
+          {
+            "confidence": 0.5911955443656062,
+            "id": "hazard-000003",
+            "observedAt": "2026-10-10T21:32:00.579Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": 0.193,
+              "yM": 7.835,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.282
+          }
+        ],
+        "link": {
+          "packetsLost": 2,
+          "packetsSent": 2,
+          "status": "disconnected"
+        },
+        "positionUncertaintyRadiusM": 0.05,
+        "roverId": "rover-1",
+        "roverPosition": {
+          "frameId": "LOCAL_ENU_V1",
+          "xM": 0,
+          "yM": 0.03,
+          "zM": 0
+        },
+        "schemaVersion": 1,
+        "sequence": 3
+      },
+      "images": [],
+      "kind": "websocket_changed",
+      "provenance": {
+        "certifiedMeasurement": false,
+        "observation": "historical_replay",
+        "radio": "simulated",
+        "reporter": "dashboard-client-reported-v1"
+      },
+      "question": "Explain why a dashboard connection change does not establish the rover radio state or a perception failure.",
+      "receivedAt": "2026-10-11T04:40:14.499Z",
+      "recordedAt": "2026-10-11T04:40:14.765Z",
+      "roverId": "rover-1",
+      "sessionId": "3177da1c-c5b0-4b48-80fc-4d1276033892",
+      "submitted": {
+        "eventAt": "2026-10-11T04:40:14.442Z",
+        "eventId": "b2a8ca90-7aeb-40af-91f5-e6ffd9f66f7b",
+        "frame": {
+          "capturedAt": "2026-10-10T21:32:00.579Z",
+          "hazards": [
+            {
+              "confidence": 0.6857862211032273,
+              "id": "hazard-000001",
+              "observedAt": "2026-10-10T21:32:00.579Z",
+              "position": {
+                "frameId": "LOCAL_ENU_V1",
+                "xM": -0.988,
+                "yM": 3.951,
+                "zM": 0
+              },
+              "type": "rock",
+              "uncertaintyRadiusM": 0.122
+            },
+            {
+              "confidence": 0.6233463035019455,
+              "id": "hazard-000002",
+              "observedAt": "2026-10-10T21:32:00.579Z",
+              "position": {
+                "frameId": "LOCAL_ENU_V1",
+                "xM": 0.992,
+                "yM": 5.892,
+                "zM": 0
+              },
+              "type": "rock",
+              "uncertaintyRadiusM": 0.191
+            },
+            {
+              "confidence": 0.5911955443656062,
+              "id": "hazard-000003",
+              "observedAt": "2026-10-10T21:32:00.579Z",
+              "position": {
+                "frameId": "LOCAL_ENU_V1",
+                "xM": 0.193,
+                "yM": 7.835,
+                "zM": 0
+              },
+              "type": "rock",
+              "uncertaintyRadiusM": 0.282
+            }
+          ],
+          "link": {
+            "packetsLost": 2,
+            "packetsSent": 2,
+            "status": "disconnected"
+          },
+          "positionUncertaintyRadiusM": 0.05,
+          "roverId": "rover-1",
+          "roverPosition": {
+            "frameId": "LOCAL_ENU_V1",
+            "xM": 0,
+            "yM": 0.03,
+            "zM": 0
+          },
+          "schemaVersion": 1,
+          "sequence": 3
+        },
+        "kind": "websocket_changed",
+        "receivedAt": "2026-10-11T04:40:14.499Z",
+        "sessionId": "3177da1c-c5b0-4b48-80fc-4d1276033892",
+        "summary": "Dashboard WebSocket initial -> connected. This is transport status, not the declared rover radio state.",
+        "triggerKey": "ws:connected"
+      },
+      "summary": "Dashboard WebSocket initial -> connected. This is transport status, not the declared rover radio state.",
+      "triggerKey": "ws:connected"
+    },
+    {
+      "eventAt": "2026-10-11T04:40:14.442Z",
+      "eventId": "c6de0b6f-41ba-4bc0-8559-6ab7baa2305e",
+      "frame": {
+        "capturedAt": "2026-10-10T21:32:00.579Z",
+        "hazards": [
+          {
+            "confidence": 0.6857862211032273,
+            "id": "hazard-000001",
+            "observedAt": "2026-10-10T21:32:00.579Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": -0.988,
+              "yM": 3.951,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.122
+          },
+          {
+            "confidence": 0.6233463035019455,
+            "id": "hazard-000002",
+            "observedAt": "2026-10-10T21:32:00.579Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": 0.992,
+              "yM": 5.892,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.191
+          },
+          {
+            "confidence": 0.5911955443656062,
+            "id": "hazard-000003",
+            "observedAt": "2026-10-10T21:32:00.579Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": 0.193,
+              "yM": 7.835,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.282
+          }
+        ],
+        "link": {
+          "packetsLost": 2,
+          "packetsSent": 2,
+          "status": "disconnected"
+        },
+        "positionUncertaintyRadiusM": 0.05,
+        "roverId": "rover-1",
+        "roverPosition": {
+          "frameId": "LOCAL_ENU_V1",
+          "xM": 0,
+          "yM": 0.03,
+          "zM": 0
+        },
+        "schemaVersion": 1,
+        "sequence": 3
+      },
+      "images": [],
+      "kind": "radio_changed",
+      "provenance": {
+        "certifiedMeasurement": false,
+        "observation": "historical_replay",
+        "radio": "simulated",
+        "reporter": "dashboard-client-reported-v1"
+      },
+      "question": "Explain the limits of interpreting a declared communication state, using scientific references where relevant.",
+      "receivedAt": "2026-10-11T04:40:14.499Z",
+      "recordedAt": "2026-10-11T04:40:15.678Z",
+      "roverId": "rover-1",
+      "sessionId": "3177da1c-c5b0-4b48-80fc-4d1276033892",
+      "submitted": {
+        "eventAt": "2026-10-11T04:40:14.442Z",
+        "eventId": "c6de0b6f-41ba-4bc0-8559-6ab7baa2305e",
+        "frame": {
+          "capturedAt": "2026-10-10T21:32:00.579Z",
+          "hazards": [
+            {
+              "confidence": 0.6857862211032273,
+              "id": "hazard-000001",
+              "observedAt": "2026-10-10T21:32:00.579Z",
+              "position": {
+                "frameId": "LOCAL_ENU_V1",
+                "xM": -0.988,
+                "yM": 3.951,
+                "zM": 0
+              },
+              "type": "rock",
+              "uncertaintyRadiusM": 0.122
+            },
+            {
+              "confidence": 0.6233463035019455,
+              "id": "hazard-000002",
+              "observedAt": "2026-10-10T21:32:00.579Z",
+              "position": {
+                "frameId": "LOCAL_ENU_V1",
+                "xM": 0.992,
+                "yM": 5.892,
+                "zM": 0
+              },
+              "type": "rock",
+              "uncertaintyRadiusM": 0.191
+            },
+            {
+              "confidence": 0.5911955443656062,
+              "id": "hazard-000003",
+              "observedAt": "2026-10-10T21:32:00.579Z",
+              "position": {
+                "frameId": "LOCAL_ENU_V1",
+                "xM": 0.193,
+                "yM": 7.835,
+                "zM": 0
+              },
+              "type": "rock",
+              "uncertaintyRadiusM": 0.282
+            }
+          ],
+          "link": {
+            "packetsLost": 2,
+            "packetsSent": 2,
+            "status": "disconnected"
+          },
+          "positionUncertaintyRadiusM": 0.05,
+          "roverId": "rover-1",
+          "roverPosition": {
+            "frameId": "LOCAL_ENU_V1",
+            "xM": 0,
+            "yM": 0.03,
+            "zM": 0
+          },
+          "schemaVersion": 1,
+          "sequence": 3
+        },
+        "kind": "radio_changed",
+        "receivedAt": "2026-10-11T04:40:14.499Z",
+        "sessionId": "3177da1c-c5b0-4b48-80fc-4d1276033892",
+        "summary": "Accepted frame declares radio initial -> disconnected. Counters describe the simulated radio channel at capture time.",
+        "triggerKey": "radio:disconnected"
+      },
+      "summary": "Accepted frame declares radio initial -> disconnected. Counters describe the simulated radio channel at capture time.",
+      "triggerKey": "radio:disconnected"
+    },
+    {
+      "eventAt": "2026-10-11T04:40:14.442Z",
+      "eventId": "49b59fed-ad6a-4c46-946b-dfee1e581a40",
+      "frame": {
+        "capturedAt": "2026-10-10T21:32:00.579Z",
+        "hazards": [
+          {
+            "confidence": 0.6857862211032273,
+            "id": "hazard-000001",
+            "observedAt": "2026-10-10T21:32:00.579Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": -0.988,
+              "yM": 3.951,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.122
+          },
+          {
+            "confidence": 0.6233463035019455,
+            "id": "hazard-000002",
+            "observedAt": "2026-10-10T21:32:00.579Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": 0.992,
+              "yM": 5.892,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.191
+          },
+          {
+            "confidence": 0.5911955443656062,
+            "id": "hazard-000003",
+            "observedAt": "2026-10-10T21:32:00.579Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": 0.193,
+              "yM": 7.835,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.282
+          }
+        ],
+        "link": {
+          "packetsLost": 2,
+          "packetsSent": 2,
+          "status": "disconnected"
+        },
+        "positionUncertaintyRadiusM": 0.05,
+        "roverId": "rover-1",
+        "roverPosition": {
+          "frameId": "LOCAL_ENU_V1",
+          "xM": 0,
+          "yM": 0.03,
+          "zM": 0
+        },
+        "schemaVersion": 1,
+        "sequence": 3
+      },
+      "images": [],
+      "kind": "telemetry_stale",
+      "provenance": {
+        "certifiedMeasurement": false,
+        "observation": "historical_replay",
+        "radio": "simulated",
+        "reporter": "dashboard-client-reported-v1"
+      },
+      "question": "Explain evidence limitations when observations are delayed. Do not infer the cause or estimate mission measurements.",
+      "receivedAt": "2026-10-11T04:40:14.499Z",
+      "recordedAt": "2026-10-11T04:40:16.675Z",
+      "roverId": "rover-1",
+      "sessionId": "3177da1c-c5b0-4b48-80fc-4d1276033892",
+      "submitted": {
+        "eventAt": "2026-10-11T04:40:14.442Z",
+        "eventId": "49b59fed-ad6a-4c46-946b-dfee1e581a40",
+        "frame": {
+          "capturedAt": "2026-10-10T21:32:00.579Z",
+          "hazards": [
+            {
+              "confidence": 0.6857862211032273,
+              "id": "hazard-000001",
+              "observedAt": "2026-10-10T21:32:00.579Z",
+              "position": {
+                "frameId": "LOCAL_ENU_V1",
+                "xM": -0.988,
+                "yM": 3.951,
+                "zM": 0
+              },
+              "type": "rock",
+              "uncertaintyRadiusM": 0.122
+            },
+            {
+              "confidence": 0.6233463035019455,
+              "id": "hazard-000002",
+              "observedAt": "2026-10-10T21:32:00.579Z",
+              "position": {
+                "frameId": "LOCAL_ENU_V1",
+                "xM": 0.992,
+                "yM": 5.892,
+                "zM": 0
+              },
+              "type": "rock",
+              "uncertaintyRadiusM": 0.191
+            },
+            {
+              "confidence": 0.5911955443656062,
+              "id": "hazard-000003",
+              "observedAt": "2026-10-10T21:32:00.579Z",
+              "position": {
+                "frameId": "LOCAL_ENU_V1",
+                "xM": 0.193,
+                "yM": 7.835,
+                "zM": 0
+              },
+              "type": "rock",
+              "uncertaintyRadiusM": 0.282
+            }
+          ],
+          "link": {
+            "packetsLost": 2,
+            "packetsSent": 2,
+            "status": "disconnected"
+          },
+          "positionUncertaintyRadiusM": 0.05,
+          "roverId": "rover-1",
+          "roverPosition": {
+            "frameId": "LOCAL_ENU_V1",
+            "xM": 0,
+            "yM": 0.03,
+            "zM": 0
+          },
+          "schemaVersion": 1,
+          "sequence": 3
+        },
+        "kind": "telemetry_stale",
+        "receivedAt": "2026-10-11T04:40:14.499Z",
+        "sessionId": "3177da1c-c5b0-4b48-80fc-4d1276033892",
+        "summary": "The accepted observation has an old capture timestamp. Historical replay is not fresh inference; no calibration or tracking failure is inferred.",
+        "triggerKey": "capture_stale"
+      },
+      "summary": "The accepted observation has an old capture timestamp. Historical replay is not fresh inference; no calibration or tracking failure is inferred.",
+      "triggerKey": "capture_stale"
+    },
+    {
+      "eventAt": "2026-10-11T04:40:17.442Z",
+      "eventId": "74b2b6c1-fb8e-4178-89cc-a64e9f9fa6de",
+      "frame": {
+        "capturedAt": "2026-10-10T21:32:04.469Z",
+        "hazards": [
+          {
+            "confidence": 0.7017471580071717,
+            "id": "hazard-000001",
+            "observedAt": "2026-10-10T21:32:04.469Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": -0.982,
+              "yM": 3.956,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.117
+          },
+          {
+            "confidence": 0.6353704127565423,
+            "id": "hazard-000002",
+            "observedAt": "2026-10-10T21:32:04.469Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": 0.996,
+              "yM": 5.914,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.186
+          },
+          {
+            "confidence": 0.5848935683222706,
+            "id": "hazard-000003",
+            "observedAt": "2026-10-10T21:32:04.469Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": 0.206,
+              "yM": 7.859,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.275
+          }
+        ],
+        "link": {
+          "packetsLost": 3,
+          "packetsSent": 7,
+          "status": "degraded"
+        },
+        "positionUncertaintyRadiusM": 0.05,
+        "roverId": "rover-1",
+        "roverPosition": {
+          "frameId": "LOCAL_ENU_V1",
+          "xM": 0,
+          "yM": 0.18,
+          "zM": 0
+        },
+        "schemaVersion": 1,
+        "sequence": 18
+      },
+      "images": [],
+      "kind": "radio_changed",
+      "provenance": {
+        "certifiedMeasurement": false,
+        "observation": "historical_replay",
+        "radio": "simulated",
+        "reporter": "dashboard-client-reported-v1"
+      },
+      "question": "Explain the limits of interpreting a declared communication state, using scientific references where relevant.",
+      "receivedAt": "2026-10-11T04:40:17.477Z",
+      "recordedAt": "2026-10-11T04:40:17.711Z",
+      "roverId": "rover-1",
+      "sessionId": "3177da1c-c5b0-4b48-80fc-4d1276033892",
+      "submitted": {
+        "eventAt": "2026-10-11T04:40:17.442Z",
+        "eventId": "74b2b6c1-fb8e-4178-89cc-a64e9f9fa6de",
+        "frame": {
+          "capturedAt": "2026-10-10T21:32:04.469Z",
+          "hazards": [
+            {
+              "confidence": 0.7017471580071717,
+              "id": "hazard-000001",
+              "observedAt": "2026-10-10T21:32:04.469Z",
+              "position": {
+                "frameId": "LOCAL_ENU_V1",
+                "xM": -0.982,
+                "yM": 3.956,
+                "zM": 0
+              },
+              "type": "rock",
+              "uncertaintyRadiusM": 0.117
+            },
+            {
+              "confidence": 0.6353704127565423,
+              "id": "hazard-000002",
+              "observedAt": "2026-10-10T21:32:04.469Z",
+              "position": {
+                "frameId": "LOCAL_ENU_V1",
+                "xM": 0.996,
+                "yM": 5.914,
+                "zM": 0
+              },
+              "type": "rock",
+              "uncertaintyRadiusM": 0.186
+            },
+            {
+              "confidence": 0.5848935683222706,
+              "id": "hazard-000003",
+              "observedAt": "2026-10-10T21:32:04.469Z",
+              "position": {
+                "frameId": "LOCAL_ENU_V1",
+                "xM": 0.206,
+                "yM": 7.859,
+                "zM": 0
+              },
+              "type": "rock",
+              "uncertaintyRadiusM": 0.275
+            }
+          ],
+          "link": {
+            "packetsLost": 3,
+            "packetsSent": 7,
+            "status": "degraded"
+          },
+          "positionUncertaintyRadiusM": 0.05,
+          "roverId": "rover-1",
+          "roverPosition": {
+            "frameId": "LOCAL_ENU_V1",
+            "xM": 0,
+            "yM": 0.18,
+            "zM": 0
+          },
+          "schemaVersion": 1,
+          "sequence": 18
+        },
+        "kind": "radio_changed",
+        "receivedAt": "2026-10-11T04:40:17.477Z",
+        "sessionId": "3177da1c-c5b0-4b48-80fc-4d1276033892",
+        "summary": "Accepted frame declares radio disconnected -> degraded. Counters describe the simulated radio channel at capture time.",
+        "triggerKey": "radio:degraded"
+      },
+      "summary": "Accepted frame declares radio disconnected -> degraded. Counters describe the simulated radio channel at capture time.",
+      "triggerKey": "radio:degraded"
+    },
+    {
+      "eventAt": "2026-10-11T04:40:23.457Z",
+      "eventId": "b4078495-2741-44d3-953e-f7492f21b632",
+      "frame": {
+        "capturedAt": "2026-10-10T21:32:07.362Z",
+        "hazards": [
+          {
+            "confidence": 0.6797894254978256,
+            "id": "hazard-000001",
+            "observedAt": "2026-10-10T21:32:07.362Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": -0.983,
+              "yM": 3.954,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.114
+          },
+          {
+            "confidence": 0.6289768825818265,
+            "id": "hazard-000002",
+            "observedAt": "2026-10-10T21:32:07.362Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": 0.988,
+              "yM": 5.902,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.181
+          },
+          {
+            "confidence": 0.5968108644235904,
+            "id": "hazard-000003",
+            "observedAt": "2026-10-10T21:32:07.362Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": 0.204,
+              "yM": 7.872,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.27
+          }
+        ],
+        "link": {
+          "packetsLost": 8,
+          "packetsSent": 33,
+          "status": "degraded"
+        },
+        "positionUncertaintyRadiusM": 0.05,
+        "roverId": "rover-1",
+        "roverPosition": {
+          "frameId": "LOCAL_ENU_V1",
+          "xM": 0,
+          "yM": 0.29,
+          "zM": 0
+        },
+        "schemaVersion": 1,
+        "sequence": 29
+      },
+      "images": [],
+      "kind": "websocket_changed",
+      "provenance": {
+        "certifiedMeasurement": false,
+        "observation": "historical_replay",
+        "radio": "simulated",
+        "reporter": "dashboard-client-reported-v1"
+      },
+      "question": "Explain why a dashboard connection change does not establish the rover radio state or a perception failure.",
+      "receivedAt": "2026-10-11T04:40:22.086Z",
+      "recordedAt": "2026-10-11T04:40:23.729Z",
+      "roverId": "rover-1",
+      "sessionId": "3177da1c-c5b0-4b48-80fc-4d1276033892",
+      "submitted": {
+        "eventAt": "2026-10-11T04:40:23.457Z",
+        "eventId": "b4078495-2741-44d3-953e-f7492f21b632",
+        "frame": {
+          "capturedAt": "2026-10-10T21:32:07.362Z",
+          "hazards": [
+            {
+              "confidence": 0.6797894254978256,
+              "id": "hazard-000001",
+              "observedAt": "2026-10-10T21:32:07.362Z",
+              "position": {
+                "frameId": "LOCAL_ENU_V1",
+                "xM": -0.983,
+                "yM": 3.954,
+                "zM": 0
+              },
+              "type": "rock",
+              "uncertaintyRadiusM": 0.114
+            },
+            {
+              "confidence": 0.6289768825818265,
+              "id": "hazard-000002",
+              "observedAt": "2026-10-10T21:32:07.362Z",
+              "position": {
+                "frameId": "LOCAL_ENU_V1",
+                "xM": 0.988,
+                "yM": 5.902,
+                "zM": 0
+              },
+              "type": "rock",
+              "uncertaintyRadiusM": 0.181
+            },
+            {
+              "confidence": 0.5968108644235904,
+              "id": "hazard-000003",
+              "observedAt": "2026-10-10T21:32:07.362Z",
+              "position": {
+                "frameId": "LOCAL_ENU_V1",
+                "xM": 0.204,
+                "yM": 7.872,
+                "zM": 0
+              },
+              "type": "rock",
+              "uncertaintyRadiusM": 0.27
+            }
+          ],
+          "link": {
+            "packetsLost": 8,
+            "packetsSent": 33,
+            "status": "degraded"
+          },
+          "positionUncertaintyRadiusM": 0.05,
+          "roverId": "rover-1",
+          "roverPosition": {
+            "frameId": "LOCAL_ENU_V1",
+            "xM": 0,
+            "yM": 0.29,
+            "zM": 0
+          },
+          "schemaVersion": 1,
+          "sequence": 29
+        },
+        "kind": "websocket_changed",
+        "receivedAt": "2026-10-11T04:40:22.086Z",
+        "sessionId": "3177da1c-c5b0-4b48-80fc-4d1276033892",
+        "summary": "Dashboard WebSocket connected -> disconnected. This is transport status, not the declared rover radio state.",
+        "triggerKey": "ws:disconnected"
+      },
+      "summary": "Dashboard WebSocket connected -> disconnected. This is transport status, not the declared rover radio state.",
+      "triggerKey": "ws:disconnected"
+    },
+    {
+      "eventAt": "2026-10-11T04:40:27.443Z",
+      "eventId": "d58358b5-28c7-4ab2-b712-c6547a37603b",
+      "frame": {
+        "capturedAt": "2026-10-10T21:32:07.362Z",
+        "hazards": [
+          {
+            "confidence": 0.6797894254978256,
+            "id": "hazard-000001",
+            "observedAt": "2026-10-10T21:32:07.362Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": -0.983,
+              "yM": 3.954,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.114
+          },
+          {
+            "confidence": 0.6289768825818265,
+            "id": "hazard-000002",
+            "observedAt": "2026-10-10T21:32:07.362Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": 0.988,
+              "yM": 5.902,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.181
+          },
+          {
+            "confidence": 0.5968108644235904,
+            "id": "hazard-000003",
+            "observedAt": "2026-10-10T21:32:07.362Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": 0.204,
+              "yM": 7.872,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.27
+          }
+        ],
+        "link": {
+          "packetsLost": 8,
+          "packetsSent": 33,
+          "status": "degraded"
+        },
+        "positionUncertaintyRadiusM": 0.05,
+        "roverId": "rover-1",
+        "roverPosition": {
+          "frameId": "LOCAL_ENU_V1",
+          "xM": 0,
+          "yM": 0.29,
+          "zM": 0
+        },
+        "schemaVersion": 1,
+        "sequence": 29
+      },
+      "images": [],
+      "kind": "telemetry_stale",
+      "provenance": {
+        "certifiedMeasurement": false,
+        "observation": "historical_replay",
+        "radio": "simulated",
+        "reporter": "dashboard-client-reported-v1"
+      },
+      "question": "Explain evidence limitations when observations are delayed. Do not infer the cause or estimate mission measurements.",
+      "receivedAt": "2026-10-11T04:40:22.086Z",
+      "recordedAt": "2026-10-11T04:40:27.689Z",
+      "roverId": "rover-1",
+      "sessionId": "3177da1c-c5b0-4b48-80fc-4d1276033892",
+      "submitted": {
+        "eventAt": "2026-10-11T04:40:27.443Z",
+        "eventId": "d58358b5-28c7-4ab2-b712-c6547a37603b",
+        "frame": {
+          "capturedAt": "2026-10-10T21:32:07.362Z",
+          "hazards": [
+            {
+              "confidence": 0.6797894254978256,
+              "id": "hazard-000001",
+              "observedAt": "2026-10-10T21:32:07.362Z",
+              "position": {
+                "frameId": "LOCAL_ENU_V1",
+                "xM": -0.983,
+                "yM": 3.954,
+                "zM": 0
+              },
+              "type": "rock",
+              "uncertaintyRadiusM": 0.114
+            },
+            {
+              "confidence": 0.6289768825818265,
+              "id": "hazard-000002",
+              "observedAt": "2026-10-10T21:32:07.362Z",
+              "position": {
+                "frameId": "LOCAL_ENU_V1",
+                "xM": 0.988,
+                "yM": 5.902,
+                "zM": 0
+              },
+              "type": "rock",
+              "uncertaintyRadiusM": 0.181
+            },
+            {
+              "confidence": 0.5968108644235904,
+              "id": "hazard-000003",
+              "observedAt": "2026-10-10T21:32:07.362Z",
+              "position": {
+                "frameId": "LOCAL_ENU_V1",
+                "xM": 0.204,
+                "yM": 7.872,
+                "zM": 0
+              },
+              "type": "rock",
+              "uncertaintyRadiusM": 0.27
+            }
+          ],
+          "link": {
+            "packetsLost": 8,
+            "packetsSent": 33,
+            "status": "degraded"
+          },
+          "positionUncertaintyRadiusM": 0.05,
+          "roverId": "rover-1",
+          "roverPosition": {
+            "frameId": "LOCAL_ENU_V1",
+            "xM": 0,
+            "yM": 0.29,
+            "zM": 0
+          },
+          "schemaVersion": 1,
+          "sequence": 29
+        },
+        "kind": "telemetry_stale",
+        "receivedAt": "2026-10-11T04:40:22.086Z",
+        "sessionId": "3177da1c-c5b0-4b48-80fc-4d1276033892",
+        "summary": "No recent accepted telemetry receipt. WebSocket transport and last declared radio status remain separate; cause unknown.",
+        "triggerKey": "receipt_stale"
+      },
+      "summary": "No recent accepted telemetry receipt. WebSocket transport and last declared radio status remain separate; cause unknown.",
+      "triggerKey": "receipt_stale"
+    }
+  ],
+  "jobs": [
+    {
+      "eventId": "b2a8ca90-7aeb-40af-91f5-e6ffd9f66f7b",
+      "state": "waiting_service",
+      "attempt": 0,
+      "nextAt": 1791693633.2261496,
+      "result": null,
+      "error": "Guarded assistant unavailable or busy; no model attempt admitted",
+      "updatedAt": "2026-10-11T04:40:25.327Z",
+      "expiresAt": 1791697214.7636495
+    },
+    {
+      "eventId": "c6de0b6f-41ba-4bc0-8559-6ab7baa2305e",
+      "state": "waiting_service",
+      "attempt": 0,
+      "nextAt": 1791693636.3486044,
+      "result": null,
+      "error": "Guarded assistant unavailable or busy; no model attempt admitted",
+      "updatedAt": "2026-10-11T04:40:28.457Z",
+      "expiresAt": 1791697215.6778634
+    },
+    {
+      "eventId": "49b59fed-ad6a-4c46-946b-dfee1e581a40",
+      "state": "waiting_service",
+      "attempt": 0,
+      "nextAt": 1791693639.4817226,
+      "result": null,
+      "error": "Guarded assistant unavailable or busy; no model attempt admitted",
+      "updatedAt": "2026-10-11T04:40:31.580Z",
+      "expiresAt": 1791697216.6738772
+    },
+    {
+      "eventId": "74b2b6c1-fb8e-4178-89cc-a64e9f9fa6de",
+      "state": "waiting_service",
+      "attempt": 0,
+      "nextAt": 1791693642.594904,
+      "result": null,
+      "error": "Guarded assistant unavailable or busy; no model attempt admitted",
+      "updatedAt": "2026-10-11T04:40:34.677Z",
+      "expiresAt": 1791697217.710369
+    },
+    {
+      "eventId": "b4078495-2741-44d3-953e-f7492f21b632",
+      "state": "waiting_service",
+      "attempt": 0,
+      "nextAt": 1791693645.6969762,
+      "result": null,
+      "error": "Guarded assistant unavailable or busy; no model attempt admitted",
+      "updatedAt": "2026-10-11T04:40:37.796Z",
+      "expiresAt": 1791697223.727496
+    },
+    {
+      "eventId": "d58358b5-28c7-4ab2-b712-c6547a37603b",
+      "state": "waiting_service",
+      "attempt": 0,
+      "nextAt": 1791693648.8156042,
+      "result": null,
+      "error": "Guarded assistant unavailable or busy; no model attempt admitted",
+      "updatedAt": "2026-10-11T04:40:40.908Z",
+      "expiresAt": 1791697227.6879468
+    }
+  ],
+  "attempts": [],
+  "reviews": [
+    {
+      "authority": "operator-reported",
+      "eventId": "d58358b5-28c7-4ab2-b712-c6547a37603b",
+      "note": "E2E: unavailable model; no generated measurement accepted.",
+      "reviewId": "280f5eff-e626-4880-a862-25057293b6c2",
+      "reviewedAt": "2026-10-11T04:40:41.683Z",
+      "verdict": "inconclusive"
+    }
+  ],
+  "limitations": "No automatic promotion into RAG or trusted telemetry; image interpretation not performed"
+}

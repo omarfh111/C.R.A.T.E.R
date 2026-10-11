@@ -31,6 +31,7 @@ def main(argv=None):
     http = sub.add_parser("serve")
     http.add_argument("--index", default="artifacts/assistant-index.json")
     http.add_argument("--port", type=int, default=8766)
+    http.add_argument("--journal", help="Fixed incident database; event IDs only over HTTP")
     http.add_argument("--report", help="Fixed report selected by server operator, never HTTP clients")
     http.add_argument("--allow-origin", action="append", help="Exact HTTP loopback dashboard origin; repeat for additional origins. Replaces fixed development defaults.")
     http.add_argument("--block-live-m1", action="store_true", help="Refuse questions while a live M1 Python process is detected; still sequence inference after capture")
@@ -84,8 +85,10 @@ def main(argv=None):
                     backend.preflight()
                 except (OSError, ValueError):
                     print("Local model prerequisites unavailable; HTTP service will still start.", file=sys.stderr)
+                from .experience import Journal
+                journal = Journal(args.journal) if args.journal else None
                 serve(assistant, args.port, args.report, allowed_origins=origins, request_timeout=args.timeout,
-                      capture_guard=live_capture_active if args.block_live_m1 else None)
+                      capture_guard=live_capture_active if args.block_live_m1 or journal else None, journal=journal)
         return 0
     except KeyboardInterrupt:
         return 130

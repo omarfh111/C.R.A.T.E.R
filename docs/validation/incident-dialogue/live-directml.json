@@ -1,0 +1,155 @@
+{
+  "webSocketFrames": 30,
+  "socketMatchesDecodedFrames": true,
+  "m2Report": {
+    "schemaVersion": 1,
+    "mode": "live",
+    "simulatedElapsedS": 30.836880199844018,
+    "wallElapsedS": 30.83786359988153,
+    "completed": true,
+    "cancelled": false,
+    "source": {
+      "source": "m1-live-callback",
+      "rejectedDetections": 0,
+      "producerCompleted": true,
+      "interrupted": false,
+      "offeredObservations": 30,
+      "consumedObservations": 30,
+      "maxSampledBufferedObservations": 1,
+      "callbackHandoffWaitS": 0.000519199762493372,
+      "maxCallbackHandoffWaitS": 2.8199981898069382e-05,
+      "perceptionMetrics": {
+        "video": {
+          "file": "scene.mp4",
+          "fps": 10.0,
+          "frames": 30,
+          "sha256": "74c1764bb1b151486a45372ead706e06cd709700ef6df1791c7822e630c37ad9",
+          "width": 640,
+          "height": 480
+        },
+        "processed_frames": 30,
+        "detections_total": 90,
+        "unique_track_ids": 3,
+        "wall_seconds": 9.95003559999168,
+        "end_to_end_fps": 3.0150645893191665,
+        "processing_fps": 3.03716798102402,
+        "processing_fps_excluding_first": 3.198749372834639,
+        "latency_ms_mean": 329.25409666107345,
+        "latency_ms_p95": 567.2438299399785,
+        "inference_ms_mean": 253.0957399867475,
+        "cpu_seconds": 27.5,
+        "cpu_percent_process_mean": 329.35666666666657,
+        "cpu_percent_note": "process CPU can exceed 100% on multicore",
+        "rss_peak_mb": 974.98828125,
+        "model_resources": {
+          "device": "directml",
+          "execution": "local-onnx",
+          "model_id": "onnx-community/grounding-dino-tiny-ONNX",
+          "model_revision": "ff690b0a8050566c290287545bd059350f3e9096",
+          "source_model_file": "onnx/model_fp16.onnx",
+          "prepared_model_file": "model_fp32.onnx",
+          "precision": "FP32 promoted from FP16 source",
+          "onnxruntime_version": "1.24.4",
+          "providers": [
+            "DmlExecutionProvider",
+            "CPUExecutionProvider"
+          ],
+          "gpu_adapter": {
+            "device_id": 1,
+            "name": "NVIDIA GeForce RTX 5070 Laptop GPU",
+            "vendor_id": 4318,
+            "dedicated_video_mb": 7891
+          },
+          "image_size": 800,
+          "prompt": "rock. stone. boulder.",
+          "threshold": 0.25,
+          "text_threshold": 0.2,
+          "max_rock_box_area_fraction": 0.5,
+          "terrain_filter_policy": "edges",
+          "rejected_large_boxes": 11,
+          "confidence_semantics": "Grounding DINO detector score; not calibrated probability",
+          "challenge_local_perception_compliant": true,
+          "provider_note": "DirectML accelerates supported operators; unsupported/shape operators may execute on CPU."
+        },
+        "tracking_settings": {
+          "min_consecutive_hits": 2,
+          "max_missed_frames": 3,
+          "confirmed_only": false,
+          "motion_compensation": true,
+          "predict_motion": true,
+          "appearance_matching": true,
+          "gap_units": "processed frames, not seconds or original capture cadence"
+        },
+        "original_capture_fps": null,
+        "notes": [
+          "Playback FPS is not original sensor capture cadence.",
+          "Processing latency includes inference, association, JSON serialization; excludes preview encoding.",
+          "Model loading excluded; first inference included. RSS sampled once per frame.",
+          "Uncalibrated observations have null camera and rover position; no metric coordinates inferred."
+        ],
+        "backend": "onnx-grounding-dino"
+      },
+      "discardedAtStop": 0,
+      "timing": "mission window includes local model startup; capturedAt remains M1 capture time"
+    },
+    "transport": {
+      "generated": 30,
+      "enqueued": 30,
+      "delivered": 30,
+      "acknowledged": 30,
+      "pending": 0,
+      "maxPending": 8,
+      "queueDropped": 0,
+      "abandoned": 0,
+      "retransmissions": 28,
+      "radioDuplicates": 11,
+      "dataPacketsSent": 58,
+      "dataPacketsLost": 17,
+      "ackPacketsSent": 41,
+      "ackPacketsLost": 11,
+      "dataBytesSent": 10266,
+      "ackBytesSent": 451,
+      "totalBytesSent": 10717,
+      "deliveryRate": 1.0,
+      "meanDeliveryLatencyS": 1.040540940672131,
+      "maxDeliveryLatencyS": 2.631060953307834
+    },
+    "meanBinaryFrameBytes": 177.0,
+    "meanJsonFrameBytes": 1000.3,
+    "totalRadioBytesPerOriginalJsonByte": 0.35712619547469093,
+    "maxDeliveredLocalizationErrorM": null,
+    "rejectedDetections": [],
+    "slowWebSocketClients": 0,
+    "rejectedDetectionsOmitted": 0,
+    "diagnosticLimits": {
+      "rejectionSamples": 100,
+      "radioHistorySnapshots": 4096
+    },
+    "link": {
+      "bytesPerSecond": 4096.0,
+      "latencyS": 0.005,
+      "jitterS": 0.0,
+      "lossProbability": 0.25,
+      "blackouts": [
+        [
+          0.5,
+          5.0
+        ]
+      ],
+      "seed": 7
+    },
+    "byteAccounting": "application packets including CRC, DATA retries and ACK; excludes TCP/WS/IP headers",
+    "incidentJournal": {
+      "sessionId": "c1dd2e62-bae9-40e6-a1d0-6b419c48e710",
+      "recorded": 0,
+      "dropped": 0,
+      "failed": 0,
+      "analysis": "deferred; not a telemetry or driving action"
+    }
+  },
+  "offlineEnvironment": true,
+  "canonicalM3Validated": true,
+  "timing": "Receiver arrival times are relative to station ready, not original video sensor cadence.",
+  "m3Contract": "D:\\space_esb_mission_dialogue\\src\\telemetry\\contract.ts",
+  "m3Validation": "30 decoded frames accepted by M3's actual Zod parser; ordered per rover."
+}

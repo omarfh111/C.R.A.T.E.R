@@ -1,0 +1,14 @@
+{
+  ".gitattributes": "9d063156b20d995d27f5f51a7eb351333f90d94d9e54ec8c6f9c57445b7d5b1c",
+  "ai-warm.json": "f133124ee012a6a7d3383348984ab92ee888ce71ab4040ef6ab77c56b4af7426",
+  "capture-guard.json": "704669a6ffeb0142a58366676851a4b73dc71a58c4aa2d317cad32e200a5976d",
+  "evidence.md": "f25a34a70f530647280f0c4985905319f0928d3e7ea5a6da568fc1b48bbdf927",
+  "gpu-browser.json": "29791225f48bd5e8646a1520a5331945b575bbfaa47c2c3821b00546f9dd4d92",
+  "gpu-dialogue.png": "493980171edb0ecd5f3880ad514641d678538b49bca0fb4c129fa525bb83d922",
+  "incidents-after-ai.json": "b05fde6fadd8dd0045d2c22a42b2e776aebac04ecf0ee914a07564bf2ccb0c11",
+  "incidents-before-ai.json": "befa43b3c7928b06ce6181c482e2cd1e0d3612e188bc170ee31853a896a210f9",
+  "live-directml.json": "1a7018c6251755a96316a95de1be6ec7b2de5b6f8950e187cb0b96f59ec6b5df",
+  "quick-demo-frames.jsonl": "4df527816c6f5211ec3c1630add770a9155bf9303a08ef794b0907c49af7bfc9",
+  "quick-demo.json": "a40a2265178060bff9612b63907b6c684dd806735826661e0d6ee71c01bec12c",
+  "sqlite-contention.json": "f62a91f792d3f97794dc1dada712c282f8caf9fcd68eac30687793ff9886f582"
+}

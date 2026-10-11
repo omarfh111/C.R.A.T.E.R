@@ -1,0 +1,65 @@
+{
+  "sourceBaseline": "1d38cade9a8408e30141d92e8ec23e158836654c",
+  "referenceM2": "57b29439ced649fc5ca9bb39918beef2aa387c83",
+  "browser": {
+    "origin": "http://127.0.0.1:56215",
+    "sessionId": "98b920bc-9494-40c0-a6c9-01dccc748ad2",
+    "accepted": 30,
+    "invalid": 0,
+    "duplicates": 0,
+    "outOfOrder": 0,
+    "sequenceGaps": 0,
+    "checks": [
+      "actual browser accepted 30 before reload",
+      "historical capture timestamps preserved",
+      "model off while final incident session captured",
+      "waiting_capture then waiting_service observed",
+      "three sourced answers and two abstentions",
+      "source excerpt/digest expanded",
+      "separate inconclusive technical review persisted",
+      "collector stopped and restarted; five incidents/attempts and one review identical",
+      "unavailable collector shown; reconnect restored results"
+    ],
+    "note": "Counters observed through browser UI; screenshots show stored incident review after browser reload, not active capture."
+  },
+  "tests": {
+    "python": {
+      "passed": 404,
+      "skipped": 5,
+      "seconds": 40.22
+    },
+    "frontend": {
+      "passed": 69,
+      "skipped": 1,
+      "smokeSeparatelyPassed": 1
+    },
+    "assistantClientPassed": 12,
+    "strictClientTypecheck": "passed",
+    "productionBuild": "passed",
+    "productionNpmAuditVulnerabilities": 0
+  },
+  "security": [
+    "dedup and UUID conflict",
+    "queue saturation keeps incidents",
+    "bounded attempts and expiry",
+    "worker lease/restart interruption",
+    "capture lifecycle and producer authority",
+    "canonical frame validation",
+    "unsafe paths/hashes/images",
+    "redirect/host/origin rejection",
+    "malformed/oversized/drip HTTP responses",
+    "bounded concurrent inference and responsive health",
+    "fabricated numbers/citations",
+    "timestamp contradictions",
+    "unsupported image interpretation",
+    "cancellation audit"
+  ],
+  "limitations": [
+    "Synthetic calibrated evaluation scene; real DirectML pixel inference; simulated radio.",
+    "No new simultaneous M1/LLM throughput benchmark. Guarded sequencing is mandatory.",
+    "No vision inference or automatic image association.",
+    "Regex/citation checks do not certify semantic truth or eliminate prompt injection.",
+    "Latest-20 global incident list is bounded; full journal requires explicit export.",
+    "Optional startup/preload time is excluded from per-job analysis latency."
+  ]
+}

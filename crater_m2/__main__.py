@@ -6,6 +6,7 @@ import asyncio
 from datetime import datetime, timezone
 import json
 import math
+import os
 from pathlib import Path
 import sys
 import time
@@ -20,6 +21,7 @@ from .source import Scenario, observation_to_frame, read_observations
 
 def arguments(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--incident-journal", type=Path, default=os.environ.get("CRATER_INCIDENT_JOURNAL"), help="Optional incident SQLite side channel; no telemetry schema changes")
     parser.add_argument("--benchmark", action="store_true", help="virtual time, no WebSocket server")
     parser.add_argument("--input", type=Path, help="calibrated M1 observations JSONL; otherwise synthetic pixels")
     parser.add_argument("--input-ground-z", type=float, help="explicit known ground-plane height for raw M1 JSONL, in ENU meters")
@@ -180,6 +182,9 @@ async def run_mission(args, bridge=None, *, stream=None):
                         packet_size = len(encode_frame(result.frame))
                         json_size = len(json.dumps(result.frame, separators=(",", ":")).encode("utf-8"))
                         transport.enqueue(result.frame)
+                        incident_writer = getattr(args, "incident_writer", None)
+                        if incident_writer is not None and result.rejected:
+                            incident_writer.warning("M2 rejected detection geometry: " + json.dumps(result.rejected[:2], ensure_ascii=True), result.frame)
                         rejected_count += len(result.rejected)
                         rejected.extend(result.rejected[:max(0, args.rejection_samples - len(rejected))])
                         binary_bytes += packet_size
@@ -235,7 +240,7 @@ def save_report(args, report):
     args.report.write_text(json.dumps(report, indent=2, allow_nan=False) + "\n", encoding="utf-8")
 
 
-async def execute(args):
+async def _execute(args):
     if args.benchmark:
         return await run_mission(args)
     async with TelemetryBridge(port=args.port) as bridge:
@@ -277,6 +282,37 @@ async def execute(args):
             return report
         print("Source: calibrated synthetic pixels" if not args.input else f"Source: {args.input}", flush=True)
         return await run_mission(args, bridge)
+
+
+
+async def execute(args):
+    writer = None
+    report = None
+    args.incident_writer = None
+    if getattr(args, "incident_journal", None):
+        try:
+            from crater_assistant.producer import ProducerJournal
+            writer = ProducerJournal(args)
+            args.incident_writer = writer
+        except Exception as exc:
+            print(f"Optional incident journal unavailable ({type(exc).__name__}); rover capture continues", file=sys.stderr, flush=True)
+    try:
+        report = await _execute(args)
+        return report
+    except BaseException as exc:
+        if writer:
+            writer.warning(f"M1/M2 producer reported {type(exc).__name__}: {str(exc)[:800]}")
+        raise
+    finally:
+        if writer:
+            try:
+                metrics = await asyncio.to_thread(writer.close, report is None or not report.get("completed", False))
+                if report is not None:
+                    report["incidentJournal"] = metrics
+                    save_report(args, report)
+            except Exception as exc:
+                print(f"Optional incident journal shutdown failed ({type(exc).__name__}); no inferred capture completion", file=sys.stderr, flush=True)
+        args.incident_writer = None
 
 
 def _terminate_windows_process(code):

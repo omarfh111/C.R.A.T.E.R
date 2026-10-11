@@ -2,7 +2,7 @@ name: Mission Control frontend validation
 
 on:
   push:
-    branches: [feat/mission-control, feat/end-to-end-integration, ci/security-e2e, main]
+    branches: [feat/mission-control, feat/end-to-end-integration, ci/security-e2e, codex/mission-incident-dialogue, main]
   pull_request:
     paths:
       - 'src/**'
