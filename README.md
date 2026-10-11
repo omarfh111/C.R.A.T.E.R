@@ -5,7 +5,7 @@
 **Windows prerequisites:** PowerShell, Python 3.12+, Node.js 24+ with npm, and a browser.
 
 ```powershell
-git clone --branch feat/end-to-end-integration https://github.com/omarfh111/C.R.A.T.E.R.git
+git clone https://github.com/omarfh111/C.R.A.T.E.R.git
 cd C.R.A.T.E.R
 ```
 
