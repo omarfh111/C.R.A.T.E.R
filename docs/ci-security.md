@@ -203,15 +203,28 @@ Three clearly separated sets, because they have very different exposure:
 | optional model-free extras | `pypdf`, `requests`, `python-dotenv`, `gradio-client`, `huggingface-hub`, `pytest` | yes, resolved environment | advisory |
 | local ONNX group | `torch`, `transformers`, `onnx`, `onnxruntime`, `onnxruntime-directml` | **no** | advisory |
 
-The local ONNX group is audited without being installed. `scripts/pin-python-deps.py` reads
-`pyproject.toml`, evaluates the environment markers for a chosen `sys_platform`, and resolves
-each requirement to the newest release that satisfies it from the PyPI JSON metadata API. The
-resulting pins go to `pip-audit --no-deps`. Nothing is downloaded, built or installed, so no GPU
-package lands on a runner, and both halves of the marker split — the portable CPU runtime and
-the Windows DirectML provider — are audited from one Linux job.
+The local ONNX group is audited without being installed, in two steps.
 
-`scripts/summarize-pip-audit.py` de-duplicates pip-audit's per-alias repeats and applies the
-policy.
+`scripts/pin-python-deps.py` reads `pyproject.toml`, evaluates the environment markers for a
+chosen `sys_platform`, and resolves each requirement to the newest release that satisfies it
+from the PyPI JSON metadata API. `scripts/audit-pinned-deps.py` then queries OSV for each
+`name==version`. Nothing is downloaded, built or installed, so no GPU package lands on a runner,
+and both halves of the marker split — the portable CPU runtime and the Windows DirectML
+provider — are audited from one Linux job.
+
+This group is the one place pip-audit is not used, for a concrete reason. Even under
+`--no-deps`, pip-audit resolves a requirements file by running `pip install --dry-run` in a
+throwaway virtual environment. `onnxruntime-directml` publishes Windows wheels only, so on a
+Linux runner that resolution fails with "No matching distribution found" and pip-audit produces
+no report at all — which is exactly why the audit steps now fail loudly and annotate the tool's
+stderr instead of treating a missing report as "no advisories". Querying OSV by name and version
+needs no resolver and no compatible wheel. pip-audit still audits every set this project
+installs, which is where its environment resolution is an advantage rather than an obstacle.
+
+OSV returns the GHSA, CVE and PYSEC records for one advisory as separate alias-linked entries,
+so `audit-pinned-deps.py` merges them, keeps the most recognisable identifier and unions the
+fixed versions. `scripts/summarize-pip-audit.py` consumes either tool's JSON, de-duplicates
+pip-audit's own per-alias repeats, and applies the blocking policy.
 
 **Baseline:**
 
@@ -224,7 +237,8 @@ policy.
   9.1.1.
 - local ONNX group: **15 advisories, none actioned by design.** `onnx==1.20.1` carries eight
   (fixes in 1.21.0 / 1.22.0) and `transformers==4.57.1` carries seven, three of which have no
-  fixed release at all. `torch` is clean at the version the range resolves to.
+  fixed release at all. `torch`, `onnxruntime` and `onnxruntime-directml` are clean at the
+  versions their ranges resolve to.
 
   These pins are deliberate: they are the versions the calibrated ONNX evidence bundle and its
   SHA-256 manifest were produced with. Upgrading ONNX Runtime, Transformers or PyTorch would
