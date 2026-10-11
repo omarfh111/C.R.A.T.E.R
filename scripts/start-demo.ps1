@@ -15,6 +15,8 @@ try {
     $url = "http://127.0.0.1:$($ports.Web)/"
     Write-Host 'RECORDED ONNX REPLAY — genuine historical predictions; no live AI inference.'
     Write-Host "M3 LIVE dashboard: $url"
+    Write-Host 'Radio effects are simulated: 25% packet loss and a 0.5–5 s blackout followed by recovery.'
+    Write-Host 'Original capture times remain historical, so Mission Control may show STALE.'
     Write-Host 'M2 will wait for a dashboard WebSocket receiver before replaying frames.'
     if (-not $NoBrowser) { Start-Process $url }
     $run = Join-Path $script:Repo ('outputs/demo-replay-' + [guid]::NewGuid().ToString('N'))
