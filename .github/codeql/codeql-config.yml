@@ -1,0 +1,19 @@
+name: C.R.A.T.E.R. CodeQL
+
+# Everything that ships or runs is analysed: the M1 perception pipeline, the M2 calibrated
+# geometry, radio codec and WebSocket bridge, the M3 Mission Control frontend, the assistant,
+# the repository's own scripts, the Python and Vitest suites, the Playwright browser suite and
+# the GitHub Actions workflows themselves.
+#
+# Only generated output is excluded. Nothing here is a finding suppression: the queries still
+# run over every source file, and results are reported in the job summary either way.
+paths-ignore:
+  # Vite production bundle, reproduced by `npm run build` from the sources above.
+  - dist
+  # Installed dependencies, covered by the dependency audits in security.yml instead.
+  - node_modules
+  # Playwright screenshots, traces, M2 logs and delivered-frame JSONL from a local run.
+  - test-results
+  - playwright-report
+  # Committed evidence data, not executable code.
+  - examples

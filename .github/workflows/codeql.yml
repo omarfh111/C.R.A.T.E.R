@@ -1,0 +1,139 @@
+name: CodeQL
+
+# Static analysis of everything C.R.A.T.E.R. actually runs: the Python perception, geometry,
+# radio and bridge code, the TypeScript Mission Control frontend and test suites, and the
+# GitHub Actions workflows themselves (script injection, over-broad permissions).
+#
+# No model weights, ONNX runtime, GPU or network service is installed: every language here is
+# extracted from source with `build-mode: none`.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [ci/security-e2e, main]
+  # Weekly, so queries added to CodeQL after a merge still run against unchanged code.
+  schedule:
+    - cron: '23 4 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codeql-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+jobs:
+  analyze:
+    name: CodeQL (${{ matrix.language }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+      # The CodeQL action reads workflow run metadata.
+      actions: read
+      # Code Scanning upload. Used only when the repository is public; see the visibility step.
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [python, javascript-typescript, actions]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      # Code Scanning upload requires a public repository or GitHub Code Security. Asked of the
+      # API rather than the event payload, which a scheduled run does not carry.
+      - name: Choose Code Scanning upload by repository visibility
+        id: visibility
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          if [ "$(gh api "repos/$GITHUB_REPOSITORY" --jq .private)" = "false" ]; then
+            echo "upload=always" >> "$GITHUB_OUTPUT"
+          else
+            echo "upload=never" >> "$GITHUB_OUTPUT"
+            echo "::notice title=CodeQL::Private repository: results are read from the SARIF file in this job rather than uploaded to Code Scanning."
+          fi
+
+      # No build step. Python, TypeScript and Actions workflows are all extracted from source,
+      # so no ONNX, torch or GPU dependency is installed to analyse them.
+      - uses: github/codeql-action/init@v4
+        with:
+          languages: ${{ matrix.language }}
+          build-mode: none
+          config-file: ./.github/codeql/codeql-config.yml
+
+      - uses: github/codeql-action/analyze@v4
+        with:
+          category: /language:${{ matrix.language }}
+          upload: ${{ steps.visibility.outputs.upload }}
+          output: ${{ runner.temp }}/codeql-sarif
+
+      # `analyze` succeeds whatever it finds, so reporting and the gate live here.
+      #
+      # Blocking: any result CodeQL rates as an error, or with a CVSS-style security severity of
+      # 7.0 or above. Everything else is reported as advisory. Findings are never suppressed to
+      # keep this job green; a result that would need a substantial change to the validated
+      # rover pipeline is recorded in docs/ci-security.md instead.
+      - name: Report CodeQL results and gate on high severity
+        if: ${{ !cancelled() }}
+        env:
+          LANGUAGE: ${{ matrix.language }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          files=("$RUNNER_TEMP"/codeql-sarif/*.sarif)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "::error title=CodeQL::No SARIF file was produced for $LANGUAGE."
+            exit 1
+          fi
+          jq -s '
+            [ .[].runs[] as $run
+              | $run.results[]
+              | select((.suppressions // []) | length == 0)
+              | . as $r
+              | (($run.tool.driver.rules // []) + ($run.tool.extensions // [] | map(.rules // []) | add // []))
+                as $rules
+              | ($rules | map(select(.id == $r.ruleId)) | first) as $rule
+              | { ruleId: $r.ruleId,
+                  level: ($r.level // $rule.defaultConfiguration.level // "warning"),
+                  severity: (($rule.properties["security-severity"] // "0") | tonumber),
+                  file: ($r.locations[0].physicalLocation.artifactLocation.uri // "n/a"),
+                  line: ($r.locations[0].physicalLocation.region.startLine // 1),
+                  message: ($r.message.text | gsub("\\s+"; " ")) }
+            ]' "${files[@]}" > results.json
+
+          total=$(jq 'length' results.json)
+          blocking=$(jq '[.[] | select(.level == "error" or .severity >= 7)] | length' results.json)
+
+          jq -r '.[] | select(.level == "error" or .severity >= 7)
+                 | "::error file=\(.file),line=\(.line),title=CodeQL \(.ruleId)::\(.message)"' results.json
+          jq -r '.[] | select((.level == "error" or .severity >= 7) | not)
+                 | "::warning file=\(.file),line=\(.line),title=CodeQL \(.ruleId)::\(.message)"' results.json
+
+          {
+            echo "### CodeQL ($LANGUAGE): $total result(s), $blocking blocking"
+            echo
+            if [ "$total" -gt 0 ]; then
+              echo "| Blocking | Rule | Severity | File | Line |"
+              echo "|---|---|---|---|---|"
+              jq -r '.[] | "| \(if .level == "error" or .severity >= 7 then "yes" else "no" end) | \(.ruleId) | \(if .severity > 0 then (.severity | tostring) else .level end) | \(.file) | \(.line) |"' results.json
+            else
+              echo "No unsuppressed results."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          test "$blocking" -eq 0
+
+      - name: Upload CodeQL SARIF
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: codeql-sarif-${{ matrix.language }}
+          path: ${{ runner.temp }}/codeql-sarif
+          if-no-files-found: ignore
+          retention-days: 14
