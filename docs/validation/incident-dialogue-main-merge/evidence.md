@@ -1,6 +1,6 @@
 # Incident dialogue: normal main merge and regression evidence
 
-Validated on the target Windows RTX 5070 Laptop GPU machine on 2026-10-11. Source revision: `2d24354cf69e3074e01d946ed83c83ebe436dcab`. This evidence accompanies a documentation-only follow-up; GitHub Actions must also be checked on that final HEAD.
+Validated on the target Windows RTX 5070 Laptop GPU machine on 2026-10-11. Hardware/browser measurement revision: `2d24354cf69e3074e01d946ed83c83ebe436dcab`. Subsequent changes preserve evidence bytes and fix bounded SQLite lock waiting; final-HEAD GitHub Actions are checked separately.
 
 ## Merge and verified fixes
 
@@ -8,10 +8,12 @@ Validated on the target Windows RTX 5070 Laptop GPU machine on 2026-10-11. Sourc
 
 The only textual conflict was assistant CI's branch list. Both trigger sets were retained; all seven workflows additionally run on this branch. `server.py` retains the configured-origin response header selection from main and the incident APIs, exact origin/Host checks, connection/body bounds, shared inference admission, aggregate deadlines, timeout quarantine and independent capture guard from this branch. Main's CodeQL/security rules, severity thresholds and tests were not removed or suppressed.
 
-Two verified defects were fixed:
+Three verified defects were fixed:
 
 - Python CodeQL initially reported three media path-injection sinks. Canonical `realpath` is now checked against the configured root with an explicit separator boundary, retaining the pathlib containment and extension checks. The regular file is read once with a hard byte bound; hashing and PIL validation use the same bytes. Nested image, oversize, symlink-to-sibling and original hash/provenance tests cover this boundary. The local symlink case skipped because this Windows user lacks symlink privilege; it runs in Ubuntu CI.
 - Real Chromium dialogue testing exposed unavailable-job starvation: row insertion order let an older due retry continually preempt never-checked queued incidents. Earliest eligible time now orders admission, with insertion order as tie-breaker. A deterministic test failed before the fix and passes after it. Capture gates, backoff, capacity, lease, deadline and model-attempt limits are unchanged.
+
+- Final-HEAD M2 CI exposed SQLite contention in the unchanged four-writer deduplication test: the 200 ms busy wait could expire during competing FULL-sync transactions. An independent held-lock regression reproduced the failure before the fix. The busy wait is now bounded at two seconds, below the five-second client deadline; WAL/FULL durability, atomic deduplication, capture isolation and queue/attempt limits are unchanged. No whole-transaction replay or unbounded retry was introduced. [Failure and regression metadata](sqlite-contention.json).
 
 Raw folded/duplicate/untrusted Origin requests against journal writes return 403 without altering the saved snapshot. A valid dynamic origin is still echoed on capture-blocked 429 responses, while collection remains available and the model is not called.
 
@@ -19,7 +21,7 @@ Raw folded/duplicate/untrusted Origin requests against journal writes return 403
 
 | Gate | Actual result |
 |---|---|
-| Full Python, with `CRATER_M2_SOURCE` set to this checkout | 424 passed, 4 skipped; 47.02 s |
+| Full Python, with `CRATER_M2_SOURCE` set to this checkout | 425 passed, 4 skipped after SQLite contention fix; preceding run 424 passed, 4 skipped |
 | Assistant/service/journal targeted checks | 134 passed, 1 skipped before scheduling fix; journal/worker/producer 45 passed, 1 skipped after fix |
 | Frontend Vitest | 69 passed, 1 opt-in smoke skipped |
 | Separately executed actual M2 WebSocket smoke | 1 passed |
@@ -33,7 +35,7 @@ Raw folded/duplicate/untrusted Origin requests against journal writes return 403
 
 The four full Python skips are the opt-in real-model smoke, opt-in ONNX video smoke, unavailable DirectML provider registration in the portable test interpreter, and OS symlink privilege. Real DirectML was independently executed in the existing validated M1 environment below; no GPU dependency was installed or upgraded.
 
-All seven workflows passed on the final **source** revision:
+All seven workflows passed on the **measurement source** revision (before the later contention discovery):
 
 - [Mission Intelligence: Ubuntu Python 3.11/3.12 and Windows journal](https://github.com/omarfh111/C.R.A.T.E.R/actions/runs/38112358570)
 - [M1, including Windows/Ubuntu ONNX portability](https://github.com/omarfh111/C.R.A.T.E.R/actions/runs/38112358596)
@@ -43,7 +45,7 @@ All seven workflows passed on the final **source** revision:
 - [CodeQL: Python, JavaScript/TypeScript, Actions](https://github.com/omarfh111/C.R.A.T.E.R/actions/runs/38112358619)
 - [Security: seven audit/secret/supply-chain jobs](https://github.com/omarfh111/C.R.A.T.E.R/actions/runs/38112358575)
 
-Final documentation-commit checks are verified separately after pushing, rather than claiming a commit can contain its own future CI result.
+The subsequent `358015b` run exposed the deduplication lock failure documented above; all other gates passed. Final corrected-HEAD checks are verified separately after pushing, rather than claiming a commit can contain its own future CI result.
 
 ## Real capture and default demo
 

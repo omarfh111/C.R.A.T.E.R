@@ -78,7 +78,9 @@ class Journal:
 
     @contextmanager
     def connect(self):
-        db = sqlite3.connect(self.path, timeout=.2)
+        # Collector and producer use separate FULL-sync transactions. Allow a short
+        # competing writer to finish, with a hard wait bound below the client deadline.
+        db = sqlite3.connect(self.path, timeout=2)
         try:
             db.execute("PRAGMA synchronous=FULL")
             db.execute("BEGIN IMMEDIATE")

@@ -170,3 +170,25 @@ def test_media_symlink_cannot_escape_to_sibling_root(tmp_path):
     with pytest.raises(ValueError, match="unsafe media path"):
         journal.record(event(session, images=[ref]))
     assert journal.list() == []
+
+
+def test_concurrent_journal_instance_survives_short_external_write_lock(journal):
+    import threading
+    import time
+    session = journal.begin("rover", "synthetic")
+    other = Journal(journal.path)
+    raw = event(session)
+    started = threading.Event()
+    def record():
+        started.set()
+        return other.record(raw)
+    with ThreadPoolExecutor(1) as pool:
+        with journal.connect():
+            pending = pool.submit(record)
+            assert started.wait(2)
+            # Model a slow FULL-sync transaction on the collector/producer's other connection.
+            time.sleep(.35)
+        saved = pending.result(timeout=4)
+    assert other.get(raw["eventId"]) == saved
+    assert other.list()[0]["job"]["state"] == "waiting_capture"
+    assert "decision" not in saved

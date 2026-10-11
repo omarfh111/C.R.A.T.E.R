@@ -1,0 +1,15 @@
+{
+  "failedRun": "https://github.com/omarfh111/C.R.A.T.E.R/actions/runs/38112705993",
+  "failedHead": "358015b26e9120317ce49a50000d46fff723b3d4",
+  "failedJob": 114391397602,
+  "failedTest": "tests/test_experience.py::test_dedup_atomic_and_cooldown",
+  "error": "sqlite3.OperationalError: database is locked at BEGIN IMMEDIATE",
+  "previousBusyWaitS": 0.2,
+  "busyWaitS": 2,
+  "heldLockRegressionS": 0.35,
+  "regression": "tests/test_experience.py::test_concurrent_journal_instance_survives_short_external_write_lock",
+  "originalRegressionFailedLocally": true,
+  "walAndFullDurabilityPreserved": true,
+  "canonicalTelemetryUnchanged": true,
+  "limitations": "Two-second bounded wait cannot guarantee persistence if another process holds a transaction indefinitely; HTTP returns unavailable and bounded outbox retry remains explicit."
+}
