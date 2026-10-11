@@ -1,0 +1,755 @@
+{
+  "runs": [
+    {
+      "phase": "baseline_unloaded",
+      "passed": true,
+      "exitCode": 0,
+      "captureWallS": 25.33253649994731,
+      "m1": {
+        "processed_frames": 30,
+        "processing_fps": 3.2872752464687327,
+        "processing_fps_excluding_first": 3.3476684340499254,
+        "end_to_end_fps": 3.268471069737713,
+        "latency_ms_mean": 304.203306697309,
+        "latency_ms_p95": 383.3699250826607,
+        "inference_ms_mean": 254.31196331822625,
+        "cpu_percent_process_mean": 325.6433333333333,
+        "rss_peak_mb": 975.51171875,
+        "model_resources": {
+          "device": "directml",
+          "execution": "local-onnx",
+          "model_id": "onnx-community/grounding-dino-tiny-ONNX",
+          "model_revision": "ff690b0a8050566c290287545bd059350f3e9096",
+          "source_model_file": "onnx/model_fp16.onnx",
+          "prepared_model_file": "model_fp32.onnx",
+          "precision": "FP32 promoted from FP16 source",
+          "onnxruntime_version": "1.24.4",
+          "providers": [
+            "DmlExecutionProvider",
+            "CPUExecutionProvider"
+          ],
+          "gpu_adapter": {
+            "device_id": 1,
+            "name": "NVIDIA GeForce RTX 5070 Laptop GPU",
+            "vendor_id": 4318,
+            "dedicated_video_mb": 7891
+          },
+          "image_size": 800,
+          "prompt": "rock. stone. boulder.",
+          "threshold": 0.25,
+          "text_threshold": 0.2,
+          "max_rock_box_area_fraction": 0.5,
+          "terrain_filter_policy": "edges",
+          "rejected_large_boxes": 11,
+          "confidence_semantics": "Grounding DINO detector score; not calibrated probability",
+          "challenge_local_perception_compliant": true,
+          "provider_note": "DirectML accelerates supported operators; unsupported/shape operators may execute on CPU."
+        }
+      },
+      "m2": {
+        "completed": true,
+        "transport": {
+          "generated": 30,
+          "enqueued": 30,
+          "delivered": 30,
+          "acknowledged": 30,
+          "pending": 0,
+          "maxPending": 1,
+          "queueDropped": 0,
+          "abandoned": 0,
+          "retransmissions": 0,
+          "radioDuplicates": 0,
+          "dataPacketsSent": 30,
+          "dataPacketsLost": 0,
+          "ackPacketsSent": 30,
+          "ackPacketsLost": 0,
+          "dataBytesSent": 5310,
+          "ackBytesSent": 330,
+          "totalBytesSent": 5640,
+          "deliveryRate": 1.0,
+          "meanDeliveryLatencyS": 0.048212890624999415,
+          "maxDeliveryLatencyS": 0.04821289062500078
+        },
+        "source": {
+          "producerCompleted": true,
+          "interrupted": false,
+          "offeredObservations": 30,
+          "consumedObservations": 30,
+          "maxSampledBufferedObservations": 1,
+          "callbackHandoffWaitS": 0.00045809964649379253,
+          "discardedAtStop": 0
+        }
+      },
+      "canonicalM3Validated": true,
+      "resources": {
+        "sampleCount": 58,
+        "peakGlobalGpuUsedMiB": 3192,
+        "meanSystemCpuPercent": 44.703448275862065,
+        "peakSystemRamUsedMiB": 24152.40234375,
+        "peakValidationTreeRssMiB": 1329.71484375,
+        "peakOllamaRssMiB": 34.78125
+      },
+      "inferenceCount": 0,
+      "ollamaLoadedAfter": {
+        "models": []
+      }
+    },
+    {
+      "phase": "loaded_idle",
+      "passed": true,
+      "exitCode": 0,
+      "captureWallS": 17.534273899858817,
+      "m1": {
+        "processed_frames": 30,
+        "processing_fps": 3.4962701269122483,
+        "processing_fps_excluding_first": 3.5753266465729405,
+        "end_to_end_fps": 3.472006306770901,
+        "latency_ms_mean": 286.01908997322124,
+        "latency_ms_p95": 388.2843550876709,
+        "inference_ms_mean": 258.24629002405953,
+        "cpu_percent_process_mean": 311.65333333333336,
+        "rss_peak_mb": 948.29296875,
+        "model_resources": {
+          "device": "directml",
+          "execution": "local-onnx",
+          "model_id": "onnx-community/grounding-dino-tiny-ONNX",
+          "model_revision": "ff690b0a8050566c290287545bd059350f3e9096",
+          "source_model_file": "onnx/model_fp16.onnx",
+          "prepared_model_file": "model_fp32.onnx",
+          "precision": "FP32 promoted from FP16 source",
+          "onnxruntime_version": "1.24.4",
+          "providers": [
+            "DmlExecutionProvider",
+            "CPUExecutionProvider"
+          ],
+          "gpu_adapter": {
+            "device_id": 1,
+            "name": "NVIDIA GeForce RTX 5070 Laptop GPU",
+            "vendor_id": 4318,
+            "dedicated_video_mb": 7891
+          },
+          "image_size": 800,
+          "prompt": "rock. stone. boulder.",
+          "threshold": 0.25,
+          "text_threshold": 0.2,
+          "max_rock_box_area_fraction": 0.5,
+          "terrain_filter_policy": "edges",
+          "rejected_large_boxes": 11,
+          "confidence_semantics": "Grounding DINO detector score; not calibrated probability",
+          "challenge_local_perception_compliant": true,
+          "provider_note": "DirectML accelerates supported operators; unsupported/shape operators may execute on CPU."
+        }
+      },
+      "m2": {
+        "completed": true,
+        "transport": {
+          "generated": 30,
+          "enqueued": 30,
+          "delivered": 30,
+          "acknowledged": 30,
+          "pending": 0,
+          "maxPending": 1,
+          "queueDropped": 0,
+          "abandoned": 0,
+          "retransmissions": 0,
+          "radioDuplicates": 0,
+          "dataPacketsSent": 30,
+          "dataPacketsLost": 0,
+          "ackPacketsSent": 30,
+          "ackPacketsLost": 0,
+          "dataBytesSent": 5310,
+          "ackBytesSent": 330,
+          "totalBytesSent": 5640,
+          "deliveryRate": 1.0,
+          "meanDeliveryLatencyS": 0.048212890625000726,
+          "maxDeliveryLatencyS": 0.04821289062500078
+        },
+        "source": {
+          "producerCompleted": true,
+          "interrupted": false,
+          "offeredObservations": 30,
+          "consumedObservations": 30,
+          "maxSampledBufferedObservations": 1,
+          "callbackHandoffWaitS": 0.0005432988982647657,
+          "discardedAtStop": 0
+        }
+      },
+      "canonicalM3Validated": true,
+      "resources": {
+        "sampleCount": 41,
+        "peakGlobalGpuUsedMiB": 7212,
+        "meanSystemCpuPercent": 37.4,
+        "peakSystemRamUsedMiB": 25250.78515625,
+        "peakValidationTreeRssMiB": 1339.46875,
+        "peakOllamaRssMiB": 1884.77734375
+      },
+      "inferenceCount": 0,
+      "ollamaLoadedAfter": {
+        "models": [
+          {
+            "name": "qwen3:4b-instruct-2507-q4_K_M",
+            "model": "qwen3:4b-instruct-2507-q4_K_M",
+            "size": 3178149969,
+            "digest": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+            "details": {
+              "parent_model": "",
+              "format": "gguf",
+              "family": "qwen3",
+              "families": [
+                "qwen3"
+              ],
+              "parameter_size": "4.0B",
+              "quantization_level": "Q4_K_M"
+            },
+            "expires_at": "2026-10-11T03:46:31.0414741+01:00",
+            "size_vram": 3178149969,
+            "context_length": 4096,
+            "runner": "llamacpp"
+          },
+          {
+            "name": "embeddinggemma:300m",
+            "model": "embeddinggemma:300m",
+            "size": 681417113,
+            "digest": "5265a4c1d1e7ef31b67da5be71b21030cf8f3f0ffab7b38614866c4e92a8c4b5",
+            "details": {
+              "parent_model": "",
+              "format": "gguf",
+              "family": "gemma-embedding",
+              "families": [
+                "gemma-embedding"
+              ],
+              "parameter_size": "307.58M",
+              "quantization_level": "BF16"
+            },
+            "expires_at": "2026-10-11T03:46:26.8058329+01:00",
+            "size_vram": 681417113,
+            "context_length": 2048,
+            "runner": "llamacpp"
+          }
+        ]
+      }
+    },
+    {
+      "phase": "active_generation",
+      "passed": true,
+      "exitCode": 0,
+      "captureWallS": 25.707362999906763,
+      "m1": {
+        "processed_frames": 30,
+        "processing_fps": 2.055663193203521,
+        "processing_fps_excluding_first": 2.091139684059831,
+        "end_to_end_fps": 2.0469835537805707,
+        "latency_ms_mean": 486.4610133149351,
+        "latency_ms_p95": 656.0860000783573,
+        "inference_ms_mean": 455.62081331542385,
+        "cpu_percent_process_mean": 233.35,
+        "rss_peak_mb": 952.296875,
+        "model_resources": {
+          "device": "directml",
+          "execution": "local-onnx",
+          "model_id": "onnx-community/grounding-dino-tiny-ONNX",
+          "model_revision": "ff690b0a8050566c290287545bd059350f3e9096",
+          "source_model_file": "onnx/model_fp16.onnx",
+          "prepared_model_file": "model_fp32.onnx",
+          "precision": "FP32 promoted from FP16 source",
+          "onnxruntime_version": "1.24.4",
+          "providers": [
+            "DmlExecutionProvider",
+            "CPUExecutionProvider"
+          ],
+          "gpu_adapter": {
+            "device_id": 1,
+            "name": "NVIDIA GeForce RTX 5070 Laptop GPU",
+            "vendor_id": 4318,
+            "dedicated_video_mb": 7891
+          },
+          "image_size": 800,
+          "prompt": "rock. stone. boulder.",
+          "threshold": 0.25,
+          "text_threshold": 0.2,
+          "max_rock_box_area_fraction": 0.5,
+          "terrain_filter_policy": "edges",
+          "rejected_large_boxes": 11,
+          "confidence_semantics": "Grounding DINO detector score; not calibrated probability",
+          "challenge_local_perception_compliant": true,
+          "provider_note": "DirectML accelerates supported operators; unsupported/shape operators may execute on CPU."
+        }
+      },
+      "m2": {
+        "completed": true,
+        "transport": {
+          "generated": 30,
+          "enqueued": 30,
+          "delivered": 30,
+          "acknowledged": 30,
+          "pending": 0,
+          "maxPending": 1,
+          "queueDropped": 0,
+          "abandoned": 0,
+          "retransmissions": 0,
+          "radioDuplicates": 0,
+          "dataPacketsSent": 30,
+          "dataPacketsLost": 0,
+          "ackPacketsSent": 30,
+          "ackPacketsLost": 0,
+          "dataBytesSent": 5310,
+          "ackBytesSent": 330,
+          "totalBytesSent": 5640,
+          "deliveryRate": 1.0,
+          "meanDeliveryLatencyS": 0.04821289062499971,
+          "maxDeliveryLatencyS": 0.04821289062500078
+        },
+        "source": {
+          "producerCompleted": true,
+          "interrupted": false,
+          "offeredObservations": 30,
+          "consumedObservations": 30,
+          "maxSampledBufferedObservations": 1,
+          "callbackHandoffWaitS": 0.0005534996744245291,
+          "discardedAtStop": 0
+        }
+      },
+      "canonicalM3Validated": true,
+      "resources": {
+        "sampleCount": 61,
+        "peakGlobalGpuUsedMiB": 7212,
+        "meanSystemCpuPercent": 31.524590163934427,
+        "peakSystemRamUsedMiB": 25176.93359375,
+        "peakValidationTreeRssMiB": 1341.94140625,
+        "peakOllamaRssMiB": 1903.765625
+      },
+      "inferenceCount": 6,
+      "ollamaLoadedAfter": {
+        "models": [
+          {
+            "name": "qwen3:4b-instruct-2507-q4_K_M",
+            "model": "qwen3:4b-instruct-2507-q4_K_M",
+            "size": 3178149969,
+            "digest": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+            "details": {
+              "parent_model": "",
+              "format": "gguf",
+              "family": "qwen3",
+              "families": [
+                "qwen3"
+              ],
+              "parameter_size": "4.0B",
+              "quantization_level": "Q4_K_M"
+            },
+            "expires_at": "2026-10-11T03:47:26.7702996+01:00",
+            "size_vram": 3178149969,
+            "context_length": 4096,
+            "runner": "llamacpp"
+          },
+          {
+            "name": "embeddinggemma:300m",
+            "model": "embeddinggemma:300m",
+            "size": 681417113,
+            "digest": "5265a4c1d1e7ef31b67da5be71b21030cf8f3f0ffab7b38614866c4e92a8c4b5",
+            "details": {
+              "parent_model": "",
+              "format": "gguf",
+              "family": "gemma-embedding",
+              "families": [
+                "gemma-embedding"
+              ],
+              "parameter_size": "307.58M",
+              "quantization_level": "BF16"
+            },
+            "expires_at": "2026-10-11T03:47:25.2578878+01:00",
+            "size_vram": 681417113,
+            "context_length": 2048,
+            "runner": "llamacpp"
+          }
+        ]
+      }
+    },
+    {
+      "phase": "baseline_unloaded",
+      "passed": true,
+      "exitCode": 0,
+      "captureWallS": 19.911666000029072,
+      "m1": {
+        "processed_frames": 30,
+        "processing_fps": 3.357376363495896,
+        "processing_fps_excluding_first": 3.540030419865509,
+        "end_to_end_fps": 3.3342645563942135,
+        "latency_ms_mean": 297.8516233308862,
+        "latency_ms_p95": 537.5712599605308,
+        "inference_ms_mean": 264.98813332679373,
+        "cpu_percent_process_mean": 329.35999999999996,
+        "rss_peak_mb": 952.3046875,
+        "model_resources": {
+          "device": "directml",
+          "execution": "local-onnx",
+          "model_id": "onnx-community/grounding-dino-tiny-ONNX",
+          "model_revision": "ff690b0a8050566c290287545bd059350f3e9096",
+          "source_model_file": "onnx/model_fp16.onnx",
+          "prepared_model_file": "model_fp32.onnx",
+          "precision": "FP32 promoted from FP16 source",
+          "onnxruntime_version": "1.24.4",
+          "providers": [
+            "DmlExecutionProvider",
+            "CPUExecutionProvider"
+          ],
+          "gpu_adapter": {
+            "device_id": 1,
+            "name": "NVIDIA GeForce RTX 5070 Laptop GPU",
+            "vendor_id": 4318,
+            "dedicated_video_mb": 7891
+          },
+          "image_size": 800,
+          "prompt": "rock. stone. boulder.",
+          "threshold": 0.25,
+          "text_threshold": 0.2,
+          "max_rock_box_area_fraction": 0.5,
+          "terrain_filter_policy": "edges",
+          "rejected_large_boxes": 11,
+          "confidence_semantics": "Grounding DINO detector score; not calibrated probability",
+          "challenge_local_perception_compliant": true,
+          "provider_note": "DirectML accelerates supported operators; unsupported/shape operators may execute on CPU."
+        }
+      },
+      "m2": {
+        "completed": true,
+        "transport": {
+          "generated": 30,
+          "enqueued": 30,
+          "delivered": 30,
+          "acknowledged": 30,
+          "pending": 0,
+          "maxPending": 1,
+          "queueDropped": 0,
+          "abandoned": 0,
+          "retransmissions": 0,
+          "radioDuplicates": 0,
+          "dataPacketsSent": 30,
+          "dataPacketsLost": 0,
+          "ackPacketsSent": 30,
+          "ackPacketsLost": 0,
+          "dataBytesSent": 5310,
+          "ackBytesSent": 330,
+          "totalBytesSent": 5640,
+          "deliveryRate": 1.0,
+          "meanDeliveryLatencyS": 0.04821289062500024,
+          "maxDeliveryLatencyS": 0.04821289062500078
+        },
+        "source": {
+          "producerCompleted": true,
+          "interrupted": false,
+          "offeredObservations": 30,
+          "consumedObservations": 30,
+          "maxSampledBufferedObservations": 1,
+          "callbackHandoffWaitS": 0.0005599998403340578,
+          "discardedAtStop": 0
+        }
+      },
+      "canonicalM3Validated": true,
+      "resources": {
+        "sampleCount": 47,
+        "peakGlobalGpuUsedMiB": 3200,
+        "meanSystemCpuPercent": 33.04893617021277,
+        "peakSystemRamUsedMiB": 23097.57421875,
+        "peakValidationTreeRssMiB": 1334.16015625,
+        "peakOllamaRssMiB": 227.859375
+      },
+      "inferenceCount": 0,
+      "ollamaLoadedAfter": {
+        "models": []
+      }
+    },
+    {
+      "phase": "loaded_idle",
+      "passed": true,
+      "exitCode": 0,
+      "captureWallS": 21.299224799964577,
+      "m1": {
+        "processed_frames": 30,
+        "processing_fps": 3.4979645691008687,
+        "processing_fps_excluding_first": 3.6291512043164724,
+        "end_to_end_fps": 3.472904583655961,
+        "latency_ms_mean": 285.88054002417874,
+        "latency_ms_p95": 443.88936003670005,
+        "inference_ms_mean": 254.51691331497082,
+        "cpu_percent_process_mean": 321.3733333333333,
+        "rss_peak_mb": 951.09765625,
+        "model_resources": {
+          "device": "directml",
+          "execution": "local-onnx",
+          "model_id": "onnx-community/grounding-dino-tiny-ONNX",
+          "model_revision": "ff690b0a8050566c290287545bd059350f3e9096",
+          "source_model_file": "onnx/model_fp16.onnx",
+          "prepared_model_file": "model_fp32.onnx",
+          "precision": "FP32 promoted from FP16 source",
+          "onnxruntime_version": "1.24.4",
+          "providers": [
+            "DmlExecutionProvider",
+            "CPUExecutionProvider"
+          ],
+          "gpu_adapter": {
+            "device_id": 1,
+            "name": "NVIDIA GeForce RTX 5070 Laptop GPU",
+            "vendor_id": 4318,
+            "dedicated_video_mb": 7891
+          },
+          "image_size": 800,
+          "prompt": "rock. stone. boulder.",
+          "threshold": 0.25,
+          "text_threshold": 0.2,
+          "max_rock_box_area_fraction": 0.5,
+          "terrain_filter_policy": "edges",
+          "rejected_large_boxes": 11,
+          "confidence_semantics": "Grounding DINO detector score; not calibrated probability",
+          "challenge_local_perception_compliant": true,
+          "provider_note": "DirectML accelerates supported operators; unsupported/shape operators may execute on CPU."
+        }
+      },
+      "m2": {
+        "completed": true,
+        "transport": {
+          "generated": 30,
+          "enqueued": 30,
+          "delivered": 30,
+          "acknowledged": 30,
+          "pending": 0,
+          "maxPending": 1,
+          "queueDropped": 0,
+          "abandoned": 0,
+          "retransmissions": 0,
+          "radioDuplicates": 0,
+          "dataPacketsSent": 30,
+          "dataPacketsLost": 0,
+          "ackPacketsSent": 30,
+          "ackPacketsLost": 0,
+          "dataBytesSent": 5310,
+          "ackBytesSent": 330,
+          "totalBytesSent": 5640,
+          "deliveryRate": 1.0,
+          "meanDeliveryLatencyS": 0.048212890625000074,
+          "maxDeliveryLatencyS": 0.04821289062500078
+        },
+        "source": {
+          "producerCompleted": true,
+          "interrupted": false,
+          "offeredObservations": 30,
+          "consumedObservations": 30,
+          "maxSampledBufferedObservations": 1,
+          "callbackHandoffWaitS": 0.000560700660571456,
+          "discardedAtStop": 0
+        }
+      },
+      "canonicalM3Validated": true,
+      "resources": {
+        "sampleCount": 48,
+        "peakGlobalGpuUsedMiB": 7189,
+        "meanSystemCpuPercent": 33.46666666666667,
+        "peakSystemRamUsedMiB": 25607.28515625,
+        "peakValidationTreeRssMiB": 1333.30078125,
+        "peakOllamaRssMiB": 1897.4140625
+      },
+      "inferenceCount": 0,
+      "ollamaLoadedAfter": {
+        "models": [
+          {
+            "name": "qwen3:4b-instruct-2507-q4_K_M",
+            "model": "qwen3:4b-instruct-2507-q4_K_M",
+            "size": 3178149969,
+            "digest": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+            "details": {
+              "parent_model": "",
+              "format": "gguf",
+              "family": "qwen3",
+              "families": [
+                "qwen3"
+              ],
+              "parameter_size": "4.0B",
+              "quantization_level": "Q4_K_M"
+            },
+            "expires_at": "2026-10-11T03:47:58.7311485+01:00",
+            "size_vram": 3178149969,
+            "context_length": 4096,
+            "runner": "llamacpp"
+          },
+          {
+            "name": "embeddinggemma:300m",
+            "model": "embeddinggemma:300m",
+            "size": 681417113,
+            "digest": "5265a4c1d1e7ef31b67da5be71b21030cf8f3f0ffab7b38614866c4e92a8c4b5",
+            "details": {
+              "parent_model": "",
+              "format": "gguf",
+              "family": "gemma-embedding",
+              "families": [
+                "gemma-embedding"
+              ],
+              "parameter_size": "307.58M",
+              "quantization_level": "BF16"
+            },
+            "expires_at": "2026-10-11T03:47:54.4084881+01:00",
+            "size_vram": 681417113,
+            "context_length": 2048,
+            "runner": "llamacpp"
+          }
+        ]
+      }
+    },
+    {
+      "phase": "active_generation",
+      "passed": true,
+      "exitCode": 0,
+      "captureWallS": 28.807295999955386,
+      "m1": {
+        "processed_frames": 30,
+        "processing_fps": 1.8511174381483717,
+        "processing_fps_excluding_first": 1.893183159265039,
+        "end_to_end_fps": 1.8419863548497373,
+        "latency_ms_mean": 540.2142399999624,
+        "latency_ms_p95": 752.0853349356906,
+        "inference_ms_mean": 497.1462100433807,
+        "cpu_percent_process_mean": 184.51999999999998,
+        "rss_peak_mb": 951.58984375,
+        "model_resources": {
+          "device": "directml",
+          "execution": "local-onnx",
+          "model_id": "onnx-community/grounding-dino-tiny-ONNX",
+          "model_revision": "ff690b0a8050566c290287545bd059350f3e9096",
+          "source_model_file": "onnx/model_fp16.onnx",
+          "prepared_model_file": "model_fp32.onnx",
+          "precision": "FP32 promoted from FP16 source",
+          "onnxruntime_version": "1.24.4",
+          "providers": [
+            "DmlExecutionProvider",
+            "CPUExecutionProvider"
+          ],
+          "gpu_adapter": {
+            "device_id": 1,
+            "name": "NVIDIA GeForce RTX 5070 Laptop GPU",
+            "vendor_id": 4318,
+            "dedicated_video_mb": 7891
+          },
+          "image_size": 800,
+          "prompt": "rock. stone. boulder.",
+          "threshold": 0.25,
+          "text_threshold": 0.2,
+          "max_rock_box_area_fraction": 0.5,
+          "terrain_filter_policy": "edges",
+          "rejected_large_boxes": 11,
+          "confidence_semantics": "Grounding DINO detector score; not calibrated probability",
+          "challenge_local_perception_compliant": true,
+          "provider_note": "DirectML accelerates supported operators; unsupported/shape operators may execute on CPU."
+        }
+      },
+      "m2": {
+        "completed": true,
+        "transport": {
+          "generated": 30,
+          "enqueued": 30,
+          "delivered": 30,
+          "acknowledged": 30,
+          "pending": 0,
+          "maxPending": 1,
+          "queueDropped": 0,
+          "abandoned": 0,
+          "retransmissions": 0,
+          "radioDuplicates": 0,
+          "dataPacketsSent": 30,
+          "dataPacketsLost": 0,
+          "ackPacketsSent": 30,
+          "ackPacketsLost": 0,
+          "dataBytesSent": 5310,
+          "ackBytesSent": 330,
+          "totalBytesSent": 5640,
+          "deliveryRate": 1.0,
+          "meanDeliveryLatencyS": 0.04821289062499953,
+          "maxDeliveryLatencyS": 0.04821289062500078
+        },
+        "source": {
+          "producerCompleted": true,
+          "interrupted": false,
+          "offeredObservations": 30,
+          "consumedObservations": 30,
+          "maxSampledBufferedObservations": 1,
+          "callbackHandoffWaitS": 0.0007139998488128185,
+          "discardedAtStop": 0
+        }
+      },
+      "canonicalM3Validated": true,
+      "resources": {
+        "sampleCount": 59,
+        "peakGlobalGpuUsedMiB": 7193,
+        "meanSystemCpuPercent": 51.23220338983051,
+        "peakSystemRamUsedMiB": 26073.453125,
+        "peakValidationTreeRssMiB": 1342.17578125,
+        "peakOllamaRssMiB": 1903.66015625
+      },
+      "inferenceCount": 6,
+      "ollamaLoadedAfter": {
+        "models": [
+          {
+            "name": "qwen3:4b-instruct-2507-q4_K_M",
+            "model": "qwen3:4b-instruct-2507-q4_K_M",
+            "size": 3178149969,
+            "digest": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+            "details": {
+              "parent_model": "",
+              "format": "gguf",
+              "family": "qwen3",
+              "families": [
+                "qwen3"
+              ],
+              "parameter_size": "4.0B",
+              "quantization_level": "Q4_K_M"
+            },
+            "expires_at": "2026-10-11T03:49:01.3298307+01:00",
+            "size_vram": 3178149969,
+            "context_length": 4096,
+            "runner": "llamacpp"
+          },
+          {
+            "name": "embeddinggemma:300m",
+            "model": "embeddinggemma:300m",
+            "size": 681417113,
+            "digest": "5265a4c1d1e7ef31b67da5be71b21030cf8f3f0ffab7b38614866c4e92a8c4b5",
+            "details": {
+              "parent_model": "",
+              "format": "gguf",
+              "family": "gemma-embedding",
+              "families": [
+                "gemma-embedding"
+              ],
+              "parameter_size": "307.58M",
+              "quantization_level": "BF16"
+            },
+            "expires_at": "2026-10-11T03:48:59.7129736+01:00",
+            "size_vram": 681417113,
+            "context_length": 2048,
+            "runner": "llamacpp"
+          }
+        ]
+      }
+    }
+  ],
+  "comparison": {
+    "comparisons": [
+      {
+        "phase": "loaded_idle",
+        "fpsChangePercent": 4.599199292720235,
+        "meanLatencyChangePercent": -5.008729025669312,
+        "p95LatencyChangePercent": -9.638777303097523
+      },
+      {
+        "phase": "active_generation",
+        "fpsChangePercent": -42.15306261452022,
+        "meanLatencyChangePercent": 70.5285019868231,
+        "p95LatencyChangePercent": 52.90567496424929
+      }
+    ],
+    "materialDegradation": true,
+    "policy": "Block science inference during capture and unload before capture.",
+    "thresholds": "FPS decline >20%, mean latency growth >20%, or p95 growth >30% against median unloaded baseline."
+  },
+  "preparedCacheUnchanged": true,
+  "ollamaUnloadedAfter": {
+    "models": []
+  }
+}

@@ -13,6 +13,8 @@ import { MissionHeader } from './components/MissionHeader'
 import { CommsPanel, PacketPanel, RoverPanel } from './components/StatusPanels'
 import { MapBrackets, MapLegend, MapNav, MapTitle, OutageBanner } from './components/MapOverlays'
 import { EventStream, HazardInspector, HazardInventory, type EventFilter } from './components/IntelPanels'
+import { deriveMissionIntelligence } from '../assistant/missionIntelligence'
+import { MissionIntelligencePanel } from '../assistant/MissionIntelligencePanel'
 import './mission-control.css'
 
 export type MissionControlProps = {
@@ -106,6 +108,7 @@ export function MissionControl({
           outOfOrder={tel.outOfOrder} sequenceGaps={tel.sequenceGaps}
           rover={f ? { sent: f.link.packetsSent, lost: f.link.packetsLost, seq: f.sequence } : null}
         />
+        <MissionIntelligencePanel intelligence={deriveMissionIntelligence(tel, selected, now, staleThresholdMs, telemetry.mode)} />
       </aside>
 
       <main className="mc-map">

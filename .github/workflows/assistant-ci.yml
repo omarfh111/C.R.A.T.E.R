@@ -1,0 +1,86 @@
+name: Mission Intelligence validation
+
+on:
+  push:
+    branches: [feat/m2-assistant-integration]
+  pull_request:
+    paths:
+      - 'pyproject.toml'
+      - 'package*.json'
+      - 'tsconfig*.json'
+      - 'vite.config.ts'
+      - 'vitest.config.ts'
+      - 'crater_assistant/**'
+      - 'src/assistant/**'
+      - 'src/mission-control/**'
+      - 'integrations/**'
+      - 'tests/test_assistant*'
+      - 'scripts/*assistant*'
+      - 'scripts/*intelligence*'
+      - 'docs/knowledge/**'
+      - '.github/workflows/assistant-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  model-free:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+    env:
+      HF_HUB_OFFLINE: '1'
+      TRANSFORMERS_OFFLINE: '1'
+      HF_HUB_DISABLE_TELEMETRY: '1'
+      CRATER_M2_SOURCE: '${{ github.workspace }}'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: python -m pip install -e '.[test,hosted,spaces,assistant]' onnx==1.20.1 onnxruntime==1.24.4
+      - run: npm ci --no-audit --no-fund
+      - name: Python and real local HTTP adapter tests without models
+        run: python -m pytest -q
+      - name: Assistant client validation
+        run: |
+          node --test integrations/m3-assistant-client.test.mjs
+          node node_modules/typescript/bin/tsc --noEmit --strict --target ES2022 --module ESNext --moduleResolution Bundler --lib ES2022,DOM --skipLibCheck integrations/m3-assistant-client.ts
+      - name: Frontend tests and production build
+        run: |
+          npm test
+          npm run build
+      - name: Model-free calibrated WebSocket regression
+        run: python -m crater_m2.validation --output artifacts/assistant-regression --m3-contract src/telemetry/contract.ts -- --input examples/m2-calibrated-transport.jsonl --duration 4 --drain 8 --fps 10 --bandwidth 4096 --latency .005 --jitter 0 --loss .25 --blackout .15:.8 --queue 32 --seed 7
+      - name: Existing M2 WebSocket frontend smoke
+        shell: bash
+        env:
+          CRATER_M2_LIVE_SMOKE: '1'
+        run: |
+          set -euo pipefail
+          mkdir -p artifacts/assistant-regression
+          python -m crater_m2 --duration 3 --drain 5 --fps 5 --bandwidth 4096 --latency .005 --jitter 0 --loss 0 --no-blackout --wait-for-client 15 --report artifacts/assistant-regression/smoke-report.json > artifacts/assistant-regression/smoke.log 2>&1 &
+          m2_pid=$!
+          trap 'kill "$m2_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in {1..100}; do
+            if grep -q 'M2 station ready' artifacts/assistant-regression/smoke.log; then ready=1; break; fi
+            if ! kill -0 "$m2_pid" 2>/dev/null; then break; fi
+            sleep 0.1
+          done
+          if [ "$ready" != 1 ]; then cat artifacts/assistant-regression/smoke.log; exit 1; fi
+          ./node_modules/.bin/vitest run src/telemetry/m2-live.smoke.test.ts
+          wait "$m2_pid"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mission-intelligence-python-${{ matrix.python-version }}
+          path: artifacts/assistant-regression/
+          if-no-files-found: ignore

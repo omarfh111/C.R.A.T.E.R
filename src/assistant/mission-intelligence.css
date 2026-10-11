@@ -1,0 +1,51 @@
+/* Mission Intelligence uses the existing Mission Control palette and typography. */
+.mi { flex: none; border-bottom: 1px solid var(--mc-line-soft); background: linear-gradient(160deg, rgba(155,221,234,.025), transparent 65%); }
+.mi__heading { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 13px 16px; color: var(--mc-text); border: 0; background: transparent; text-align: left; cursor: pointer; }
+.mi__heading > span:first-child { min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.mi__heading .mc-kicker { letter-spacing: .15em; font-size: 9.5px; }
+.mi__subtitle { font-family: var(--mc-mono); font-size: 8.5px; color: var(--mc-muted); overflow-wrap: anywhere; }
+.mi__caret { font-family: var(--mc-mono); color: var(--mc-cyan); font-size: 18px; }
+.mi__body { padding: 0 16px 14px; }
+.mi__label { display: flex; align-items: center; gap: 6px; color: var(--mc-cyan); font-family: var(--mc-mono); font-size: 8px; letter-spacing: .08em; }
+.mi__dot { width: 4px; height: 4px; background: var(--mc-cyan); border-radius: 50%; }
+.mi__dot--aged { background: var(--mc-amber); }
+.mi__facts { display: flex; flex-direction: column; gap: 9px; margin: 11px 0; }
+.mi__facts div { display: flex; flex-direction: column; gap: 3px; }
+.mi__facts dt { font-family: var(--mc-mono); font-size: 8.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--mc-muted); }
+.mi__facts dd { margin: 0; font-size: 11px; line-height: 1.55; color: var(--mc-silver); overflow-wrap: anywhere; }
+.mi__integrity { margin: 12px 0; font-size: 10px; line-height: 1.5; color: var(--mc-muted); }
+.mi summary { cursor: pointer; }
+.mi summary:focus-visible { outline: 2px solid var(--mc-cyan-hi); outline-offset: 3px; }
+.mi__integrity summary { font-family: var(--mc-mono); font-size: 9px; color: var(--mc-steel); }
+.mi__integrity p { margin: 7px 0; }
+.mi__science { border: 1px solid rgba(145,214,229,.2); }
+.mi__science > summary { padding: 9px 8px; font-family: var(--mc-mono); font-size: 8.5px; color: var(--mc-cyan); line-height: 1.6; }
+.mi__optional { display: inline-block; margin-left: 6px; color: var(--mc-dim); font-size: 7px; letter-spacing: .04em; }
+.mi__science-body { padding: 0 9px 9px; }
+.mi__note { font-size: 10px; line-height: 1.55; color: var(--mc-muted); }
+.mi__field { display: flex; flex-direction: column; gap: 5px; margin: 10px 0; color: var(--mc-steel); font-family: var(--mc-mono); font-size: 9px; }
+.mi__field input, .mi__field textarea { width: 100%; min-width: 0; border: 1px solid rgba(145,214,229,.22); border-radius: 0; padding: 8px; background: rgba(3,7,12,.65); color: var(--mc-text); font-family: var(--mc-mono); font-size: 10px; line-height: 1.5; }
+.mi__field textarea { resize: vertical; min-height: 64px; max-height: 260px; }
+.mi__field input:focus-visible, .mi__field textarea:focus-visible { outline: 1px solid var(--mc-cyan); outline-offset: 1px; }
+.mi__field :disabled { opacity: .6; }
+.mi__actions { display: flex; flex-wrap: wrap; gap: 5px; }
+.mi__actions button { padding: 6px 7px; border: 1px solid rgba(145,214,229,.3); background: rgba(16,42,54,.35); color: var(--mc-cyan); font-family: var(--mc-mono); font-size: 8px; letter-spacing: .04em; cursor: pointer; }
+.mi__actions button:hover:enabled { border-color: var(--mc-cyan); }
+.mi__actions button:disabled { opacity: .35; cursor: default; }
+.mi__status { display: flex; flex-direction: column; gap: 4px; margin: 12px 0; border-left: 2px solid var(--mc-dim); padding-left: 7px; font-size: 10px; line-height: 1.5; color: var(--mc-muted); }
+.mi__status strong { font-family: var(--mc-mono); font-size: 8.5px; letter-spacing: .05em; font-weight: 500; color: var(--mc-steel); }
+.mi__status--loading, .mi__status--ready { border-color: var(--mc-cyan); }
+.mi__status--busy, .mi__status--timeout, .mi__status--insufficient_evidence, .mi__status--invalid_response { border-color: var(--mc-amber); }
+.mi__status--failed, .mi__status--unavailable { border-color: var(--mc-red); }
+.mi__model { font-family: var(--mc-mono); font-size: 8px; line-height: 1.6; color: var(--mc-dim); overflow-wrap: anywhere; }
+.mi__answer { margin-top: 15px; border-top: 1px solid var(--mc-line); padding-top: 10px; }
+.mi__answer-label { display: block; color: var(--mc-amber); font-family: var(--mc-mono); font-size: 8px; letter-spacing: .04em; line-height: 1.5; }
+.mi__answer-text { color: var(--mc-silver); font-size: 11px; line-height: 1.65; white-space: pre-wrap; overflow-wrap: anywhere; }
+.mi__sources > summary { color: var(--mc-cyan); font-family: var(--mc-mono); font-size: 9px; }
+.mi__source { margin-top: 8px; padding: 8px 0; border-top: 1px solid var(--mc-line-soft); }
+.mi__source summary { color: var(--mc-steel); font-family: var(--mc-mono); font-size: 8px; line-height: 1.6; overflow-wrap: anywhere; }
+.mi__source blockquote { margin: 8px 0; padding-left: 8px; border-left: 1px solid var(--mc-line); color: var(--mc-muted); font-size: 10px; white-space: pre-wrap; line-height: 1.55; overflow-wrap: anywhere; }
+.mi__source a { color: var(--mc-cyan); font-size: 10px; }
+.mi__source-meta { font-family: var(--mc-mono); font-size: 7.5px; line-height: 1.5; color: var(--mc-dim); overflow-wrap: anywhere; }
+.mi__limitations { font-size: 10px; color: var(--mc-amber); line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.mi__footnote { margin-bottom: 0; font-size: 9px; }
