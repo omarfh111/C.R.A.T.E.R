@@ -36,15 +36,16 @@ test('holds rover state through the simulated radio blackout and advances after 
   // pause the dashboard shows comes from telemetry that genuinely did not arrive.
   //
   // The blackout opens at mission second 9, after the ~6 s cinematic intro has handed off and
-  // the first frames have been accepted, so the whole interruption falls inside the sampling
-  // window below. M2 still delivers 30/30 through retransmission once the link returns.
+  // the first frames have been accepted, and lasts 12 s, so the interruption still falls well
+  // inside the sampling window below on a slow hosted runner. M2 delivers 30/30 regardless,
+  // through retransmission once the link returns.
   station = await startStation({
     label: 'radio-blackout',
     durationS: 16,
     drainS: 40,
     fps: 2,
     loss: 0.25,
-    blackout: '9:19',
+    blackout: '9:21',
   })
 
   await page.goto('/')
@@ -119,7 +120,7 @@ test('holds rover state through the simulated radio blackout and advances after 
   expect(report.transport?.generated).toBe(30)
   expect(report.transport?.delivered).toBe(30)
   expect(report.link?.lossProbability).toBeCloseTo(0.25, 5)
-  expect(report.link?.blackouts).toEqual([[9, 19]])
+  expect(report.link?.blackouts).toEqual([[9, 21]])
 
   expect(diagnostics.problems()).toEqual([])
 })
