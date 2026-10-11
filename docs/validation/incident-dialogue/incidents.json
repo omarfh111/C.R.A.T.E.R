@@ -1,0 +1,1008 @@
+{
+  "session": {
+    "authority": "m2-producer",
+    "endedAt": "2026-10-11T04:09:17.759Z",
+    "phase": "completed",
+    "provenance": "historical_replay",
+    "radioProvenance": "simulated",
+    "roverId": "rover-1",
+    "sessionId": "98b920bc-9494-40c0-a6c9-01dccc748ad2",
+    "startedAt": "2026-10-11T04:08:46.178Z"
+  },
+  "incidents": [
+    {
+      "eventAt": "2026-10-11T04:09:22.103Z",
+      "eventId": "53b39ac2-5b8e-40f8-bb4f-109eadfa1ce1",
+      "frame": {
+        "capturedAt": "2026-10-10T21:32:07.362Z",
+        "hazards": [
+          {
+            "confidence": 0.6797894254978256,
+            "id": "hazard-000001",
+            "observedAt": "2026-10-10T21:32:07.362Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": -0.983,
+              "yM": 3.954,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.114
+          },
+          {
+            "confidence": 0.6289768825818265,
+            "id": "hazard-000002",
+            "observedAt": "2026-10-10T21:32:07.362Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": 0.988,
+              "yM": 5.902,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.181
+          },
+          {
+            "confidence": 0.5968108644235904,
+            "id": "hazard-000003",
+            "observedAt": "2026-10-10T21:32:07.362Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": 0.204,
+              "yM": 7.872,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.27
+          }
+        ],
+        "link": {
+          "packetsLost": 16,
+          "packetsSent": 55,
+          "status": "degraded"
+        },
+        "positionUncertaintyRadiusM": 0.05,
+        "roverId": "rover-1",
+        "roverPosition": {
+          "frameId": "LOCAL_ENU_V1",
+          "xM": 0,
+          "yM": 0.29,
+          "zM": 0
+        },
+        "schemaVersion": 1,
+        "sequence": 29
+      },
+      "images": [],
+      "kind": "telemetry_stale",
+      "provenance": {
+        "certifiedMeasurement": false,
+        "observation": "historical_replay",
+        "radio": "simulated",
+        "reporter": "dashboard-client-reported-v1"
+      },
+      "question": "Explain evidence limitations when observations are delayed. Do not infer the cause or estimate mission measurements.",
+      "receivedAt": "2026-10-11T04:09:16.798Z",
+      "recordedAt": "2026-10-11T04:09:22.608Z",
+      "roverId": "rover-1",
+      "sessionId": "98b920bc-9494-40c0-a6c9-01dccc748ad2",
+      "summary": "No recent accepted telemetry receipt. WebSocket transport and last declared radio status remain separate; cause unknown.",
+      "triggerKey": "receipt_stale",
+      "reviews": [],
+      "job": {
+        "state": "completed",
+        "attempt": 1,
+        "result": {
+          "answer": "Les sources disponibles ne permettent pas de répondre.",
+          "citedSourceIds": [],
+          "facts": null,
+          "limitations": "Generated explanations are unverified, never mission measurements or decisions. Citation IDs and numeric presence are checked, not semantic truth. Only the separate report facts are calculated deterministically; NASA/ESA references do not validate this rover. No rover control.",
+          "models": {
+            "embedding": "embeddinggemma:300m",
+            "llm": "qwen3:4b-instruct-2507-q4_K_M"
+          },
+          "reason": "contradicts_observation_availability",
+          "roles": [
+            "retriever",
+            "report_analyst",
+            "explainer",
+            "citation_identity_validator"
+          ],
+          "sources": [
+            {
+              "digest": "432a9bc692d3969186c43105ca2790cd4fc043dd2507de595714e7c0cc2f0d30",
+              "lineEnd": 19,
+              "lineStart": 1,
+              "path": "D:\\space_esb_mission_dialogue\\docs\\assistant-knowledge.md",
+              "score": 0.3345522074053916,
+              "sourceId": "S1",
+              "text": "# Repères validés pour expliquer M2\n\n## Calibration et coordonnées\n\nDans LOCAL_ENU_V1, ENU signifie East, North, Up : x vers l'Est, y vers le Nord,\nz vers le haut. Les trois coordonnées sont en mètres et l'origine est le\nmarqueur convenu au début de la mission.\n\nUne détection M1 donne un pixel de contact dans une image. Un pixel n'est pas\nune distance en mètres. Pour projeter ce pixel, M2 utilise la calibration\n(fx, fy, cx, cy), le centre de la caméra en mètres et sa rotation vers ENU.\nIl construit un rayon puis son intersection avec un plan de sol connu.\nLa position du rover est fournie séparément par la source ; la calibration\nne permet pas à elle seule de mesurer la position du rover.\nUne vidéo NASA sans ces paramètres ne fournit pas des positions ENU métriques.\n\n## Pourquoi des pertes radio peuvent coexister avec une livraison complète\n\nUne trame est une observation unique. Un paquet DATA est une tentative de"
+            },
+            {
+              "digest": "420bbc54c2ec3b10259155074a50d65d0fc8ab0bdd6ba1f5e6166f3fe00d1566",
+              "lineEnd": 60,
+              "lineStart": 45,
+              "path": "D:\\space_esb_mission_dialogue\\docs\\m2-design.md",
+              "score": 0.3150051926512102,
+              "sourceId": "S2",
+              "text": "Stop-and-wait et file FIFO bornée conservent l'ordre attendu par M3. Les ACK perdus\nprovoquent des doublons radio supprimés à la station. Après limite d'essais,\nle paquet est abandonné avec une métrique explicite ; file pleine : refus du\nnouveau paquet. Un blackout conserve la file, sans diffuser de fausses réceptions.\n\n## Localisation\n\nCaméra pinhole rectifiée : fx/fy/cx/cy, résolution, centre ENU et rotation\ncaméra-vers-ENU connus. Axes caméra : x droite, y bas, z avant.\nUn pixel de contact produit un rayon ; intersection avec le plan z=ground_z_m.\nRefuser les rayons parallèles, derrière la caméra ou hors portée et les pixels\ninvalides. Pour un rover mobile, la pose doit être fournie à chaque observation.\nUn rayon ne mesure pas la hauteur d'un obstacle ni la profondeur d'un cratère.\nL'incertitude est une estimation documentée basée sur perturbation du pixel et\nincertitude de pose, pas une probabilité garantie ou un substitut à calibration."
+            },
+            {
+              "digest": "71f139a0e3ae2b79f52d43f04b974ab1b4e4c63eacdd0260d6370539de23395d",
+              "lineEnd": 7,
+              "lineStart": 1,
+              "path": "D:\\space_esb_mission_dialogue\\docs\\knowledge\\nasa-video-cadence.md",
+              "score": 0.31379390290156284,
+              "sourceId": "S3",
+              "sourceUrl": "https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/",
+              "text": "# NASA — cadence de la vidéo de conduite du sol 130\nSource URL: https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/\nVerified on: 2026-10-10\n\nRésumé relu de la notice NASA. La séquence montre la conduite autonome de Perseverance du 1er juillet 2021, sol 130. Une caméra de navigation a pris les images environ tous les cinq mètres de déplacement. Leur contraste a été amélioré.\n\nConséquence pour nos essais : cinq mètres est un intervalle de distance, pas de temps. Sans les horaires d'acquisition, nous ne connaissons pas l'intervalle temporel entre ces images. Le FPS de lecture du MP4 ne donne donc pas la fréquence d'acquisition originale. L'amélioration du contraste change l'apparence des images ; elle n'explique pas cette différence de cadence. La calibration spatiale sert à la géométrie et ne détermine pas la cadence temporelle. Le tracking entre captures rapprochées reste à tester avec une autre séquence.",
+              "verifiedOn": "2026-10-10"
+            }
+          ],
+          "status": "insufficient_evidence",
+          "verification": "not_generated"
+        },
+        "error": null,
+        "updatedAt": "2026-10-11T04:10:15.284Z"
+      }
+    },
+    {
+      "eventAt": "2026-10-11T04:09:18.097Z",
+      "eventId": "910a9c6a-2da3-409e-91b4-89ac678352bc",
+      "frame": {
+        "capturedAt": "2026-10-10T21:32:07.362Z",
+        "hazards": [
+          {
+            "confidence": 0.6797894254978256,
+            "id": "hazard-000001",
+            "observedAt": "2026-10-10T21:32:07.362Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": -0.983,
+              "yM": 3.954,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.114
+          },
+          {
+            "confidence": 0.6289768825818265,
+            "id": "hazard-000002",
+            "observedAt": "2026-10-10T21:32:07.362Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": 0.988,
+              "yM": 5.902,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.181
+          },
+          {
+            "confidence": 0.5968108644235904,
+            "id": "hazard-000003",
+            "observedAt": "2026-10-10T21:32:07.362Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": 0.204,
+              "yM": 7.872,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.27
+          }
+        ],
+        "link": {
+          "packetsLost": 16,
+          "packetsSent": 55,
+          "status": "degraded"
+        },
+        "positionUncertaintyRadiusM": 0.05,
+        "roverId": "rover-1",
+        "roverPosition": {
+          "frameId": "LOCAL_ENU_V1",
+          "xM": 0,
+          "yM": 0.29,
+          "zM": 0
+        },
+        "schemaVersion": 1,
+        "sequence": 29
+      },
+      "images": [],
+      "kind": "websocket_changed",
+      "provenance": {
+        "certifiedMeasurement": false,
+        "observation": "historical_replay",
+        "radio": "simulated",
+        "reporter": "dashboard-client-reported-v1"
+      },
+      "question": "Explain why a dashboard connection change does not establish the rover radio state or a perception failure.",
+      "receivedAt": "2026-10-11T04:09:16.798Z",
+      "recordedAt": "2026-10-11T04:09:18.615Z",
+      "roverId": "rover-1",
+      "sessionId": "98b920bc-9494-40c0-a6c9-01dccc748ad2",
+      "summary": "Dashboard WebSocket connected -> disconnected. This is transport status, not the declared rover radio state.",
+      "triggerKey": "ws:disconnected",
+      "reviews": [],
+      "job": {
+        "state": "completed",
+        "attempt": 1,
+        "result": {
+          "answer": "A dashboard connection change reflects transport status between the dashboard and client, not the declared rover radio state or perception capability [S1]. The rover radio state and perception are independent of dashboard connectivity, as the dashboard reports only transport status, not the actual radio or perception state of the rover [S1]. No evidence links dashboard connectivity to calibration, perception, or radio operation; thus, such a change does not establish a radio state or perception failure [S2].",
+          "citedSourceIds": [
+            "S1",
+            "S2"
+          ],
+          "facts": null,
+          "limitations": "Generated explanations are unverified, never mission measurements or decisions. Citation IDs and numeric presence are checked, not semantic truth. Only the separate report facts are calculated deterministically; NASA/ESA references do not validate this rover. No rover control.",
+          "models": {
+            "embedding": "embeddinggemma:300m",
+            "llm": "qwen3:4b-instruct-2507-q4_K_M"
+          },
+          "roles": [
+            "retriever",
+            "report_analyst",
+            "explainer",
+            "citation_identity_validator"
+          ],
+          "sources": [
+            {
+              "digest": "420bbc54c2ec3b10259155074a50d65d0fc8ab0bdd6ba1f5e6166f3fe00d1566",
+              "lineEnd": 60,
+              "lineStart": 45,
+              "path": "D:\\space_esb_mission_dialogue\\docs\\m2-design.md",
+              "score": 0.3730449743677477,
+              "sourceId": "S1",
+              "text": "Stop-and-wait et file FIFO bornée conservent l'ordre attendu par M3. Les ACK perdus\nprovoquent des doublons radio supprimés à la station. Après limite d'essais,\nle paquet est abandonné avec une métrique explicite ; file pleine : refus du\nnouveau paquet. Un blackout conserve la file, sans diffuser de fausses réceptions.\n\n## Localisation\n\nCaméra pinhole rectifiée : fx/fy/cx/cy, résolution, centre ENU et rotation\ncaméra-vers-ENU connus. Axes caméra : x droite, y bas, z avant.\nUn pixel de contact produit un rayon ; intersection avec le plan z=ground_z_m.\nRefuser les rayons parallèles, derrière la caméra ou hors portée et les pixels\ninvalides. Pour un rover mobile, la pose doit être fournie à chaque observation.\nUn rayon ne mesure pas la hauteur d'un obstacle ni la profondeur d'un cratère.\nL'incertitude est une estimation documentée basée sur perturbation du pixel et\nincertitude de pose, pas une probabilité garantie ou un substitut à calibration."
+            },
+            {
+              "digest": "432a9bc692d3969186c43105ca2790cd4fc043dd2507de595714e7c0cc2f0d30",
+              "lineEnd": 19,
+              "lineStart": 1,
+              "path": "D:\\space_esb_mission_dialogue\\docs\\assistant-knowledge.md",
+              "score": 0.34531731716183534,
+              "sourceId": "S2",
+              "text": "# Repères validés pour expliquer M2\n\n## Calibration et coordonnées\n\nDans LOCAL_ENU_V1, ENU signifie East, North, Up : x vers l'Est, y vers le Nord,\nz vers le haut. Les trois coordonnées sont en mètres et l'origine est le\nmarqueur convenu au début de la mission.\n\nUne détection M1 donne un pixel de contact dans une image. Un pixel n'est pas\nune distance en mètres. Pour projeter ce pixel, M2 utilise la calibration\n(fx, fy, cx, cy), le centre de la caméra en mètres et sa rotation vers ENU.\nIl construit un rayon puis son intersection avec un plan de sol connu.\nLa position du rover est fournie séparément par la source ; la calibration\nne permet pas à elle seule de mesurer la position du rover.\nUne vidéo NASA sans ces paramètres ne fournit pas des positions ENU métriques.\n\n## Pourquoi des pertes radio peuvent coexister avec une livraison complète\n\nUne trame est une observation unique. Un paquet DATA est une tentative de"
+            },
+            {
+              "digest": "71f139a0e3ae2b79f52d43f04b974ab1b4e4c63eacdd0260d6370539de23395d",
+              "lineEnd": 7,
+              "lineStart": 1,
+              "path": "D:\\space_esb_mission_dialogue\\docs\\knowledge\\nasa-video-cadence.md",
+              "score": 0.3434851334690844,
+              "sourceId": "S3",
+              "sourceUrl": "https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/",
+              "text": "# NASA — cadence de la vidéo de conduite du sol 130\nSource URL: https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/\nVerified on: 2026-10-10\n\nRésumé relu de la notice NASA. La séquence montre la conduite autonome de Perseverance du 1er juillet 2021, sol 130. Une caméra de navigation a pris les images environ tous les cinq mètres de déplacement. Leur contraste a été amélioré.\n\nConséquence pour nos essais : cinq mètres est un intervalle de distance, pas de temps. Sans les horaires d'acquisition, nous ne connaissons pas l'intervalle temporel entre ces images. Le FPS de lecture du MP4 ne donne donc pas la fréquence d'acquisition originale. L'amélioration du contraste change l'apparence des images ; elle n'explique pas cette différence de cadence. La calibration spatiale sert à la géométrie et ne détermine pas la cadence temporelle. Le tracking entre captures rapprochées reste à tester avec une autre séquence.",
+              "verifiedOn": "2026-10-10"
+            }
+          ],
+          "status": "answered",
+          "verification": "unverified_generated"
+        },
+        "error": null,
+        "updatedAt": "2026-10-11T04:10:08.405Z"
+      }
+    },
+    {
+      "eventAt": "2026-10-11T04:09:05.095Z",
+      "eventId": "1ec7e822-ed20-4db6-9f5e-a61800f162d6",
+      "frame": {
+        "capturedAt": "2026-10-10T21:32:04.210Z",
+        "hazards": [
+          {
+            "confidence": 0.7013656824597543,
+            "id": "hazard-000001",
+            "observedAt": "2026-10-10T21:32:04.210Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": -0.982,
+              "yM": 3.946,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.117
+          },
+          {
+            "confidence": 0.6329442282749675,
+            "id": "hazard-000002",
+            "observedAt": "2026-10-10T21:32:04.210Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": 0.985,
+              "yM": 5.907,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.186
+          },
+          {
+            "confidence": 0.5845578698405433,
+            "id": "hazard-000003",
+            "observedAt": "2026-10-10T21:32:04.210Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": 0.206,
+              "yM": 7.85,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.276
+          }
+        ],
+        "link": {
+          "packetsLost": 7,
+          "packetsSent": 30,
+          "status": "degraded"
+        },
+        "positionUncertaintyRadiusM": 0.05,
+        "roverId": "rover-1",
+        "roverPosition": {
+          "frameId": "LOCAL_ENU_V1",
+          "xM": 0,
+          "yM": 0.17,
+          "zM": 0
+        },
+        "schemaVersion": 1,
+        "sequence": 17
+      },
+      "images": [],
+      "kind": "telemetry_stale",
+      "provenance": {
+        "certifiedMeasurement": false,
+        "observation": "historical_replay",
+        "radio": "simulated",
+        "reporter": "dashboard-client-reported-v1"
+      },
+      "question": "Explain evidence limitations when observations are delayed. Do not infer the cause or estimate mission measurements.",
+      "receivedAt": "2026-10-11T04:09:04.811Z",
+      "recordedAt": "2026-10-11T04:09:07.610Z",
+      "roverId": "rover-1",
+      "sessionId": "98b920bc-9494-40c0-a6c9-01dccc748ad2",
+      "summary": "The accepted observation has an old capture timestamp. Historical replay is not fresh inference; no calibration or tracking failure is inferred.",
+      "triggerKey": "capture_stale",
+      "reviews": [
+        {
+          "authority": "operator-reported",
+          "eventId": "1ec7e822-ed20-4db6-9f5e-a61800f162d6",
+          "note": "Technical validation review only: generated explanation remains unverified. Capture and receipt timestamps are present. No driving decision is supplied.",
+          "reviewId": "68daf36f-4311-42f9-8a2b-d1d333622202",
+          "reviewedAt": "2026-10-11T04:12:35.375Z",
+          "verdict": "inconclusive"
+        }
+      ],
+      "job": {
+        "state": "completed",
+        "attempt": 1,
+        "result": {
+          "answer": "The delay in observations is due to a historical replay with an old capture timestamp, and the absence of clock alignment establishment limits the ability to synchronize timestamps across observations [S1]. The presence of capture and receipt timestamps does not imply temporal alignment, as clock synchronization is not established [S1]. The observation evidence confirms availability of timestamps but does not validate temporal coherence or cadence between frames [S3]. No calibration or tracking failure is inferred from the delay [S1].",
+          "citedSourceIds": [
+            "S1",
+            "S3"
+          ],
+          "facts": null,
+          "limitations": "Generated explanations are unverified, never mission measurements or decisions. Citation IDs and numeric presence are checked, not semantic truth. Only the separate report facts are calculated deterministically; NASA/ESA references do not validate this rover. No rover control.",
+          "models": {
+            "embedding": "embeddinggemma:300m",
+            "llm": "qwen3:4b-instruct-2507-q4_K_M"
+          },
+          "roles": [
+            "retriever",
+            "report_analyst",
+            "explainer",
+            "citation_identity_validator"
+          ],
+          "sources": [
+            {
+              "digest": "432a9bc692d3969186c43105ca2790cd4fc043dd2507de595714e7c0cc2f0d30",
+              "lineEnd": 19,
+              "lineStart": 1,
+              "path": "D:\\space_esb_mission_dialogue\\docs\\assistant-knowledge.md",
+              "score": 0.3345522074053916,
+              "sourceId": "S1",
+              "text": "# Repères validés pour expliquer M2\n\n## Calibration et coordonnées\n\nDans LOCAL_ENU_V1, ENU signifie East, North, Up : x vers l'Est, y vers le Nord,\nz vers le haut. Les trois coordonnées sont en mètres et l'origine est le\nmarqueur convenu au début de la mission.\n\nUne détection M1 donne un pixel de contact dans une image. Un pixel n'est pas\nune distance en mètres. Pour projeter ce pixel, M2 utilise la calibration\n(fx, fy, cx, cy), le centre de la caméra en mètres et sa rotation vers ENU.\nIl construit un rayon puis son intersection avec un plan de sol connu.\nLa position du rover est fournie séparément par la source ; la calibration\nne permet pas à elle seule de mesurer la position du rover.\nUne vidéo NASA sans ces paramètres ne fournit pas des positions ENU métriques.\n\n## Pourquoi des pertes radio peuvent coexister avec une livraison complète\n\nUne trame est une observation unique. Un paquet DATA est une tentative de"
+            },
+            {
+              "digest": "420bbc54c2ec3b10259155074a50d65d0fc8ab0bdd6ba1f5e6166f3fe00d1566",
+              "lineEnd": 60,
+              "lineStart": 45,
+              "path": "D:\\space_esb_mission_dialogue\\docs\\m2-design.md",
+              "score": 0.3150051926512102,
+              "sourceId": "S2",
+              "text": "Stop-and-wait et file FIFO bornée conservent l'ordre attendu par M3. Les ACK perdus\nprovoquent des doublons radio supprimés à la station. Après limite d'essais,\nle paquet est abandonné avec une métrique explicite ; file pleine : refus du\nnouveau paquet. Un blackout conserve la file, sans diffuser de fausses réceptions.\n\n## Localisation\n\nCaméra pinhole rectifiée : fx/fy/cx/cy, résolution, centre ENU et rotation\ncaméra-vers-ENU connus. Axes caméra : x droite, y bas, z avant.\nUn pixel de contact produit un rayon ; intersection avec le plan z=ground_z_m.\nRefuser les rayons parallèles, derrière la caméra ou hors portée et les pixels\ninvalides. Pour un rover mobile, la pose doit être fournie à chaque observation.\nUn rayon ne mesure pas la hauteur d'un obstacle ni la profondeur d'un cratère.\nL'incertitude est une estimation documentée basée sur perturbation du pixel et\nincertitude de pose, pas une probabilité garantie ou un substitut à calibration."
+            },
+            {
+              "digest": "71f139a0e3ae2b79f52d43f04b974ab1b4e4c63eacdd0260d6370539de23395d",
+              "lineEnd": 7,
+              "lineStart": 1,
+              "path": "D:\\space_esb_mission_dialogue\\docs\\knowledge\\nasa-video-cadence.md",
+              "score": 0.31379390290156284,
+              "sourceId": "S3",
+              "sourceUrl": "https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/",
+              "text": "# NASA — cadence de la vidéo de conduite du sol 130\nSource URL: https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/\nVerified on: 2026-10-10\n\nRésumé relu de la notice NASA. La séquence montre la conduite autonome de Perseverance du 1er juillet 2021, sol 130. Une caméra de navigation a pris les images environ tous les cinq mètres de déplacement. Leur contraste a été amélioré.\n\nConséquence pour nos essais : cinq mètres est un intervalle de distance, pas de temps. Sans les horaires d'acquisition, nous ne connaissons pas l'intervalle temporel entre ces images. Le FPS de lecture du MP4 ne donne donc pas la fréquence d'acquisition originale. L'amélioration du contraste change l'apparence des images ; elle n'explique pas cette différence de cadence. La calibration spatiale sert à la géométrie et ne détermine pas la cadence temporelle. Le tracking entre captures rapprochées reste à tester avec une autre séquence.",
+              "verifiedOn": "2026-10-10"
+            }
+          ],
+          "status": "answered",
+          "verification": "unverified_generated"
+        },
+        "error": null,
+        "updatedAt": "2026-10-11T04:10:04.840Z"
+      }
+    },
+    {
+      "eventAt": "2026-10-11T04:09:05.095Z",
+      "eventId": "2ae046d8-fd2c-48cb-9224-16c26bdae86f",
+      "frame": {
+        "capturedAt": "2026-10-10T21:32:04.210Z",
+        "hazards": [
+          {
+            "confidence": 0.7013656824597543,
+            "id": "hazard-000001",
+            "observedAt": "2026-10-10T21:32:04.210Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": -0.982,
+              "yM": 3.946,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.117
+          },
+          {
+            "confidence": 0.6329442282749675,
+            "id": "hazard-000002",
+            "observedAt": "2026-10-10T21:32:04.210Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": 0.985,
+              "yM": 5.907,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.186
+          },
+          {
+            "confidence": 0.5845578698405433,
+            "id": "hazard-000003",
+            "observedAt": "2026-10-10T21:32:04.210Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": 0.206,
+              "yM": 7.85,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.276
+          }
+        ],
+        "link": {
+          "packetsLost": 7,
+          "packetsSent": 30,
+          "status": "degraded"
+        },
+        "positionUncertaintyRadiusM": 0.05,
+        "roverId": "rover-1",
+        "roverPosition": {
+          "frameId": "LOCAL_ENU_V1",
+          "xM": 0,
+          "yM": 0.17,
+          "zM": 0
+        },
+        "schemaVersion": 1,
+        "sequence": 17
+      },
+      "images": [],
+      "kind": "radio_changed",
+      "provenance": {
+        "certifiedMeasurement": false,
+        "observation": "historical_replay",
+        "radio": "simulated",
+        "reporter": "dashboard-client-reported-v1"
+      },
+      "question": "Explain the limits of interpreting a declared communication state, using scientific references where relevant.",
+      "receivedAt": "2026-10-11T04:09:04.811Z",
+      "recordedAt": "2026-10-11T04:09:06.608Z",
+      "roverId": "rover-1",
+      "sessionId": "98b920bc-9494-40c0-a6c9-01dccc748ad2",
+      "summary": "Accepted frame declares radio initial -> degraded. Counters describe the simulated radio channel at capture time.",
+      "triggerKey": "radio:degraded",
+      "reviews": [],
+      "job": {
+        "state": "completed",
+        "attempt": 1,
+        "result": {
+          "answer": "A declared communication state, such as radio degradation or packet loss, cannot be interpreted as a definitive measure of system failure or data integrity without evidence of actual reception or timestamp alignment. The presence of a simulated radio channel and accepted frame transitions does not validate the actual state of communication, as the radio state is declared and not independently measured [S1]. A complete delivery of trames does not guarantee immediate delivery or correct reception, due to limited retransmission attempts and buffer capacity, which may result in abandonment or rejection of specific packets [S2]. These limitations are inherent to the protocol and do not imply a successful or reliable communication state.",
+          "citedSourceIds": [
+            "S1",
+            "S2"
+          ],
+          "facts": null,
+          "limitations": "Generated explanations are unverified, never mission measurements or decisions. Citation IDs and numeric presence are checked, not semantic truth. Only the separate report facts are calculated deterministically; NASA/ESA references do not validate this rover. No rover control.",
+          "models": {
+            "embedding": "embeddinggemma:300m",
+            "llm": "qwen3:4b-instruct-2507-q4_K_M"
+          },
+          "roles": [
+            "retriever",
+            "report_analyst",
+            "explainer",
+            "citation_identity_validator"
+          ],
+          "sources": [
+            {
+              "digest": "420bbc54c2ec3b10259155074a50d65d0fc8ab0bdd6ba1f5e6166f3fe00d1566",
+              "lineEnd": 60,
+              "lineStart": 45,
+              "path": "D:\\space_esb_mission_dialogue\\docs\\m2-design.md",
+              "score": 0.28839863035246227,
+              "sourceId": "S1",
+              "text": "Stop-and-wait et file FIFO bornée conservent l'ordre attendu par M3. Les ACK perdus\nprovoquent des doublons radio supprimés à la station. Après limite d'essais,\nle paquet est abandonné avec une métrique explicite ; file pleine : refus du\nnouveau paquet. Un blackout conserve la file, sans diffuser de fausses réceptions.\n\n## Localisation\n\nCaméra pinhole rectifiée : fx/fy/cx/cy, résolution, centre ENU et rotation\ncaméra-vers-ENU connus. Axes caméra : x droite, y bas, z avant.\nUn pixel de contact produit un rayon ; intersection avec le plan z=ground_z_m.\nRefuser les rayons parallèles, derrière la caméra ou hors portée et les pixels\ninvalides. Pour un rover mobile, la pose doit être fournie à chaque observation.\nUn rayon ne mesure pas la hauteur d'un obstacle ni la profondeur d'un cratère.\nL'incertitude est une estimation documentée basée sur perturbation du pixel et\nincertitude de pose, pas une probabilité garantie ou un substitut à calibration."
+            },
+            {
+              "digest": "432a9bc692d3969186c43105ca2790cd4fc043dd2507de595714e7c0cc2f0d30",
+              "lineEnd": 36,
+              "lineStart": 20,
+              "path": "D:\\space_esb_mission_dialogue\\docs\\assistant-knowledge.md",
+              "score": 0.2834411108313465,
+              "sourceId": "S2",
+              "text": "transmission : la même trame peut être envoyée plusieurs fois. En cas de perte\nDATA ou ACK, M2 réessaie avec la même séquence. La station supprime les doublons.\nIl est donc possible de livrer toutes les trames avec des pertes de paquets.\nCela ne garantit pas la livraison : les réessais et la file sont limités ;\nune trame peut être abandonnée ou rejetée. Les 30/30 décrivent cet essai seulement.\nUne livraison complète ne garantit pas une livraison immédiate : la file et les\ncoupures peuvent augmenter la latence.\n\nLe taux de livraison des trames est delivered / generated. Le taux de perte DATA\nest dataPacketsLost / dataPacketsSent. Le taux de perte ACK est\nackPacketsLost / ackPacketsSent. Ces trois taux ont des dénominateurs différents.\nUn rapport mode benchmark mesure une simulation reproductible. Il ne démontre\npas les performances d'une radio physique ou d'une perception sur terrain réel.\n\n## Rôle des modèles\n\nUn embedding représente un document pour retrouver les passages utiles."
+            },
+            {
+              "digest": "432a9bc692d3969186c43105ca2790cd4fc043dd2507de595714e7c0cc2f0d30",
+              "lineEnd": 19,
+              "lineStart": 1,
+              "path": "D:\\space_esb_mission_dialogue\\docs\\assistant-knowledge.md",
+              "score": 0.26353706862661763,
+              "sourceId": "S3",
+              "text": "# Repères validés pour expliquer M2\n\n## Calibration et coordonnées\n\nDans LOCAL_ENU_V1, ENU signifie East, North, Up : x vers l'Est, y vers le Nord,\nz vers le haut. Les trois coordonnées sont en mètres et l'origine est le\nmarqueur convenu au début de la mission.\n\nUne détection M1 donne un pixel de contact dans une image. Un pixel n'est pas\nune distance en mètres. Pour projeter ce pixel, M2 utilise la calibration\n(fx, fy, cx, cy), le centre de la caméra en mètres et sa rotation vers ENU.\nIl construit un rayon puis son intersection avec un plan de sol connu.\nLa position du rover est fournie séparément par la source ; la calibration\nne permet pas à elle seule de mesurer la position du rover.\nUne vidéo NASA sans ces paramètres ne fournit pas des positions ENU métriques.\n\n## Pourquoi des pertes radio peuvent coexister avec une livraison complète\n\nUne trame est une observation unique. Un paquet DATA est une tentative de"
+            }
+          ],
+          "status": "answered",
+          "verification": "unverified_generated"
+        },
+        "error": null,
+        "updatedAt": "2026-10-11T04:10:01.555Z"
+      }
+    },
+    {
+      "eventAt": "2026-10-11T04:09:05.095Z",
+      "eventId": "1b8dc95b-8042-42b1-9601-838154f5ba3c",
+      "frame": {
+        "capturedAt": "2026-10-10T21:32:04.210Z",
+        "hazards": [
+          {
+            "confidence": 0.7013656824597543,
+            "id": "hazard-000001",
+            "observedAt": "2026-10-10T21:32:04.210Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": -0.982,
+              "yM": 3.946,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.117
+          },
+          {
+            "confidence": 0.6329442282749675,
+            "id": "hazard-000002",
+            "observedAt": "2026-10-10T21:32:04.210Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": 0.985,
+              "yM": 5.907,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.186
+          },
+          {
+            "confidence": 0.5845578698405433,
+            "id": "hazard-000003",
+            "observedAt": "2026-10-10T21:32:04.210Z",
+            "position": {
+              "frameId": "LOCAL_ENU_V1",
+              "xM": 0.206,
+              "yM": 7.85,
+              "zM": 0
+            },
+            "type": "rock",
+            "uncertaintyRadiusM": 0.276
+          }
+        ],
+        "link": {
+          "packetsLost": 7,
+          "packetsSent": 30,
+          "status": "degraded"
+        },
+        "positionUncertaintyRadiusM": 0.05,
+        "roverId": "rover-1",
+        "roverPosition": {
+          "frameId": "LOCAL_ENU_V1",
+          "xM": 0,
+          "yM": 0.17,
+          "zM": 0
+        },
+        "schemaVersion": 1,
+        "sequence": 17
+      },
+      "images": [],
+      "kind": "websocket_changed",
+      "provenance": {
+        "certifiedMeasurement": false,
+        "observation": "historical_replay",
+        "radio": "simulated",
+        "reporter": "dashboard-client-reported-v1"
+      },
+      "question": "Explain why a dashboard connection change does not establish the rover radio state or a perception failure.",
+      "receivedAt": "2026-10-11T04:09:04.811Z",
+      "recordedAt": "2026-10-11T04:09:05.722Z",
+      "roverId": "rover-1",
+      "sessionId": "98b920bc-9494-40c0-a6c9-01dccc748ad2",
+      "summary": "Dashboard WebSocket initial -> connected. This is transport status, not the declared rover radio state.",
+      "triggerKey": "ws:connected",
+      "reviews": [],
+      "job": {
+        "state": "completed",
+        "attempt": 1,
+        "result": {
+          "answer": "Les sources disponibles ne permettent pas de répondre.",
+          "citedSourceIds": [],
+          "facts": null,
+          "limitations": "Generated explanations are unverified, never mission measurements or decisions. Citation IDs and numeric presence are checked, not semantic truth. Only the separate report facts are calculated deterministically; NASA/ESA references do not validate this rover. No rover control.",
+          "models": {
+            "embedding": "embeddinggemma:300m",
+            "llm": "qwen3:4b-instruct-2507-q4_K_M"
+          },
+          "reason": "unsupported_numeric_claim",
+          "roles": [
+            "retriever",
+            "report_analyst",
+            "explainer",
+            "citation_identity_validator"
+          ],
+          "sources": [
+            {
+              "digest": "420bbc54c2ec3b10259155074a50d65d0fc8ab0bdd6ba1f5e6166f3fe00d1566",
+              "lineEnd": 60,
+              "lineStart": 45,
+              "path": "D:\\space_esb_mission_dialogue\\docs\\m2-design.md",
+              "score": 0.3730449743677477,
+              "sourceId": "S1",
+              "text": "Stop-and-wait et file FIFO bornée conservent l'ordre attendu par M3. Les ACK perdus\nprovoquent des doublons radio supprimés à la station. Après limite d'essais,\nle paquet est abandonné avec une métrique explicite ; file pleine : refus du\nnouveau paquet. Un blackout conserve la file, sans diffuser de fausses réceptions.\n\n## Localisation\n\nCaméra pinhole rectifiée : fx/fy/cx/cy, résolution, centre ENU et rotation\ncaméra-vers-ENU connus. Axes caméra : x droite, y bas, z avant.\nUn pixel de contact produit un rayon ; intersection avec le plan z=ground_z_m.\nRefuser les rayons parallèles, derrière la caméra ou hors portée et les pixels\ninvalides. Pour un rover mobile, la pose doit être fournie à chaque observation.\nUn rayon ne mesure pas la hauteur d'un obstacle ni la profondeur d'un cratère.\nL'incertitude est une estimation documentée basée sur perturbation du pixel et\nincertitude de pose, pas une probabilité garantie ou un substitut à calibration."
+            },
+            {
+              "digest": "432a9bc692d3969186c43105ca2790cd4fc043dd2507de595714e7c0cc2f0d30",
+              "lineEnd": 19,
+              "lineStart": 1,
+              "path": "D:\\space_esb_mission_dialogue\\docs\\assistant-knowledge.md",
+              "score": 0.34531731716183534,
+              "sourceId": "S2",
+              "text": "# Repères validés pour expliquer M2\n\n## Calibration et coordonnées\n\nDans LOCAL_ENU_V1, ENU signifie East, North, Up : x vers l'Est, y vers le Nord,\nz vers le haut. Les trois coordonnées sont en mètres et l'origine est le\nmarqueur convenu au début de la mission.\n\nUne détection M1 donne un pixel de contact dans une image. Un pixel n'est pas\nune distance en mètres. Pour projeter ce pixel, M2 utilise la calibration\n(fx, fy, cx, cy), le centre de la caméra en mètres et sa rotation vers ENU.\nIl construit un rayon puis son intersection avec un plan de sol connu.\nLa position du rover est fournie séparément par la source ; la calibration\nne permet pas à elle seule de mesurer la position du rover.\nUne vidéo NASA sans ces paramètres ne fournit pas des positions ENU métriques.\n\n## Pourquoi des pertes radio peuvent coexister avec une livraison complète\n\nUne trame est une observation unique. Un paquet DATA est une tentative de"
+            },
+            {
+              "digest": "71f139a0e3ae2b79f52d43f04b974ab1b4e4c63eacdd0260d6370539de23395d",
+              "lineEnd": 7,
+              "lineStart": 1,
+              "path": "D:\\space_esb_mission_dialogue\\docs\\knowledge\\nasa-video-cadence.md",
+              "score": 0.3434851334690844,
+              "sourceId": "S3",
+              "sourceUrl": "https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/",
+              "text": "# NASA — cadence de la vidéo de conduite du sol 130\nSource URL: https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/\nVerified on: 2026-10-10\n\nRésumé relu de la notice NASA. La séquence montre la conduite autonome de Perseverance du 1er juillet 2021, sol 130. Une caméra de navigation a pris les images environ tous les cinq mètres de déplacement. Leur contraste a été amélioré.\n\nConséquence pour nos essais : cinq mètres est un intervalle de distance, pas de temps. Sans les horaires d'acquisition, nous ne connaissons pas l'intervalle temporel entre ces images. Le FPS de lecture du MP4 ne donne donc pas la fréquence d'acquisition originale. L'amélioration du contraste change l'apparence des images ; elle n'explique pas cette différence de cadence. La calibration spatiale sert à la géométrie et ne détermine pas la cadence temporelle. Le tracking entre captures rapprochées reste à tester avec une autre séquence.",
+              "verifiedOn": "2026-10-10"
+            }
+          ],
+          "status": "insufficient_evidence",
+          "verification": "not_generated"
+        },
+        "error": null,
+        "updatedAt": "2026-10-11T04:10:11.801Z"
+      }
+    }
+  ],
+  "attempts": [
+    {
+      "attempt": 1,
+      "elapsedS": 2.324377599870786,
+      "error": null,
+      "eventId": "2ae046d8-fd2c-48cb-9224-16c26bdae86f",
+      "finishedAt": "2026-10-11T04:10:01.554Z",
+      "result": {
+        "answer": "A declared communication state, such as radio degradation or packet loss, cannot be interpreted as a definitive measure of system failure or data integrity without evidence of actual reception or timestamp alignment. The presence of a simulated radio channel and accepted frame transitions does not validate the actual state of communication, as the radio state is declared and not independently measured [S1]. A complete delivery of trames does not guarantee immediate delivery or correct reception, due to limited retransmission attempts and buffer capacity, which may result in abandonment or rejection of specific packets [S2]. These limitations are inherent to the protocol and do not imply a successful or reliable communication state.",
+        "citedSourceIds": [
+          "S1",
+          "S2"
+        ],
+        "facts": null,
+        "limitations": "Generated explanations are unverified, never mission measurements or decisions. Citation IDs and numeric presence are checked, not semantic truth. Only the separate report facts are calculated deterministically; NASA/ESA references do not validate this rover. No rover control.",
+        "models": {
+          "embedding": "embeddinggemma:300m",
+          "llm": "qwen3:4b-instruct-2507-q4_K_M"
+        },
+        "roles": [
+          "retriever",
+          "report_analyst",
+          "explainer",
+          "citation_identity_validator"
+        ],
+        "sources": [
+          {
+            "digest": "420bbc54c2ec3b10259155074a50d65d0fc8ab0bdd6ba1f5e6166f3fe00d1566",
+            "lineEnd": 60,
+            "lineStart": 45,
+            "path": "D:\\space_esb_mission_dialogue\\docs\\m2-design.md",
+            "score": 0.28839863035246227,
+            "sourceId": "S1",
+            "text": "Stop-and-wait et file FIFO bornée conservent l'ordre attendu par M3. Les ACK perdus\nprovoquent des doublons radio supprimés à la station. Après limite d'essais,\nle paquet est abandonné avec une métrique explicite ; file pleine : refus du\nnouveau paquet. Un blackout conserve la file, sans diffuser de fausses réceptions.\n\n## Localisation\n\nCaméra pinhole rectifiée : fx/fy/cx/cy, résolution, centre ENU et rotation\ncaméra-vers-ENU connus. Axes caméra : x droite, y bas, z avant.\nUn pixel de contact produit un rayon ; intersection avec le plan z=ground_z_m.\nRefuser les rayons parallèles, derrière la caméra ou hors portée et les pixels\ninvalides. Pour un rover mobile, la pose doit être fournie à chaque observation.\nUn rayon ne mesure pas la hauteur d'un obstacle ni la profondeur d'un cratère.\nL'incertitude est une estimation documentée basée sur perturbation du pixel et\nincertitude de pose, pas une probabilité garantie ou un substitut à calibration."
+          },
+          {
+            "digest": "432a9bc692d3969186c43105ca2790cd4fc043dd2507de595714e7c0cc2f0d30",
+            "lineEnd": 36,
+            "lineStart": 20,
+            "path": "D:\\space_esb_mission_dialogue\\docs\\assistant-knowledge.md",
+            "score": 0.2834411108313465,
+            "sourceId": "S2",
+            "text": "transmission : la même trame peut être envoyée plusieurs fois. En cas de perte\nDATA ou ACK, M2 réessaie avec la même séquence. La station supprime les doublons.\nIl est donc possible de livrer toutes les trames avec des pertes de paquets.\nCela ne garantit pas la livraison : les réessais et la file sont limités ;\nune trame peut être abandonnée ou rejetée. Les 30/30 décrivent cet essai seulement.\nUne livraison complète ne garantit pas une livraison immédiate : la file et les\ncoupures peuvent augmenter la latence.\n\nLe taux de livraison des trames est delivered / generated. Le taux de perte DATA\nest dataPacketsLost / dataPacketsSent. Le taux de perte ACK est\nackPacketsLost / ackPacketsSent. Ces trois taux ont des dénominateurs différents.\nUn rapport mode benchmark mesure une simulation reproductible. Il ne démontre\npas les performances d'une radio physique ou d'une perception sur terrain réel.\n\n## Rôle des modèles\n\nUn embedding représente un document pour retrouver les passages utiles."
+          },
+          {
+            "digest": "432a9bc692d3969186c43105ca2790cd4fc043dd2507de595714e7c0cc2f0d30",
+            "lineEnd": 19,
+            "lineStart": 1,
+            "path": "D:\\space_esb_mission_dialogue\\docs\\assistant-knowledge.md",
+            "score": 0.26353706862661763,
+            "sourceId": "S3",
+            "text": "# Repères validés pour expliquer M2\n\n## Calibration et coordonnées\n\nDans LOCAL_ENU_V1, ENU signifie East, North, Up : x vers l'Est, y vers le Nord,\nz vers le haut. Les trois coordonnées sont en mètres et l'origine est le\nmarqueur convenu au début de la mission.\n\nUne détection M1 donne un pixel de contact dans une image. Un pixel n'est pas\nune distance en mètres. Pour projeter ce pixel, M2 utilise la calibration\n(fx, fy, cx, cy), le centre de la caméra en mètres et sa rotation vers ENU.\nIl construit un rayon puis son intersection avec un plan de sol connu.\nLa position du rover est fournie séparément par la source ; la calibration\nne permet pas à elle seule de mesurer la position du rover.\nUne vidéo NASA sans ces paramètres ne fournit pas des positions ENU métriques.\n\n## Pourquoi des pertes radio peuvent coexister avec une livraison complète\n\nUne trame est une observation unique. Un paquet DATA est une tentative de"
+          }
+        ],
+        "status": "answered",
+        "verification": "unverified_generated"
+      },
+      "state": "completed"
+    },
+    {
+      "attempt": 1,
+      "elapsedS": 2.027880300069228,
+      "error": null,
+      "eventId": "1ec7e822-ed20-4db6-9f5e-a61800f162d6",
+      "finishedAt": "2026-10-11T04:10:04.840Z",
+      "result": {
+        "answer": "The delay in observations is due to a historical replay with an old capture timestamp, and the absence of clock alignment establishment limits the ability to synchronize timestamps across observations [S1]. The presence of capture and receipt timestamps does not imply temporal alignment, as clock synchronization is not established [S1]. The observation evidence confirms availability of timestamps but does not validate temporal coherence or cadence between frames [S3]. No calibration or tracking failure is inferred from the delay [S1].",
+        "citedSourceIds": [
+          "S1",
+          "S3"
+        ],
+        "facts": null,
+        "limitations": "Generated explanations are unverified, never mission measurements or decisions. Citation IDs and numeric presence are checked, not semantic truth. Only the separate report facts are calculated deterministically; NASA/ESA references do not validate this rover. No rover control.",
+        "models": {
+          "embedding": "embeddinggemma:300m",
+          "llm": "qwen3:4b-instruct-2507-q4_K_M"
+        },
+        "roles": [
+          "retriever",
+          "report_analyst",
+          "explainer",
+          "citation_identity_validator"
+        ],
+        "sources": [
+          {
+            "digest": "432a9bc692d3969186c43105ca2790cd4fc043dd2507de595714e7c0cc2f0d30",
+            "lineEnd": 19,
+            "lineStart": 1,
+            "path": "D:\\space_esb_mission_dialogue\\docs\\assistant-knowledge.md",
+            "score": 0.3345522074053916,
+            "sourceId": "S1",
+            "text": "# Repères validés pour expliquer M2\n\n## Calibration et coordonnées\n\nDans LOCAL_ENU_V1, ENU signifie East, North, Up : x vers l'Est, y vers le Nord,\nz vers le haut. Les trois coordonnées sont en mètres et l'origine est le\nmarqueur convenu au début de la mission.\n\nUne détection M1 donne un pixel de contact dans une image. Un pixel n'est pas\nune distance en mètres. Pour projeter ce pixel, M2 utilise la calibration\n(fx, fy, cx, cy), le centre de la caméra en mètres et sa rotation vers ENU.\nIl construit un rayon puis son intersection avec un plan de sol connu.\nLa position du rover est fournie séparément par la source ; la calibration\nne permet pas à elle seule de mesurer la position du rover.\nUne vidéo NASA sans ces paramètres ne fournit pas des positions ENU métriques.\n\n## Pourquoi des pertes radio peuvent coexister avec une livraison complète\n\nUne trame est une observation unique. Un paquet DATA est une tentative de"
+          },
+          {
+            "digest": "420bbc54c2ec3b10259155074a50d65d0fc8ab0bdd6ba1f5e6166f3fe00d1566",
+            "lineEnd": 60,
+            "lineStart": 45,
+            "path": "D:\\space_esb_mission_dialogue\\docs\\m2-design.md",
+            "score": 0.3150051926512102,
+            "sourceId": "S2",
+            "text": "Stop-and-wait et file FIFO bornée conservent l'ordre attendu par M3. Les ACK perdus\nprovoquent des doublons radio supprimés à la station. Après limite d'essais,\nle paquet est abandonné avec une métrique explicite ; file pleine : refus du\nnouveau paquet. Un blackout conserve la file, sans diffuser de fausses réceptions.\n\n## Localisation\n\nCaméra pinhole rectifiée : fx/fy/cx/cy, résolution, centre ENU et rotation\ncaméra-vers-ENU connus. Axes caméra : x droite, y bas, z avant.\nUn pixel de contact produit un rayon ; intersection avec le plan z=ground_z_m.\nRefuser les rayons parallèles, derrière la caméra ou hors portée et les pixels\ninvalides. Pour un rover mobile, la pose doit être fournie à chaque observation.\nUn rayon ne mesure pas la hauteur d'un obstacle ni la profondeur d'un cratère.\nL'incertitude est une estimation documentée basée sur perturbation du pixel et\nincertitude de pose, pas une probabilité garantie ou un substitut à calibration."
+          },
+          {
+            "digest": "71f139a0e3ae2b79f52d43f04b974ab1b4e4c63eacdd0260d6370539de23395d",
+            "lineEnd": 7,
+            "lineStart": 1,
+            "path": "D:\\space_esb_mission_dialogue\\docs\\knowledge\\nasa-video-cadence.md",
+            "score": 0.31379390290156284,
+            "sourceId": "S3",
+            "sourceUrl": "https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/",
+            "text": "# NASA — cadence de la vidéo de conduite du sol 130\nSource URL: https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/\nVerified on: 2026-10-10\n\nRésumé relu de la notice NASA. La séquence montre la conduite autonome de Perseverance du 1er juillet 2021, sol 130. Une caméra de navigation a pris les images environ tous les cinq mètres de déplacement. Leur contraste a été amélioré.\n\nConséquence pour nos essais : cinq mètres est un intervalle de distance, pas de temps. Sans les horaires d'acquisition, nous ne connaissons pas l'intervalle temporel entre ces images. Le FPS de lecture du MP4 ne donne donc pas la fréquence d'acquisition originale. L'amélioration du contraste change l'apparence des images ; elle n'explique pas cette différence de cadence. La calibration spatiale sert à la géométrie et ne détermine pas la cadence temporelle. Le tracking entre captures rapprochées reste à tester avec une autre séquence.",
+            "verifiedOn": "2026-10-10"
+          }
+        ],
+        "status": "answered",
+        "verification": "unverified_generated"
+      },
+      "state": "completed"
+    },
+    {
+      "attempt": 1,
+      "elapsedS": 2.333371600136161,
+      "error": null,
+      "eventId": "910a9c6a-2da3-409e-91b4-89ac678352bc",
+      "finishedAt": "2026-10-11T04:10:08.404Z",
+      "result": {
+        "answer": "A dashboard connection change reflects transport status between the dashboard and client, not the declared rover radio state or perception capability [S1]. The rover radio state and perception are independent of dashboard connectivity, as the dashboard reports only transport status, not the actual radio or perception state of the rover [S1]. No evidence links dashboard connectivity to calibration, perception, or radio operation; thus, such a change does not establish a radio state or perception failure [S2].",
+        "citedSourceIds": [
+          "S1",
+          "S2"
+        ],
+        "facts": null,
+        "limitations": "Generated explanations are unverified, never mission measurements or decisions. Citation IDs and numeric presence are checked, not semantic truth. Only the separate report facts are calculated deterministically; NASA/ESA references do not validate this rover. No rover control.",
+        "models": {
+          "embedding": "embeddinggemma:300m",
+          "llm": "qwen3:4b-instruct-2507-q4_K_M"
+        },
+        "roles": [
+          "retriever",
+          "report_analyst",
+          "explainer",
+          "citation_identity_validator"
+        ],
+        "sources": [
+          {
+            "digest": "420bbc54c2ec3b10259155074a50d65d0fc8ab0bdd6ba1f5e6166f3fe00d1566",
+            "lineEnd": 60,
+            "lineStart": 45,
+            "path": "D:\\space_esb_mission_dialogue\\docs\\m2-design.md",
+            "score": 0.3730449743677477,
+            "sourceId": "S1",
+            "text": "Stop-and-wait et file FIFO bornée conservent l'ordre attendu par M3. Les ACK perdus\nprovoquent des doublons radio supprimés à la station. Après limite d'essais,\nle paquet est abandonné avec une métrique explicite ; file pleine : refus du\nnouveau paquet. Un blackout conserve la file, sans diffuser de fausses réceptions.\n\n## Localisation\n\nCaméra pinhole rectifiée : fx/fy/cx/cy, résolution, centre ENU et rotation\ncaméra-vers-ENU connus. Axes caméra : x droite, y bas, z avant.\nUn pixel de contact produit un rayon ; intersection avec le plan z=ground_z_m.\nRefuser les rayons parallèles, derrière la caméra ou hors portée et les pixels\ninvalides. Pour un rover mobile, la pose doit être fournie à chaque observation.\nUn rayon ne mesure pas la hauteur d'un obstacle ni la profondeur d'un cratère.\nL'incertitude est une estimation documentée basée sur perturbation du pixel et\nincertitude de pose, pas une probabilité garantie ou un substitut à calibration."
+          },
+          {
+            "digest": "432a9bc692d3969186c43105ca2790cd4fc043dd2507de595714e7c0cc2f0d30",
+            "lineEnd": 19,
+            "lineStart": 1,
+            "path": "D:\\space_esb_mission_dialogue\\docs\\assistant-knowledge.md",
+            "score": 0.34531731716183534,
+            "sourceId": "S2",
+            "text": "# Repères validés pour expliquer M2\n\n## Calibration et coordonnées\n\nDans LOCAL_ENU_V1, ENU signifie East, North, Up : x vers l'Est, y vers le Nord,\nz vers le haut. Les trois coordonnées sont en mètres et l'origine est le\nmarqueur convenu au début de la mission.\n\nUne détection M1 donne un pixel de contact dans une image. Un pixel n'est pas\nune distance en mètres. Pour projeter ce pixel, M2 utilise la calibration\n(fx, fy, cx, cy), le centre de la caméra en mètres et sa rotation vers ENU.\nIl construit un rayon puis son intersection avec un plan de sol connu.\nLa position du rover est fournie séparément par la source ; la calibration\nne permet pas à elle seule de mesurer la position du rover.\nUne vidéo NASA sans ces paramètres ne fournit pas des positions ENU métriques.\n\n## Pourquoi des pertes radio peuvent coexister avec une livraison complète\n\nUne trame est une observation unique. Un paquet DATA est une tentative de"
+          },
+          {
+            "digest": "71f139a0e3ae2b79f52d43f04b974ab1b4e4c63eacdd0260d6370539de23395d",
+            "lineEnd": 7,
+            "lineStart": 1,
+            "path": "D:\\space_esb_mission_dialogue\\docs\\knowledge\\nasa-video-cadence.md",
+            "score": 0.3434851334690844,
+            "sourceId": "S3",
+            "sourceUrl": "https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/",
+            "text": "# NASA — cadence de la vidéo de conduite du sol 130\nSource URL: https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/\nVerified on: 2026-10-10\n\nRésumé relu de la notice NASA. La séquence montre la conduite autonome de Perseverance du 1er juillet 2021, sol 130. Une caméra de navigation a pris les images environ tous les cinq mètres de déplacement. Leur contraste a été amélioré.\n\nConséquence pour nos essais : cinq mètres est un intervalle de distance, pas de temps. Sans les horaires d'acquisition, nous ne connaissons pas l'intervalle temporel entre ces images. Le FPS de lecture du MP4 ne donne donc pas la fréquence d'acquisition originale. L'amélioration du contraste change l'apparence des images ; elle n'explique pas cette différence de cadence. La calibration spatiale sert à la géométrie et ne détermine pas la cadence temporelle. Le tracking entre captures rapprochées reste à tester avec une autre séquence.",
+            "verifiedOn": "2026-10-10"
+          }
+        ],
+        "status": "answered",
+        "verification": "unverified_generated"
+      },
+      "state": "completed"
+    },
+    {
+      "attempt": 1,
+      "elapsedS": 2.1609441000036895,
+      "error": null,
+      "eventId": "1b8dc95b-8042-42b1-9601-838154f5ba3c",
+      "finishedAt": "2026-10-11T04:10:11.800Z",
+      "result": {
+        "answer": "Les sources disponibles ne permettent pas de répondre.",
+        "citedSourceIds": [],
+        "facts": null,
+        "limitations": "Generated explanations are unverified, never mission measurements or decisions. Citation IDs and numeric presence are checked, not semantic truth. Only the separate report facts are calculated deterministically; NASA/ESA references do not validate this rover. No rover control.",
+        "models": {
+          "embedding": "embeddinggemma:300m",
+          "llm": "qwen3:4b-instruct-2507-q4_K_M"
+        },
+        "reason": "unsupported_numeric_claim",
+        "roles": [
+          "retriever",
+          "report_analyst",
+          "explainer",
+          "citation_identity_validator"
+        ],
+        "sources": [
+          {
+            "digest": "420bbc54c2ec3b10259155074a50d65d0fc8ab0bdd6ba1f5e6166f3fe00d1566",
+            "lineEnd": 60,
+            "lineStart": 45,
+            "path": "D:\\space_esb_mission_dialogue\\docs\\m2-design.md",
+            "score": 0.3730449743677477,
+            "sourceId": "S1",
+            "text": "Stop-and-wait et file FIFO bornée conservent l'ordre attendu par M3. Les ACK perdus\nprovoquent des doublons radio supprimés à la station. Après limite d'essais,\nle paquet est abandonné avec une métrique explicite ; file pleine : refus du\nnouveau paquet. Un blackout conserve la file, sans diffuser de fausses réceptions.\n\n## Localisation\n\nCaméra pinhole rectifiée : fx/fy/cx/cy, résolution, centre ENU et rotation\ncaméra-vers-ENU connus. Axes caméra : x droite, y bas, z avant.\nUn pixel de contact produit un rayon ; intersection avec le plan z=ground_z_m.\nRefuser les rayons parallèles, derrière la caméra ou hors portée et les pixels\ninvalides. Pour un rover mobile, la pose doit être fournie à chaque observation.\nUn rayon ne mesure pas la hauteur d'un obstacle ni la profondeur d'un cratère.\nL'incertitude est une estimation documentée basée sur perturbation du pixel et\nincertitude de pose, pas une probabilité garantie ou un substitut à calibration."
+          },
+          {
+            "digest": "432a9bc692d3969186c43105ca2790cd4fc043dd2507de595714e7c0cc2f0d30",
+            "lineEnd": 19,
+            "lineStart": 1,
+            "path": "D:\\space_esb_mission_dialogue\\docs\\assistant-knowledge.md",
+            "score": 0.34531731716183534,
+            "sourceId": "S2",
+            "text": "# Repères validés pour expliquer M2\n\n## Calibration et coordonnées\n\nDans LOCAL_ENU_V1, ENU signifie East, North, Up : x vers l'Est, y vers le Nord,\nz vers le haut. Les trois coordonnées sont en mètres et l'origine est le\nmarqueur convenu au début de la mission.\n\nUne détection M1 donne un pixel de contact dans une image. Un pixel n'est pas\nune distance en mètres. Pour projeter ce pixel, M2 utilise la calibration\n(fx, fy, cx, cy), le centre de la caméra en mètres et sa rotation vers ENU.\nIl construit un rayon puis son intersection avec un plan de sol connu.\nLa position du rover est fournie séparément par la source ; la calibration\nne permet pas à elle seule de mesurer la position du rover.\nUne vidéo NASA sans ces paramètres ne fournit pas des positions ENU métriques.\n\n## Pourquoi des pertes radio peuvent coexister avec une livraison complète\n\nUne trame est une observation unique. Un paquet DATA est une tentative de"
+          },
+          {
+            "digest": "71f139a0e3ae2b79f52d43f04b974ab1b4e4c63eacdd0260d6370539de23395d",
+            "lineEnd": 7,
+            "lineStart": 1,
+            "path": "D:\\space_esb_mission_dialogue\\docs\\knowledge\\nasa-video-cadence.md",
+            "score": 0.3434851334690844,
+            "sourceId": "S3",
+            "sourceUrl": "https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/",
+            "text": "# NASA — cadence de la vidéo de conduite du sol 130\nSource URL: https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/\nVerified on: 2026-10-10\n\nRésumé relu de la notice NASA. La séquence montre la conduite autonome de Perseverance du 1er juillet 2021, sol 130. Une caméra de navigation a pris les images environ tous les cinq mètres de déplacement. Leur contraste a été amélioré.\n\nConséquence pour nos essais : cinq mètres est un intervalle de distance, pas de temps. Sans les horaires d'acquisition, nous ne connaissons pas l'intervalle temporel entre ces images. Le FPS de lecture du MP4 ne donne donc pas la fréquence d'acquisition originale. L'amélioration du contraste change l'apparence des images ; elle n'explique pas cette différence de cadence. La calibration spatiale sert à la géométrie et ne détermine pas la cadence temporelle. Le tracking entre captures rapprochées reste à tester avec une autre séquence.",
+            "verifiedOn": "2026-10-10"
+          }
+        ],
+        "status": "insufficient_evidence",
+        "verification": "not_generated"
+      },
+      "state": "completed"
+    },
+    {
+      "attempt": 1,
+      "elapsedS": 2.228841600008309,
+      "error": null,
+      "eventId": "53b39ac2-5b8e-40f8-bb4f-109eadfa1ce1",
+      "finishedAt": "2026-10-11T04:10:15.283Z",
+      "result": {
+        "answer": "Les sources disponibles ne permettent pas de répondre.",
+        "citedSourceIds": [],
+        "facts": null,
+        "limitations": "Generated explanations are unverified, never mission measurements or decisions. Citation IDs and numeric presence are checked, not semantic truth. Only the separate report facts are calculated deterministically; NASA/ESA references do not validate this rover. No rover control.",
+        "models": {
+          "embedding": "embeddinggemma:300m",
+          "llm": "qwen3:4b-instruct-2507-q4_K_M"
+        },
+        "reason": "contradicts_observation_availability",
+        "roles": [
+          "retriever",
+          "report_analyst",
+          "explainer",
+          "citation_identity_validator"
+        ],
+        "sources": [
+          {
+            "digest": "432a9bc692d3969186c43105ca2790cd4fc043dd2507de595714e7c0cc2f0d30",
+            "lineEnd": 19,
+            "lineStart": 1,
+            "path": "D:\\space_esb_mission_dialogue\\docs\\assistant-knowledge.md",
+            "score": 0.3345522074053916,
+            "sourceId": "S1",
+            "text": "# Repères validés pour expliquer M2\n\n## Calibration et coordonnées\n\nDans LOCAL_ENU_V1, ENU signifie East, North, Up : x vers l'Est, y vers le Nord,\nz vers le haut. Les trois coordonnées sont en mètres et l'origine est le\nmarqueur convenu au début de la mission.\n\nUne détection M1 donne un pixel de contact dans une image. Un pixel n'est pas\nune distance en mètres. Pour projeter ce pixel, M2 utilise la calibration\n(fx, fy, cx, cy), le centre de la caméra en mètres et sa rotation vers ENU.\nIl construit un rayon puis son intersection avec un plan de sol connu.\nLa position du rover est fournie séparément par la source ; la calibration\nne permet pas à elle seule de mesurer la position du rover.\nUne vidéo NASA sans ces paramètres ne fournit pas des positions ENU métriques.\n\n## Pourquoi des pertes radio peuvent coexister avec une livraison complète\n\nUne trame est une observation unique. Un paquet DATA est une tentative de"
+          },
+          {
+            "digest": "420bbc54c2ec3b10259155074a50d65d0fc8ab0bdd6ba1f5e6166f3fe00d1566",
+            "lineEnd": 60,
+            "lineStart": 45,
+            "path": "D:\\space_esb_mission_dialogue\\docs\\m2-design.md",
+            "score": 0.3150051926512102,
+            "sourceId": "S2",
+            "text": "Stop-and-wait et file FIFO bornée conservent l'ordre attendu par M3. Les ACK perdus\nprovoquent des doublons radio supprimés à la station. Après limite d'essais,\nle paquet est abandonné avec une métrique explicite ; file pleine : refus du\nnouveau paquet. Un blackout conserve la file, sans diffuser de fausses réceptions.\n\n## Localisation\n\nCaméra pinhole rectifiée : fx/fy/cx/cy, résolution, centre ENU et rotation\ncaméra-vers-ENU connus. Axes caméra : x droite, y bas, z avant.\nUn pixel de contact produit un rayon ; intersection avec le plan z=ground_z_m.\nRefuser les rayons parallèles, derrière la caméra ou hors portée et les pixels\ninvalides. Pour un rover mobile, la pose doit être fournie à chaque observation.\nUn rayon ne mesure pas la hauteur d'un obstacle ni la profondeur d'un cratère.\nL'incertitude est une estimation documentée basée sur perturbation du pixel et\nincertitude de pose, pas une probabilité garantie ou un substitut à calibration."
+          },
+          {
+            "digest": "71f139a0e3ae2b79f52d43f04b974ab1b4e4c63eacdd0260d6370539de23395d",
+            "lineEnd": 7,
+            "lineStart": 1,
+            "path": "D:\\space_esb_mission_dialogue\\docs\\knowledge\\nasa-video-cadence.md",
+            "score": 0.31379390290156284,
+            "sourceId": "S3",
+            "sourceUrl": "https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/",
+            "text": "# NASA — cadence de la vidéo de conduite du sol 130\nSource URL: https://science.nasa.gov/resource/perseverance-rover-camera-view-of-long-autonomous-drive/\nVerified on: 2026-10-10\n\nRésumé relu de la notice NASA. La séquence montre la conduite autonome de Perseverance du 1er juillet 2021, sol 130. Une caméra de navigation a pris les images environ tous les cinq mètres de déplacement. Leur contraste a été amélioré.\n\nConséquence pour nos essais : cinq mètres est un intervalle de distance, pas de temps. Sans les horaires d'acquisition, nous ne connaissons pas l'intervalle temporel entre ces images. Le FPS de lecture du MP4 ne donne donc pas la fréquence d'acquisition originale. L'amélioration du contraste change l'apparence des images ; elle n'explique pas cette différence de cadence. La calibration spatiale sert à la géométrie et ne détermine pas la cadence temporelle. Le tracking entre captures rapprochées reste à tester avec une autre séquence.",
+            "verifiedOn": "2026-10-10"
+          }
+        ],
+        "status": "insufficient_evidence",
+        "verification": "not_generated"
+      },
+      "state": "completed"
+    }
+  ],
+  "reviews": [
+    {
+      "authority": "operator-reported",
+      "eventId": "1ec7e822-ed20-4db6-9f5e-a61800f162d6",
+      "note": "Technical validation review only: generated explanation remains unverified. Capture and receipt timestamps are present. No driving decision is supplied.",
+      "reviewId": "68daf36f-4311-42f9-8a2b-d1d333622202",
+      "reviewedAt": "2026-10-11T04:12:35.375Z",
+      "verdict": "inconclusive"
+    }
+  ]
+}
