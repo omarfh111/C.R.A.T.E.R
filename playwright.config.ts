@@ -35,6 +35,9 @@ export default defineConfig({
   reporter: CI
     ? [
         ['list'],
+        // Emits ::error annotations, so a failure is legible on the run page and through the
+        // public check-run annotations API without downloading the job log.
+        ['github'],
         ['html', { outputFolder: 'playwright-report', open: 'never' }],
         ['junit', { outputFile: 'test-results/browser-e2e-junit.xml' }],
       ]
