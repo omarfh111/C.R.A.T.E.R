@@ -186,7 +186,9 @@ jobs:
           pip-audit --format json --progress-spinner off --output "$RUNNER_TEMP/audit.json"             2> "$RUNNER_TEMP/audit.err" || true
           cat "$RUNNER_TEMP/audit.err"
           if [ ! -s "$RUNNER_TEMP/audit.json" ]; then
-            echo "::error title=pip-audit::pip-audit produced no report; see the stderr above."
+            # Annotate the tool's own diagnosis so the failure is legible without the job log.
+            while IFS= read -r line; do echo "::error title=pip-audit::${line}"; done < "$RUNNER_TEMP/audit.err"
+            echo "::error title=pip-audit::pip-audit produced no report."
             exit 1
           fi
 
@@ -237,7 +239,9 @@ jobs:
           pip-audit --no-deps --requirement "$RUNNER_TEMP/onnx-pins.txt" --format json             --progress-spinner off --output "$RUNNER_TEMP/audit.json"             2> "$RUNNER_TEMP/audit.err" || true
           cat "$RUNNER_TEMP/audit.err"
           if [ ! -s "$RUNNER_TEMP/audit.json" ]; then
-            echo "::error title=pip-audit::pip-audit produced no report; see the stderr above."
+            # Annotate the tool's own diagnosis so the failure is legible without the job log.
+            while IFS= read -r line; do echo "::error title=pip-audit::${line}"; done < "$RUNNER_TEMP/audit.err"
+            echo "::error title=pip-audit::pip-audit produced no report."
             exit 1
           fi
 
