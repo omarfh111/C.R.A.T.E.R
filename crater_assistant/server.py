@@ -280,6 +280,10 @@ def make_server(assistant, port=8766, report=None, *, allowed_origins=DEFAULT_OR
                         result = assistant.ask(question, top_k, report)
                     else:
                         context = {key: incident[key] for key in ("kind", "summary", "provenance")}
+                        context["observationEvidence"] = {"observationAvailable": incident.get("frame") is not None,
+                            "captureTimestampAvailable": incident.get("frame") is not None,
+                            "receiptTimestampAvailable": incident.get("receivedAt") is not None,
+                            "clockAlignmentEstablished": False, "imageInterpretationPerformed": False}
                         result = assistant.ask(question, top_k, context=context)
                 if result.get("reason") == "invalid_model_response":
                     raise AssistantInvalidResponse("Generated answer failed citation or response validation")
@@ -308,5 +312,5 @@ def serve(assistant, port=8766, report=None, *, allowed_origins=DEFAULT_ORIGINS,
         raise ValueError("port must be 1..65535")
     with make_server(assistant, port, report, allowed_origins=allowed_origins, request_timeout=request_timeout, capture_guard=capture_guard, journal=journal) as server:
         print(f"Assistant: http://127.0.0.1:{port} (read-only, separate from telemetry)", flush=True)
-        print("Only operator-triggered inference; client cancellation does not guarantee model termination.", flush=True)
+        print("Manual questions and optional post-capture jobs share one inference slot; client cancellation does not guarantee model termination.", flush=True)
         server.serve_forever()

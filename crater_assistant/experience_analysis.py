@@ -1,6 +1,7 @@
 """One durable, bounded post-capture worker; uses the current guarded HTTP engine."""
 import json
 import os
+import re
 import sqlite3
 import threading
 import time
@@ -27,13 +28,26 @@ class RemoteAssistant:
     def request(self, path, body=None):
         request = Request(self.url + path, data=None if body is None else dump(body).encode(),
                           headers={"Content-Type": "application/json", "Accept": "application/json"})
+        deadline = time.monotonic() + self.timeout
+        def remaining():
+            value = deadline - time.monotonic()
+            if value <= 0:
+                raise TimeoutError("Remote assistant deadline exceeded")
+            return value
         try:
-            with self.opener.open(request, timeout=self.timeout) as response:
+            with self.opener.open(request, timeout=remaining()) as response:
                 if response.status != 200 or response.geturl() != self.url + path:
                     raise ValueError("unexpected response or redirect")
-                data = response.read(512001)
-                if len(data) > 512000:
-                    raise ValueError("response exceeds limit")
+                data = bytearray()
+                while not response.isclosed():
+                    response.fp.raw._sock.settimeout(remaining())
+                    chunk = response.read1(min(65536, 512001-len(data)))
+                    remaining()
+                    if not chunk:
+                        break
+                    data.extend(chunk)
+                    if len(data) > 512000:
+                        raise ValueError("response exceeds limit")
                 value = json.loads(data)
                 if not isinstance(value, dict):
                     raise ValueError("invalid response")
@@ -52,9 +66,22 @@ class RemoteAssistant:
                 or not isinstance(result.get("answer"), str) or not isinstance(result.get("sources"), list)
                 or result.get("verification") not in {"unverified_generated", "not_generated"}):
             raise ValueError("invalid incident answer")
-        known = {s["sourceId"] for s in result["sources"] if isinstance(s, dict) and "sourceId" in s}
-        if any(i not in known for i in result.get("citedSourceIds", [])):
-            raise ValueError("invalid citations")
+        if (not 0 < len(result["answer"]) <= 8000 or len(result["sources"]) > 9
+                or not isinstance(result.get("citedSourceIds"), list)):
+            raise ValueError("invalid bounded answer")
+        known = []
+        for source in result["sources"]:
+            if (not isinstance(source, dict) or not isinstance(source.get("sourceId"), str)
+                    or not re.fullmatch(r"S[1-9]", source["sourceId"])
+                    or not isinstance(source.get("text"), str) or not 0 < len(source["text"]) <= 32000
+                    or not isinstance(source.get("digest"), str) or not re.fullmatch(r"[0-9a-f]{64}", source["digest"])):
+                raise ValueError("invalid returned source")
+            known.append(source["sourceId"])
+        cited = result["citedSourceIds"]
+        if (len(known) != len(set(known)) or any(not isinstance(i, str) or i not in known for i in cited)
+                or len(cited) != len(set(cited)) or set(re.findall(r"\[(S\d+)\]", result["answer"])) != set(cited)
+                or (result["status"] == "answered" and (not cited or result["verification"] != "unverified_generated"))):
+            raise ValueError("invalid citations or verification")
         return result
 
 
@@ -79,6 +106,10 @@ class ExperienceWorker:
             self.lease.close()
             raise ValueError("another worker owns this journal") from None
         with journal.connect() as db:
+            for event_id, attempt in db.execute("SELECT event_id,attempt FROM jobs WHERE state IN ('running','cancelling')").fetchall():
+                db.execute("INSERT INTO attempts(event_id,attempt,payload) VALUES (?,?,?)", (event_id, attempt,
+                    dump(dict(eventId=event_id, attempt=attempt, state="interrupted", result=None, elapsedS=None,
+                              error="Worker interrupted; backend termination unknown", finishedAt=now()))))
             db.execute("UPDATE jobs SET state='interrupted',error=?,updated=? WHERE state IN ('running','cancelling')",
                        ("Worker interrupted; backend termination unknown; explicit retry required", now()))
         self.thread = threading.Thread(target=self.run, daemon=True, name="crater-post-capture")
@@ -98,7 +129,7 @@ class ExperienceWorker:
             while not self.stop.is_set():
                 try:
                     self.tick()
-                except (OSError, ValueError, sqlite3.Error) as exc:
+                except Exception as exc:
                     self.error = type(exc).__name__  # Fail closed; no private paths/text in health.
                     break
                 self.stop.wait(self.interval)
@@ -147,8 +178,9 @@ class ExperienceWorker:
             # Bounded storage independently validates serialization before committing.
             dump(result)
             state = "completed"
-        except (OSError, RuntimeError, ValueError) as exc:
-            error = str(exc) if isinstance(exc, RuntimeError) else type(exc).__name__
+        except (OSError, RuntimeError, ValueError, KeyError, TypeError) as exc:
+            result = None
+            error = str(exc)[:1000] if isinstance(exc, RuntimeError) else type(exc).__name__
             state = "waiting_service" if error in {"busy", "unavailable"} and attempt < 3 else "failed"
         with self.journal.connect() as db:
             record = dict(eventId=event_id, attempt=attempt, state=state, error=error,
