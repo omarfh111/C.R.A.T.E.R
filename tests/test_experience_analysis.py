@@ -104,7 +104,8 @@ def test_cancellation_does_not_release_single_worker_while_backend_runs(tmp_path
     try:
         assert started.wait(2)
         journal.cancel(eid)
-        assert journal.list()[0]["job"]["state"] == "cancelled"
+        assert journal.list()[0]["job"]["state"] == "cancelling"
+        with pytest.raises(ValueError): journal.retry(eid)
         with pytest.raises(ValueError): ExperienceWorker(journal, remote, start=False)
         finish.set(); worker.close()
         assert journal.list()[0]["job"]["state"] == "cancelled"

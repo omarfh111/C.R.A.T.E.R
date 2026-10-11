@@ -57,7 +57,7 @@ export function parseAssistantAnswer(v: unknown): AssistantAnswer {
     || (v.status === 'answered' && cited.length === 0)) return fail('Answer citations do not match the returned evidence.');
   return v as unknown as AssistantAnswer;
 }
-export function createAssistantClient(options: { baseUrl?: string; timeoutMs?: number; fetch?: typeof fetch } = {}) {
+export function createLocalRequest(options: { baseUrl?: string; timeoutMs?: number; fetch?: typeof fetch } = {}) {
   let base: URL;
   try { base = new URL(options.baseUrl ?? 'http://127.0.0.1:8766'); } catch { throw new AssistantError('invalid_request', 'Enter a loopback HTTP service URL.'); }
   if (base.protocol !== 'http:' || !['127.0.0.1', 'localhost', '[::1]'].includes(base.hostname)
@@ -112,6 +112,11 @@ export function createAssistantClient(options: { baseUrl?: string; timeoutMs?: n
       throw new AssistantError('unavailable', 'Cannot reach the local assistant. Check the service URL and its allowed dashboard origin.');
     } finally { clearTimeout(timer); signal?.removeEventListener('abort', cancel); }
   }
+  return request;
+}
+export function createAssistantClient(options: { baseUrl?: string; timeoutMs?: number; fetch?: typeof fetch } = {}) {
+  const request = createLocalRequest(options);
+  const timeoutMs = options.timeoutMs ?? 120_000;
   return {
     async health(signal?: AbortSignal): Promise<AssistantHealth> {
       const v = await request('/health', undefined, signal, Math.min(timeoutMs, 5000));

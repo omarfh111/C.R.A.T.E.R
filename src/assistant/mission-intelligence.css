@@ -49,3 +49,5 @@
 .mi__source-meta { font-family: var(--mc-mono); font-size: 7.5px; line-height: 1.5; color: var(--mc-dim); overflow-wrap: anywhere; }
 .mi__limitations { font-size: 10px; color: var(--mc-amber); line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
 .mi__footnote { margin-bottom: 0; font-size: 9px; }
+
+.mi__field select { max-width: 100%; padding: 7px; background: var(--mc-void); color: var(--mc-text); border: 1px solid var(--mc-line); font: inherit; }

@@ -2,6 +2,7 @@
 import json
 from pathlib import Path
 import queue
+import sys
 import threading
 import uuid
 
@@ -22,7 +23,7 @@ class ProducerJournal:
         self.dropped = self.failed = self.recorded = 0
         self.thread = threading.Thread(target=self.run, daemon=True, name="crater-incident-writer")
         self.thread.start()
-        print(f"Incident session: {self.session['sessionId']} ({provenance}; radio simulated)", flush=True)
+        print(f"Incident session: {self.session['sessionId']} ({provenance}; radio simulated)", file=sys.stderr, flush=True)
 
     def warning(self, summary, frame=None):
         payload = dict(eventId=str(uuid.uuid4()), sessionId=self.session["sessionId"], kind="producer_warning",

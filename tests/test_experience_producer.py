@@ -45,3 +45,11 @@ def test_journal_failure_cannot_break_rover(tmp_path):
     # A directory cannot be opened as SQLite; optional journal must fail independently.
     args = arguments(["--benchmark","--duration",".1", "--incident-journal",str(tmp_path), "--report",str(tmp_path/"r.json"), "--received-jsonl",str(tmp_path/"r.jsonl")])
     assert asyncio.run(execute(args))["completed"]
+
+
+def test_journal_preserves_station_ready_protocol_for_real_websocket(tmp_path):
+    from crater_m2.validation import capture_pipeline
+    source=Path(__file__).resolve().parents[1]/"examples/m1-onnx-calibrated/observations.jsonl"
+    result=asyncio.run(capture_pipeline(["--input",str(source),"--input-ground-z","0","--duration",".2","--fps","5","--bandwidth","4096","--latency",".001","--jitter","0","--no-blackout","--loss","0","--incident-journal",str(tmp_path/"j.db")],tmp_path/"capture"))
+    assert result["webSocketFrames"] == 1
+    assert result["socketMatchesDecodedFrames"]

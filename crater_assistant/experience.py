@@ -13,15 +13,16 @@ import uuid
 
 from crater_m2.contract import timestamp, utc_iso, validate_frame
 
-KINDS = {"telemetry_stale", "websocket_changed", "radio_changed", "producer_warning", "operator_note"}
+KINDS = {"telemetry_stale", "websocket_changed", "radio_changed", "producer_warning", "operator_note", "dashboard_warning"}
 QUESTIONS = {
     "telemetry_stale": "Explain evidence limitations when observations are delayed. Do not infer the cause or estimate mission measurements.",
     "websocket_changed": "Explain why a dashboard connection change does not establish the rover radio state or a perception failure.",
     "radio_changed": "Explain the limits of interpreting a declared communication state, using scientific references where relevant.",
     "producer_warning": "Explain the limitations of camera localization and tracking evidence. Do not diagnose a cause beyond the producer warning.",
+    "dashboard_warning": "Explain why invalid or rejected data cannot establish mission observations, measurements or failure causes.",
     "operator_note": "Explain the scientific context of this operator note without inventing mission measurements or decisions.",
 }
-ACTIVE = ("waiting_capture", "queued", "waiting_service", "running")
+ACTIVE = ("waiting_capture", "queued", "waiting_service", "running", "cancelling")
 
 
 def now():
@@ -184,6 +185,12 @@ class Journal:
             session = json.loads(row[0])
             if event.get("frame") and event["frame"]["roverId"] != session["roverId"]:
                 raise ValueError("observation rover differs from session")
+            if not producer and event.get("frame") is not None:
+                if event.get("receivedAt") is None:
+                    raise ValueError("dashboard observation requires receipt timestamp")
+                received = timestamp(event["receivedAt"])
+                if received < timestamp(session["startedAt"]) or (session["endedAt"] and received > timestamp(session["endedAt"])):
+                    raise ValueError("receipt outside explicitly selected producer session")
             # Rate limit each incident kind/key durably, independent of browser reloads.
             duplicate = db.execute("SELECT payload FROM incidents WHERE session=? AND kind=? AND trigger_key=? AND recorded>? ORDER BY recorded DESC LIMIT 1",
                 (session_id, kind, event["triggerKey"], at-30)).fetchone()
@@ -196,7 +203,7 @@ class Journal:
                                          reporter="m2-producer" if producer else "dashboard-client-reported-v1",
                                          certifiedMeasurement=False), images=images, submitted=event)
             db.execute("INSERT INTO incidents VALUES (?,?,?,?,?,?)", (event_id, session_id, kind, event["triggerKey"], at, dump(saved)))
-            count = db.execute("SELECT COUNT(*) FROM jobs WHERE state IN (?,?,?,?)", ACTIVE).fetchone()[0]
+            count = db.execute("SELECT COUNT(*) FROM jobs WHERE state IN (?,?,?,?,?)", ACTIVE).fetchone()[0]
             state = "saturated" if count >= self.capacity else ("waiting_capture" if session["phase"] == "capturing" else "queued")
             db.execute("INSERT INTO jobs(event_id,state,updated,expires) VALUES (?,?,?,?)", (event_id, state, now(), at+3600))
         return saved
@@ -211,7 +218,16 @@ class Journal:
     def list(self):
         with self.connect() as db:
             rows = db.execute("SELECT i.payload,j.state,j.attempt,j.result,j.error,j.updated FROM incidents i JOIN jobs j ON i.id=j.event_id ORDER BY i.rowid DESC LIMIT 50")
-            return [dict(json.loads(r[0]), job=dict(state=r[1], attempt=r[2], result=json.loads(r[3]) if r[3] else None, error=r[4], updatedAt=r[5])) for r in rows]
+            output, size = [], 0
+            for r in rows:
+                incident = json.loads(r[0]); incident.pop("submitted", None)
+                incident["reviews"] = [json.loads(row[0]) for row in db.execute("SELECT payload FROM reviews WHERE event_id=? ORDER BY rowid DESC LIMIT 10", (incident["eventId"],))]
+                incident["job"] = dict(state=r[1], attempt=r[2], result=json.loads(r[3]) if r[3] else None, error=r[4], updatedAt=r[5])
+                size += len(dump(incident).encode())
+                if size > 400000 or len(output) >= 20:
+                    break
+                output.append(incident)
+            return output
 
     def update_job(self, event_id, state, *, result=None, error=None, attempt=None, next_at=0):
         with self.connect() as db:
@@ -225,7 +241,7 @@ class Journal:
             row = db.execute("SELECT state,attempt FROM jobs WHERE event_id=?", (event_id,)).fetchone()
             if row[0] not in {"failed", "cancelled", "interrupted", "saturated", "unavailable"} or row[1] >= 3:
                 raise ValueError("job active or attempt limit reached")
-            if db.execute("SELECT COUNT(*) FROM jobs WHERE state IN (?,?,?,?)", ACTIVE).fetchone()[0] >= self.capacity:
+            if db.execute("SELECT COUNT(*) FROM jobs WHERE state IN (?,?,?,?,?)", ACTIVE).fetchone()[0] >= self.capacity:
                 raise ValueError("analysis queue saturated")
             session = json.loads(db.execute("SELECT payload FROM sessions WHERE id=?", (event["sessionId"],)).fetchone()[0])
             db.execute("UPDATE jobs SET state=?,error=NULL,updated=?,next_at=0,expires=? WHERE event_id=?",
@@ -234,7 +250,7 @@ class Journal:
     def cancel(self, event_id):
         self.get(event_id)
         with self.connect() as db:
-            db.execute("UPDATE jobs SET state='cancelled',error=?,updated=? WHERE event_id=? AND state IN (?,?,?,?)",
+            db.execute("UPDATE jobs SET state=CASE WHEN state='running' THEN 'cancelling' ELSE 'cancelled' END,error=?,updated=? WHERE event_id=? AND state IN (?,?,?,?,?)",
                        ("Operator cancelled; backend inference may continue until deadline", now(), event_id, *ACTIVE))
 
     def review(self, event_id, verdict, note):

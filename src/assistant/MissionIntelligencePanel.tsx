@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, type ReactNode } from 'react'
 import { AssistantError, createAssistantClient, type AssistantAnswer, type AssistantErrorCode, type AssistantHealth } from '../../integrations/m3-assistant-client'
 import type { MissionIntelligence } from './missionIntelligence'
 import './mission-intelligence.css'
@@ -8,7 +8,7 @@ const labels: Record<Phase, string> = {
   disabled: 'OFFLINE BY DEFAULT', checking: 'CHECKING SERVICE', ready: 'HTTP READY', loading: 'GENERATING', answered: 'UNVERIFIED EXPLANATION',
   insufficient_evidence: 'INSUFFICIENT EVIDENCE', unavailable: 'UNAVAILABLE', busy: 'BUSY', timeout: 'TIMED OUT', failed: 'FAILED', invalid_response: 'INVALID RESPONSE', cancelled: 'CANCELLED', invalid_request: 'INVALID REQUEST',
 }
-export function MissionIntelligencePanel({ intelligence }: { intelligence: MissionIntelligence }) {
+export function MissionIntelligencePanel({ intelligence, children }: { intelligence: MissionIntelligence; children?: ReactNode }) {
   const [open, setOpen] = useState(true)
   const [baseUrl, setBaseUrl] = useState<string>(import.meta.env.VITE_ASSISTANT_URL || 'http://127.0.0.1:8766')
   const [question, setQuestion] = useState('How does NASA Perseverance use cameras during autonomous driving?')
@@ -69,6 +69,7 @@ export function MissionIntelligencePanel({ intelligence }: { intelligence: Missi
         <div className="mi__label"><span className={`mi__dot${intelligence.stale ? ' mi__dot--aged' : ''}`} /><span>ACCEPTED TELEMETRY · NO LLM</span></div>
         {intelligence.facts.length === 0 ? <p className="mi__note">{intelligence.summary}</p> : <dl className="mi__facts">{intelligence.facts.map(f => <div key={f.label}><dt>{f.label}</dt><dd>{f.text}</dd></div>)}</dl>}
         <details className="mi__integrity"><summary>Evidence boundaries</summary><p>{intelligence.limitations}</p></details>
+        {children}
         <details className="mi__science">
           <summary><span>LOCAL AI · SCIENCE CONTEXT</span><span className="mi__optional">OPTIONAL</span></summary>
           <div className="mi__science-body">

@@ -79,7 +79,7 @@ class ExperienceWorker:
             self.lease.close()
             raise ValueError("another worker owns this journal") from None
         with journal.connect() as db:
-            db.execute("UPDATE jobs SET state='interrupted',error=?,updated=? WHERE state='running'",
+            db.execute("UPDATE jobs SET state='interrupted',error=?,updated=? WHERE state IN ('running','cancelling')",
                        ("Worker interrupted; backend termination unknown; explicit retry required", now()))
         self.thread = threading.Thread(target=self.run, daemon=True, name="crater-post-capture")
         if start:
@@ -155,6 +155,8 @@ class ExperienceWorker:
                           elapsedS=time.perf_counter()-started, finishedAt=now(), result=result)
             db.execute("INSERT INTO attempts(event_id,attempt,payload) VALUES (?,?,?)", (event_id, attempt, dump(record)))
             current = db.execute("SELECT state FROM jobs WHERE event_id=?", (event_id,)).fetchone()[0]
-            if current != "cancelled":
+            if current == "cancelling":
+                db.execute("UPDATE jobs SET state='cancelled',updated=? WHERE event_id=?", (now(), event_id))
+            elif current != "cancelled":
                 db.execute("UPDATE jobs SET state=?,result=?,error=?,updated=?,next_at=? WHERE event_id=?",
                            (state, dump(result) if result else None, error, now(), at+10, event_id))
