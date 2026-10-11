@@ -1,4 +1,4 @@
-param([switch]$NoBrowser)
+param([switch]$NoBrowser, [switch]$AutoExit)
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'demo-common.ps1')
 $frontend = $null
@@ -35,6 +35,10 @@ try {
     }
     Write-Host "Replay complete. Historical capture timestamps were preserved. Report: $run"
     Write-Host 'M2 delivered 30/30. Confirm M3 shows ACCEPTED 30 in the browser.'
+    Write-Host 'M2 has stopped. Mission Control retains the last accepted telemetry and shows the station disconnected.'
+    if (-not $AutoExit) {
+        Read-Host 'Dashboard available for inspection. Press Enter or Ctrl+C to exit and release its ports' | Out-Null
+    }
 } catch { Write-Error "Demo failed: $_"; exit 1 }
 finally {
     Stop-DemoFrontend $frontend
