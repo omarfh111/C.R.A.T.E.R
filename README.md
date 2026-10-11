@@ -76,9 +76,9 @@ the scarce resource, not the compute.
 - **Hazards leave as geometry, not pixels.** Each detected ground-contact point is projected
   through known camera intrinsics and pose into `LOCAL_ENU_V1` metres with an uncertainty radius —
   so Mission Control receives a position it can act on, not a bounding box it must re-interpret.
-- **The wire format is budgeted.** A frame carrying a rover pose and three hazards is 177 bytes of
-  binary against 1,001 bytes of equivalent JSON. Across the validated lossy run, every DATA packet,
-  retransmission and ACK together came to 35.7% of the original JSON byte count.
+- **The wire format is budgeted.** A rover pose with three hazards encodes to exactly 163 bytes;
+  across the validated run binary frames averaged 177 bytes against 1,001 bytes of equivalent JSON.
+  Every DATA packet, retransmission and ACK together came to 35.7% of the original JSON byte count.
 - **Degradation is designed for, not hidden.** Frames queue in a bounded queue, retransmit after
   lost ACKs, and arrive out of their original wall-clock window. Mission Control holds its last
   accepted state, marks its age STALE, and rejects anything that fails the contract — rather than
@@ -120,7 +120,7 @@ flowchart LR
   subgraph M2["M2 · Spatial telemetry"]
     direction TB
     P["observation_to_frame<br/>pixel → LOCAL_ENU_V1 metres"]
-    E["Binary encoder<br/>42 B header · CRC32 · 177 B/frame"]
+    E["Binary encoder<br/>42 B header · CRC32 · mean 177 B/frame"]
     R["Lossy radio simulation<br/>4096 B/s · 25% loss · blackout"]
     S["Station decoder<br/>ACK · retransmit · dedupe"]
     P --> E --> R --> S
@@ -150,7 +150,7 @@ sequenceDiagram
     participant M as Mission Control
 
     Note over R: Simulated medium: 4096 B/s, 25% packet loss, seed 7
-    P->>Q: frame N · 177 B binary
+    P->>Q: frame N · 163 B binary
     Q->>R: DATA
     R->>S: delivered
     S-->>R: ACK
