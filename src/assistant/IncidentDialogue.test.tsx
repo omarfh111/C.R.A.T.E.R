@@ -62,3 +62,13 @@ it('pauses a rejected event without blocking session refresh',async()=>{
  expect(localStorage.getItem(`crater-incident-outbox:http://127.0.0.1:8767:${session.sessionId}`)).toContain('websocket_changed')
  expect(fetch.mock.calls.filter(call=>call[0].endsWith('/sessions')).length).toBeGreaterThan(1)
 })
+
+it('shows capture completion without claiming a new mismatched observation',async()=>{
+ const ended={...session,phase:'completed',endedAt:new Date(Date.now()-60000).toISOString()}
+ const fetch=vi.fn(async(url:string,_options?:RequestInit)=>new Response(JSON.stringify(url.endsWith('/sessions')?{sessions:[ended]}:{incidents:[]}),{headers:{'content-type':'application/json'}}));vi.stubGlobal('fetch',fetch)
+ render(<IncidentDialogue state={initialTelemetryState} mode="LIVE" now={Date.now()} staleThresholdMs={3000}/>)
+ fireEvent.click(screen.getByText('CONNECT JOURNAL'));await screen.findByLabelText('Producer session')
+ fireEvent.change(screen.getByLabelText('Producer session'),{target:{value:session.sessionId}})
+ await screen.findByText(/Capture completed; incident collection is closed/)
+ expect(fetch.mock.calls.some(call=>call[1]?.method==='POST')).toBe(false)
+})

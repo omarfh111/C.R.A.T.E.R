@@ -59,7 +59,7 @@ export function IncidentDialogue({state,mode,now,staleThresholdMs}:Props) {
           }
           if(sendFailure.current.attempts>=3)deliveryError='Pending event delivery paused after rejection or three attempts. Events remain locally stored; inspect the session and retry explicitly.'
         }
-        if(!disposed)setMessage(deliveryError||(wrongRover||afterSession||closingExpired?'Selected session does not match this new observation. Select the new producer session to resume collection.':`${outbox.current.length} pending browser events. Analyses require explicit producer completion and an idle guarded AI service.`))
+        if(!disposed)setMessage(deliveryError||(wrongRover||afterSession?'Selected session does not match this new observation. Select the new producer session to resume collection.':closingExpired?'Capture completed; incident collection is closed. Saved analyses continue after capture.':`${outbox.current.length} pending browser events. Analyses require explicit producer completion and an idle guarded AI service.`))
       }catch {if(!disposed)setMessage('Collector unavailable or invalid response. Pending events are retained locally; bounded retry continues.')}finally{pending.current=false}
     }
     void tick();const timer=setInterval(()=>void tick(),1000)
