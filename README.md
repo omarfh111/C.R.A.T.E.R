@@ -59,7 +59,7 @@ The launcher opens Mission Control and prints its local `http://127.0.0.1:<port>
 
 **Continuous raw-video transmission is costly over a constrained space communication link.** Every stage of C.R.A.T.E.R. exists because the link is the scarce resource, not the compute.
 
-- **Detection stays on the rover.** Grounding DINO Tiny runs locally through ONNX Runtime and DirectML, offline from a pinned model cache. No cloud, no API key, no network at inference time.
+- **Detection stays in the emulated rover pipeline.** Grounding DINO Tiny runs locally through ONNX Runtime and DirectML, offline from a pinned model cache. No cloud, no API key, no network at inference time.
 - **Hazards leave as geometry, not pixels.** Each detected ground-contact point is projected through known camera intrinsics and pose into `LOCAL_ENU_V1` metres with an uncertainty radius — so Mission Control receives a position it can act on, not a bounding box it must re-interpret.
 - **The wire format is budgeted.** A rover pose with three hazards encodes to exactly 163 bytes; across the validated run binary frames averaged 177 bytes against 1,001 bytes of equivalent JSON. Every DATA packet, retransmission and ACK together came to 35.7% of the original JSON byte count.
 - **Degradation is designed for, not hidden.** Frames queue in a bounded queue, retransmit after lost ACKs, and arrive out of their original wall-clock window. Mission Control holds its last accepted state, marks its age STALE, and rejects anything that fails the contract — rather than showing nothing, or showing something it cannot vouch for.
@@ -86,7 +86,7 @@ Detection, calculated geometry, simulated communications and dashboard visualisa
 
 ### End-to-end data path
 
-Detection and tracking run on the rover; only encoded geometry crosses the radio.
+Detection and tracking run in the emulated rover pipeline; only encoded geometry crosses the radio.
 
 ```mermaid
 flowchart TB
