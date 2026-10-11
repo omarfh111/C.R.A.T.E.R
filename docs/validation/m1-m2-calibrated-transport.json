@@ -1,0 +1,196 @@
+{
+  "m1Commit": "45cbf2f551bcf162709cd3dc0d8d6f4e86c1f35a",
+  "scope": "Simulated calibrated detections validate geometry and transport, not ONNX inference or RTX 5070 performance. No ONNX weights downloaded on M2 PC.",
+  "cases": {
+    "replay": {
+      "webSocketFrames": 12,
+      "socketMatchesDecodedFrames": true,
+      "m2Report": {
+        "schemaVersion": 1,
+        "mode": "live",
+        "simulatedElapsedS": 3.4967628000013065,
+        "wallElapsedS": 3.4973679000013362,
+        "completed": true,
+        "cancelled": false,
+        "source": {
+          "source": "m1-calibrated-jsonl",
+          "rejectedDetections": 0
+        },
+        "transport": {
+          "generated": 12,
+          "enqueued": 12,
+          "delivered": 12,
+          "acknowledged": 12,
+          "pending": 0,
+          "maxPending": 12,
+          "queueDropped": 0,
+          "abandoned": 0,
+          "retransmissions": 9,
+          "radioDuplicates": 5,
+          "dataPacketsSent": 21,
+          "dataPacketsLost": 4,
+          "ackPacketsSent": 17,
+          "ackPacketsLost": 5,
+          "dataBytesSent": 1848,
+          "ackBytesSent": 187,
+          "totalBytesSent": 2035,
+          "deliveryRate": 1.0,
+          "meanDeliveryLatencyS": 2.1533725515619917,
+          "maxDeliveryLatencyS": 2.624006703124975
+        },
+        "meanBinaryFrameBytes": 88.0,
+        "meanJsonFrameBytes": 457.5833333333333,
+        "totalRadioBytesPerOriginalJsonByte": 0.3706064469131306,
+        "maxDeliveredLocalizationErrorM": null,
+        "rejectedDetections": [],
+        "slowWebSocketClients": 0,
+        "rejectedDetectionsOmitted": 0,
+        "diagnosticLimits": {
+          "rejectionSamples": 100,
+          "radioHistorySnapshots": 4096
+        },
+        "link": {
+          "bytesPerSecond": 4096.0,
+          "latencyS": 0.005,
+          "jitterS": 0.0,
+          "lossProbability": 0.25,
+          "blackouts": [
+            [
+              0.15,
+              0.8
+            ]
+          ],
+          "seed": 7
+        },
+        "byteAccounting": "application packets including CRC, DATA retries and ACK; excludes TCP/WS/IP headers"
+      },
+      "offlineEnvironment": true,
+      "canonicalM3Validated": true,
+      "timing": "Receiver arrival times are relative to station ready, not original video sensor cadence.",
+      "m3Contract": "src/telemetry/contract.ts @ 2015192b51ed1b4485faff1fa48bff5442cb3c82",
+      "m3Validation": "12 decoded frames accepted by M3's actual Zod parser; ordered per rover."
+    },
+    "callback": {
+      "webSocketFrames": 12,
+      "socketMatchesDecodedFrames": true,
+      "m2Report": {
+        "schemaVersion": 1,
+        "mode": "live",
+        "simulatedElapsedS": 4.297721700000693,
+        "wallElapsedS": 4.297991700001148,
+        "completed": true,
+        "cancelled": false,
+        "source": {
+          "source": "m1-live-callback",
+          "rejectedDetections": 0,
+          "producerCompleted": true,
+          "interrupted": false,
+          "offeredObservations": 12,
+          "consumedObservations": 12,
+          "maxSampledBufferedObservations": 2,
+          "callbackHandoffWaitS": 0.8403238999981113,
+          "maxCallbackHandoffWaitS": 0.1082289000005403,
+          "perceptionMetrics": {
+            "video": {
+              "file": "scene.mp4",
+              "fps": 10.0,
+              "frames": 12,
+              "sha256": "764c4b51fb9864878c6100d66dbbbaf69bd510fbc672251646c03a849eed48b2",
+              "width": 640,
+              "height": 480
+            },
+            "processed_frames": 12,
+            "detections_total": 36,
+            "unique_track_ids": 3,
+            "wall_seconds": 1.2081347000003007,
+            "end_to_end_fps": 9.932667276254058,
+            "processing_fps": 10.187120423646505,
+            "processing_fps_excluding_first": 9.43436925280694,
+            "latency_ms_mean": 98.16316666668475,
+            "latency_ms_p95": 146.54392999982517,
+            "inference_ms_mean": 2.0826499997686674,
+            "cpu_seconds": 0.59375,
+            "cpu_percent_process_mean": 58.083333333333336,
+            "cpu_percent_note": "process CPU can exceed 100% on multicore",
+            "rss_peak_mb": 217.23046875,
+            "model_resources": {
+              "device": "cpu",
+              "confidence_semantics": "fixed heuristic score"
+            },
+            "tracking_settings": {
+              "min_consecutive_hits": 2,
+              "max_missed_frames": 3,
+              "confirmed_only": false,
+              "motion_compensation": true,
+              "predict_motion": true,
+              "appearance_matching": true,
+              "gap_units": "processed frames, not seconds or original capture cadence"
+            },
+            "original_capture_fps": null,
+            "notes": [
+              "Playback FPS is not original sensor capture cadence.",
+              "Processing latency includes inference, association, JSON serialization; excludes preview encoding.",
+              "Model loading excluded; first inference included. RSS sampled once per frame.",
+              "Uncalibrated observations have null camera and rover position; no metric coordinates inferred."
+            ],
+            "backend": "synthetic-contrast"
+          },
+          "discardedAtStop": 0,
+          "timing": "mission window includes local model startup; capturedAt remains M1 capture time"
+        },
+        "transport": {
+          "generated": 12,
+          "enqueued": 12,
+          "delivered": 12,
+          "acknowledged": 12,
+          "pending": 0,
+          "maxPending": 10,
+          "queueDropped": 0,
+          "abandoned": 0,
+          "retransmissions": 9,
+          "radioDuplicates": 5,
+          "dataPacketsSent": 21,
+          "dataPacketsLost": 4,
+          "ackPacketsSent": 17,
+          "ackPacketsLost": 5,
+          "dataBytesSent": 3717,
+          "ackBytesSent": 187,
+          "totalBytesSent": 3904,
+          "deliveryRate": 1.0,
+          "meanDeliveryLatencyS": 1.7633038343752048,
+          "maxDeliveryLatencyS": 2.2696837906251277
+        },
+        "meanBinaryFrameBytes": 177.0,
+        "meanJsonFrameBytes": 952.75,
+        "totalRadioBytesPerOriginalJsonByte": 0.3414676812735065,
+        "maxDeliveredLocalizationErrorM": null,
+        "rejectedDetections": [],
+        "slowWebSocketClients": 0,
+        "rejectedDetectionsOmitted": 0,
+        "diagnosticLimits": {
+          "rejectionSamples": 100,
+          "radioHistorySnapshots": 4096
+        },
+        "link": {
+          "bytesPerSecond": 4096.0,
+          "latencyS": 0.005,
+          "jitterS": 0.0,
+          "lossProbability": 0.25,
+          "blackouts": [
+            [
+              0.15,
+              0.8
+            ]
+          ],
+          "seed": 7
+        },
+        "byteAccounting": "application packets including CRC, DATA retries and ACK; excludes TCP/WS/IP headers"
+      },
+      "offlineEnvironment": true,
+      "canonicalM3Validated": true,
+      "timing": "Receiver arrival times are relative to station ready, not original video sensor cadence.",
+      "m3Contract": "src/telemetry/contract.ts @ 2015192b51ed1b4485faff1fa48bff5442cb3c82",
+      "m3Validation": "12 decoded frames accepted by M3's actual Zod parser; ordered per rover."
+    }
+  }
+}

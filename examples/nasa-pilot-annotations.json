@@ -1,0 +1,108 @@
+{
+  "scope": "Pilot manual annotation: left view of First AutoNav, frames 0/10/20; visible individual rocks with bbox width >=30 and height >=20 pixels. Smaller stones and boundary-truncated objects excluded; preliminary visual labels, not a validated benchmark.",
+  "source_sha256": "d7f157de8f5bb694a614230901b4de2359dc439e0e94c8bcd5b629177ea9f461",
+  "image": {
+    "width": 1280,
+    "height": 960,
+    "view": "left"
+  },
+  "min_width_px": 30,
+  "min_height_px": 20,
+  "frames": [
+    {
+      "frame_index": 0,
+      "detections": [
+        {
+          "id": "target-triangle",
+          "type": "rock",
+          "bboxPx": [
+            297,
+            284,
+            332,
+            315
+          ]
+        },
+        {
+          "id": "foreground-light",
+          "type": "rock",
+          "bboxPx": [
+            884,
+            769,
+            921,
+            797
+          ]
+        }
+      ]
+    },
+    {
+      "frame_index": 10,
+      "detections": [
+        {
+          "id": "target-triangle",
+          "type": "rock",
+          "bboxPx": [
+            574,
+            311,
+            627,
+            352
+          ]
+        },
+        {
+          "id": "middle-light",
+          "type": "rock",
+          "bboxPx": [
+            830,
+            417,
+            903,
+            458
+          ]
+        },
+        {
+          "id": "left-dark",
+          "type": "rock",
+          "bboxPx": [
+            10,
+            396,
+            62,
+            430
+          ]
+        },
+        {
+          "id": "right-dark",
+          "type": "rock",
+          "bboxPx": [
+            968,
+            386,
+            1004,
+            414
+          ]
+        },
+        {
+          "id": "left-light",
+          "type": "rock",
+          "bboxPx": [
+            217,
+            523,
+            254,
+            550
+          ]
+        },
+        {
+          "id": "middle-low",
+          "type": "rock",
+          "bboxPx": [
+            483,
+            441,
+            528,
+            463
+          ]
+        }
+      ]
+    },
+    {
+      "frame_index": 20,
+      "detections": []
+    }
+  ],
+  "split": "tuning"
+}

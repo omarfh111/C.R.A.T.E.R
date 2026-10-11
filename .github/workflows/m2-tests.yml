@@ -1,0 +1,54 @@
+name: M2 spatial telemetry
+
+on:
+  push:
+    branches: [feat/spatial-telemetry, feat/end-to-end-integration, main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install -e '.[test,hosted,spaces,assistant]' onnx==1.20.1 onnxruntime==1.24.4
+      - run: python -m pytest -q
+        env:
+          CRATER_M2_SOURCE: '${{ github.workspace }}'
+      - run: python -m crater_m2 --benchmark --duration 30
+      - uses: actions/upload-artifact@v4
+        with:
+          name: m2-report-python-${{ matrix.python-version }}
+          path: artifacts/
+      - uses: actions/setup-node@v4
+        if: matrix.python-version == '3.12'
+        with:
+          node-version: '24'
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        if: matrix.python-version == '3.12'
+      - run: node scripts/validate-m3-contract.mjs src/telemetry/contract.ts artifacts/received-frames.jsonl
+        if: matrix.python-version == '3.12'
+      - name: Validate calibrated simulated JSONL through real WebSocket and M3
+        if: matrix.python-version == '3.12'
+        run: python -m crater_m2.validation --output artifacts/calibrated-replay --m3-contract src/telemetry/contract.ts -- --input examples/m2-calibrated-transport.jsonl --duration 4 --drain 8 --fps 10 --bandwidth 4096 --latency .005 --jitter 0 --loss .25 --blackout .15:.8 --queue 32 --seed 7
+      - name: Generate calibrated test scene without learned weights
+        if: matrix.python-version == '3.12'
+        run: python -m crater_m1 simulate --output artifacts/callback-scene --frames 12
+      - name: Validate explicitly simulated M1 callback through real WebSocket and M3
+        if: matrix.python-version == '3.12'
+        run: python -m crater_m2.validation --output artifacts/calibrated-callback --m3-contract src/telemetry/contract.ts -- --perception-video artifacts/callback-scene/scene.mp4 --calibration artifacts/callback-scene/calibration.json --perception-backend synthetic-contrast --no-preview --perception-buffer 2 --duration 4 --drain 8 --fps 10 --bandwidth 4096 --latency .005 --jitter 0 --loss .25 --blackout .15:.8 --queue 32 --seed 7
+      - uses: actions/upload-artifact@v4
+        if: always() && matrix.python-version == '3.12'
+        with:
+          name: calibrated-m1-m2-m3-transport
+          path: |
+            artifacts/calibrated-replay/
+            artifacts/calibrated-callback/

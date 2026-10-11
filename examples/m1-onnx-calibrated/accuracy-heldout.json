@@ -1,0 +1,31 @@
+{
+  "scope": "Held-out synthetic validation frames 15-29; independent rendered rock silhouettes; not lunar accuracy.",
+  "frames_evaluated": [
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29
+  ],
+  "iou_threshold": 0.5,
+  "prediction_min_width_px": 0,
+  "prediction_min_height_px": 0,
+  "true_positives": 45,
+  "false_positives": 0,
+  "false_negatives": 0,
+  "precision": 1.0,
+  "recall": 1.0,
+  "matched_mean_iou": 0.8154224399960108,
+  "id_switches": 0,
+  "tracking_note": "ID switches between successive matches of an annotated ID, including gaps; not IDF1/MOTA."
+}

@@ -1,0 +1,35 @@
+{
+  "video": {
+    "file": "scene.mp4",
+    "fps": 10.0,
+    "frames": 90,
+    "width": 640,
+    "height": 480
+  },
+  "processed_frames": 90,
+  "detections_total": 270,
+  "unique_track_ids": 3,
+  "wall_seconds": 1.5846136999316514,
+  "end_to_end_fps": 56.79617688770578,
+  "processing_fps": 65.96843715092828,
+  "processing_fps_excluding_first": 65.57144181947079,
+  "latency_ms_mean": 15.15876445143173,
+  "latency_ms_p95": 19.108580087777224,
+  "inference_ms_mean": 1.1316044488921762,
+  "cpu_seconds": 4.484375,
+  "cpu_percent_process_mean": 262.08444444444444,
+  "cpu_percent_note": "process CPU can exceed 100% on multicore",
+  "rss_peak_mb": 258.56640625,
+  "model_resources": {
+    "device": "cpu",
+    "confidence_semantics": "fixed heuristic score"
+  },
+  "original_capture_fps": null,
+  "notes": [
+    "Playback FPS is not original sensor capture cadence.",
+    "Processing latency includes inference, association, JSON serialization; excludes preview encoding.",
+    "Model loading excluded; first inference included. RSS sampled once per frame.",
+    "Uncalibrated observations have null camera and rover position; no metric coordinates inferred."
+  ],
+  "backend": "synthetic-contrast"
+}

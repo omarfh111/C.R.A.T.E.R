@@ -1,0 +1,71 @@
+{
+  "video": {
+    "file": "scene.mp4",
+    "fps": 10.0,
+    "frames": 30,
+    "sha256": "74c1764bb1b151486a45372ead706e06cd709700ef6df1791c7822e630c37ad9",
+    "width": 640,
+    "height": 480
+  },
+  "processed_frames": 30,
+  "detections_total": 90,
+  "unique_track_ids": 3,
+  "wall_seconds": 9.287355499807745,
+  "end_to_end_fps": 3.2301983057094152,
+  "processing_fps": 3.2441027376290084,
+  "processing_fps_excluding_first": 3.5634362929792136,
+  "latency_ms_mean": 308.25164332830656,
+  "latency_ms_p95": 589.854329975786,
+  "inference_ms_mean": 278.86958000405383,
+  "cpu_seconds": 27.59375,
+  "cpu_percent_process_mean": 325.4133333333333,
+  "cpu_percent_note": "process CPU can exceed 100% on multicore",
+  "rss_peak_mb": 1004.34765625,
+  "model_resources": {
+    "device": "directml",
+    "execution": "local-onnx",
+    "model_id": "onnx-community/grounding-dino-tiny-ONNX",
+    "model_revision": "ff690b0a8050566c290287545bd059350f3e9096",
+    "source_model_file": "onnx/model_fp16.onnx",
+    "prepared_model_file": "model_fp32.onnx",
+    "precision": "FP32 promoted from FP16 source",
+    "onnxruntime_version": "1.24.4",
+    "providers": [
+      "DmlExecutionProvider",
+      "CPUExecutionProvider"
+    ],
+    "gpu_adapter": {
+      "device_id": 1,
+      "name": "NVIDIA GeForce RTX 5070 Laptop GPU",
+      "vendor_id": 4318,
+      "dedicated_video_mb": 7891
+    },
+    "image_size": 800,
+    "prompt": "rock. stone. boulder.",
+    "threshold": 0.25,
+    "text_threshold": 0.2,
+    "max_rock_box_area_fraction": 0.5,
+    "terrain_filter_policy": "edges",
+    "rejected_large_boxes": 11,
+    "confidence_semantics": "Grounding DINO detector score; not calibrated probability",
+    "challenge_local_perception_compliant": true,
+    "provider_note": "DirectML accelerates supported operators; unsupported/shape operators may execute on CPU."
+  },
+  "tracking_settings": {
+    "min_consecutive_hits": 2,
+    "max_missed_frames": 3,
+    "confirmed_only": false,
+    "motion_compensation": true,
+    "predict_motion": true,
+    "appearance_matching": true,
+    "gap_units": "processed frames, not seconds or original capture cadence"
+  },
+  "original_capture_fps": null,
+  "notes": [
+    "Playback FPS is not original sensor capture cadence.",
+    "Processing latency includes inference, association, JSON serialization; excludes preview encoding.",
+    "Model loading excluded; first inference included. RSS sampled once per frame.",
+    "Uncalibrated observations have null camera and rover position; no metric coordinates inferred."
+  ],
+  "backend": "onnx-grounding-dino"
+}

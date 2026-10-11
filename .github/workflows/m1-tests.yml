@@ -1,0 +1,87 @@
+name: M1 perception validation
+on:
+  push:
+    branches: [feat/ai-perception, feat/end-to-end-integration, main]
+  pull_request:
+    paths:
+      - 'crater_m1/**'
+      - 'crater_m2/**'
+      - 'tests/m1/**'
+      - 'examples/**'
+      - 'docs/m1-reliability.md'
+      - 'docs/validation/**'
+      - 'requirements-m1*.txt'
+      - 'pyproject.toml'
+      - '.github/workflows/m1-tests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  reliability-unit:
+    name: Detection and tracking reliability
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install model-free test dependencies
+        run: python -m pip install -e '.[test,hosted,spaces]' onnx==1.20.1
+      - name: Test reliability and mocked hosted backends
+        run: python -m pytest tests/m1 -q --ignore=tests/m1/test_m2_integration.py --ignore=tests/m1/test_onnx_runtime.py --junitxml=outputs/reliability-unit.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m1-reliability-unit
+          path: outputs/reliability-unit.xml
+  m2-contract:
+    name: M1 to M2 localization and radio delivery
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install contract dependencies
+        run: python -m pip install -e '.[test]' websockets==15.0.1
+      - name: Verify pixels, calibrated positions and lossy radio delivery
+        env:
+          CRATER_M2_SOURCE: '${{ github.workspace }}'
+        run: python -m pytest tests/m1/test_m2_integration.py tests/m1/test_pipeline.py tests/m1/test_schema.py tests/m1/test_confirmation.py -q --junitxml=outputs/m2-contract.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m1-m2-contract
+          path: outputs/m2-contract.xml
+  onnx-runtime:
+    name: ONNX portability (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            runtime: onnxruntime==1.24.4
+            require_directml: '0'
+          - os: windows-latest
+            runtime: onnxruntime-directml==1.24.4
+            require_directml: '1'
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+      - name: Install portable runtime and small-graph test dependencies
+        run: python -m pip install -e '.[test]' onnx==1.20.1 '${{ matrix.runtime }}'
+      - name: Verify graph promotion, numerical CPU execution and provider registration
+        env:
+          CRATER_REQUIRE_DIRECTML: '${{ matrix.require_directml }}'
+        run: python -m pytest tests/m1/test_onnx_runtime.py tests/m1/test_onnx_detector.py tests/m1/test_terrain.py tests/m1/test_tiling.py -q --junitxml=outputs/onnx-runtime.xml
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: m1-onnx-${{ matrix.os }}
+          path: outputs/onnx-runtime.xml

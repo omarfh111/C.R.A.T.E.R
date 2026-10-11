@@ -1,0 +1,73 @@
+name: Mission Control frontend validation
+
+on:
+  push:
+    branches: [feat/mission-control, feat/end-to-end-integration, main]
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'crater_m2/**'
+      - 'pyproject.toml'
+      - 'scripts/validate-m3-contract.mjs'
+      - 'public/**'
+      - 'index.html'
+      - 'package.json'
+      - 'package-lock.json'
+      - 'tsconfig*.json'
+      - 'vite.config.ts'
+      - '.env.example'
+      - '.github/workflows/mission-control-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - name: Install frontend dependencies
+        run: npm ci --no-audit --no-fund
+      - name: Run frontend tests
+        run: |
+          mkdir -p ci-artifacts
+          npm test -- --reporter=default --reporter=junit --outputFile.junit=ci-artifacts/frontend-junit.xml
+      - name: TypeScript check and production build
+        run: npm run build
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install model-free M2 dependencies
+        run: python -m pip install -e .
+      - name: Validate actual M2 WebSocket frames with the M3 contract
+        shell: bash
+        env:
+          CRATER_M2_LIVE_SMOKE: '1'
+        run: |
+          set -euo pipefail
+          python -m crater_m2 --duration 3 --drain 5 --fps 5 --bandwidth 4096 --latency .005 --jitter 0 --loss 0 --no-blackout --wait-for-client 15 --report ci-artifacts/m2-report.json --received-jsonl ci-artifacts/m2-frames.jsonl > ci-artifacts/m2.log 2>&1 &
+          m2_pid=$!
+          trap 'kill "$m2_pid" 2>/dev/null || true' EXIT
+          ready=0
+          for attempt in {1..100}; do
+            if grep -q 'M2 station ready' ci-artifacts/m2.log; then ready=1; break; fi
+            if ! kill -0 "$m2_pid" 2>/dev/null; then break; fi
+            sleep 0.1
+          done
+          if [ "$ready" != 1 ]; then cat ci-artifacts/m2.log; exit 1; fi
+          ./node_modules/.bin/vitest run src/telemetry/m2-live.smoke.test.ts --reporter=default --reporter=junit --outputFile.junit=ci-artifacts/m2-smoke-junit.xml
+          wait "$m2_pid"
+      - name: Upload validation reports
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mission-control-validation
+          path: ci-artifacts/
+          if-no-files-found: ignore
