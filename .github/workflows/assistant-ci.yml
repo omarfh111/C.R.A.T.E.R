@@ -2,7 +2,7 @@ name: Mission Intelligence validation
 
 on:
   push:
-    branches: [feat/m2-assistant-integration, ci/security-e2e]
+    branches: [feat/m2-assistant-integration, ci/security-e2e, main]
   pull_request:
     paths:
       - 'pyproject.toml'
