@@ -155,6 +155,8 @@ def test_context_cannot_be_cited_or_validate_fabricated_numbers(tmp_path):
     assert "99999" not in result["sources"][0]["text"]
     backend.chat = lambda question, sources: {"answer":"Without acquisition timestamps, the cadence is unknown [S1]", "sourceIds":["S1"], "insufficientEvidence":False}
     assert assistant.ask("Explain calibration limitations", context=context)["reason"] == "contradicts_observation_availability"
+    backend.chat = lambda question, sources: {"answer":"The availability of timestamps and clock alignment is not established [S1]", "sourceIds":["S1"], "insufficientEvidence":False}
+    assert assistant.ask("Explain calibration limitations", context=context)["reason"] == "contradicts_observation_availability"
     backend.chat = lambda question, sources: {"answer":"This does not make the capture timestamps unavailable [S1]", "sourceIds":["S1"], "insufficientEvidence":False}
     assert assistant.ask("Explain calibration limitations", context=context)["status"] == "answered"
 

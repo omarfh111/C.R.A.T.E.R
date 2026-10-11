@@ -369,7 +369,8 @@ class Assistant:
                        + json.dumps(context, ensure_ascii=False, allow_nan=False)
                        + "\nExplain only supported general context. No operational numbers, diagnoses, or decisions. "
                          "A missing frame cannot establish a calibration/tracking failure. "
-                         "Use the explicit availability flags: do not assert that available timestamps are missing. "
+                         "Use the explicit availability flags: do not assert that available timestamps are missing or uncertain. "
+                         "Their presence is shown deterministically; discuss clock synchronization limits instead. "
                          "Descriptions of a NASA video apply only to that source video, never to this incident. "
                          "Abstain if evidence is insufficient.")
         answer = self.backend.chat(prompt, sources)
@@ -394,7 +395,8 @@ class Assistant:
         if context is not None and context["observationEvidence"]["captureTimestampAvailable"]:
             # Conservative contradiction check, not semantic truth certification.
             plain = _plain_text(answer["answer"])
-            if re.search(r"\b(?:absence|lack|missing|without|no|absent|manquant|sans)\b.{0,30}\b(?:timestamps?|horodatages?|acquisition times?)\b", plain):
+            if (re.search(r"\b(?:absence|lack|missing|without|no|absent|manquant|sans)\b.{0,30}\b(?:timestamps?|horodatages?|acquisition times?)\b", plain)
+                    or re.search(r"\bavailability of (?:\w+ ){0,3}timestamps?\b.{0,100}\b(?:not established|unknown|unavailable)\b", plain)):
                 result["reason"] = "contradicts_observation_availability"
                 return result
         cited_sources = [source for source in sources if source["sourceId"] in mentions]
