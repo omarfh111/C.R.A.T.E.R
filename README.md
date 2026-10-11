@@ -103,6 +103,91 @@ deliberately separate concerns: **only the first is AI**, and the radio is a sim
 
 ---
 
+## Architecture
+
+### End-to-end data path
+
+```mermaid
+flowchart LR
+  subgraph M1["M1 · Rover perception"]
+    direction TB
+    V["Calibrated video<br/>30 frames · 640×480"]
+    D["Grounding DINO Tiny<br/>ONNX · DirectML · offline"]
+    T["Tracker<br/>3 persistent hazard IDs"]
+    V --> D --> T
+  end
+
+  subgraph M2["M2 · Spatial telemetry"]
+    direction TB
+    P["observation_to_frame<br/>pixel → LOCAL_ENU_V1 metres"]
+    E["Binary encoder<br/>42 B header · CRC32 · 177 B/frame"]
+    R["Lossy radio simulation<br/>4096 B/s · 25% loss · blackout"]
+    S["Station decoder<br/>ACK · retransmit · dedupe"]
+    P --> E --> R --> S
+  end
+
+  subgraph M3["M3 · Mission Control"]
+    direction TB
+    W["WebSocket bridge<br/>canonical JSON"]
+    Z["Zod contract parser<br/>schemaVersion 1"]
+    U["Dashboard<br/>map · hazards · link state"]
+    W --> Z --> U
+  end
+
+  T -->|"observations"| P
+  S -->|"decoded frames"| W
+```
+
+### Radio blackout and recovery
+
+```mermaid
+sequenceDiagram
+    autonumber
+    participant P as M2 producer
+    participant Q as Bounded queue · 128
+    participant R as Lossy radio
+    participant S as Station + WebSocket
+    participant M as Mission Control
+
+    Note over R: Simulated medium: 4096 B/s, 25% packet loss, seed 7
+    P->>Q: frame N · 177 B binary
+    Q->>R: DATA
+    R->>S: delivered
+    S-->>R: ACK
+    R-->>Q: dequeue, send next
+    S->>M: decoded JSON frame
+
+    Note over R,S: Simulated blackout begins
+    P->>Q: frames keep being generated
+    Q->>R: DATA
+    R--xS: DATA lost
+    S--xR: ACK lost
+    Note over M: No new frame accepted.<br/>Last accepted state held,<br/>age grows, UI shows STALE.
+
+    Note over R,S: Blackout ends
+    Q->>R: retransmit queued frames
+    R->>S: delivered
+    S-->>R: ACK
+    S->>M: decoded frames, sequence advances
+    Note over P,M: Validated run: 30/30 delivered and acknowledged,<br/>28 retransmissions, 17 DATA and 11 ACK losses, 0 dropped.
+```
+
+### The two judge paths
+
+```mermaid
+flowchart TD
+    A["Fresh clone on Windows"] --> B{"Which path?"}
+    B -->|"Quick Demo · no GPU"| C["setup.ps1 → start-demo.ps1"]
+    B -->|"Full Live AI · DirectML GPU"| D["setup-gpu.ps1 → start-live.ps1"]
+    C --> E["RECORDED ONNX REPLAY<br/>30 genuine predictions from an earlier real run"]
+    D --> F["FRESH LOCAL ONNX INFERENCE<br/>pixel-derived detections computed now"]
+    E --> G["M2 calibrated projection, binary encoding<br/>and simulated lossy radio — both run now"]
+    F --> G
+    G --> H["M3 Mission Control<br/>LIVE telemetry view — runs now"]
+```
+
+---
+
 ## Measured validation evidence
 
 All figures below come from [integration validation](docs/integration-validation.md) and
