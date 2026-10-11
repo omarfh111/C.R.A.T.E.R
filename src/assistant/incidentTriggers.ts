@@ -3,10 +3,12 @@ import type { TelemetryState } from '../telemetry/state'
 import type { IncidentEvent } from './incidentClient'
 
 export function createIncidentDetector(sessionId:string) {
-  let websocket:string|undefined, radio:string|undefined, receiptStale=false, captureStale=false, invalid=0
+  let websocket:string|undefined, radio:string|undefined, receiptStale=false, captureStale=false
+  let invalid:number|undefined, older:number|undefined, gaps:number|undefined
+  const emitted=new Map<string,number>()
   return (state:TelemetryState, now:number, thresholdMs:number):IncidentEvent[] => {
     const events:IncidentEvent[] = [], receipt=state.latest, frame=receipt?.frame ?? null
-    const emit = (kind:IncidentEvent['kind'], triggerKey:string, summary:string) => events.push({eventId:crypto.randomUUID(),sessionId,kind,triggerKey,summary,eventAt:new Date(now).toISOString(),receivedAt:receipt?.receivedAt??null,frame})
+    const emit = (kind:IncidentEvent['kind'], triggerKey:string, summary:string) => {if(now-(emitted.get(triggerKey)??-Infinity)<30000)return;emitted.set(triggerKey,now);events.push({eventId:crypto.randomUUID(),sessionId,kind,triggerKey,summary,eventAt:new Date(now).toISOString(),receivedAt:receipt?.receivedAt??null,frame})}
     if (websocket !== state.transportStatus) {
       emit('websocket_changed',`ws:${state.transportStatus}`,`Dashboard WebSocket ${websocket??'initial'} -> ${state.transportStatus}. This is transport status, not the declared rover radio state.`)
       websocket=state.transportStatus
@@ -20,8 +22,10 @@ export function createIncidentDetector(sessionId:string) {
     if (rx && !receiptStale) emit('telemetry_stale','receipt_stale','No recent accepted telemetry receipt. WebSocket transport and last declared radio status remain separate; cause unknown.')
     if (age && !captureStale) emit('telemetry_stale','capture_stale','The accepted observation has an old capture timestamp. Historical replay is not fresh inference; no calibration or tracking failure is inferred.')
     receiptStale=rx; captureStale=age
-    if (state.invalid>invalid) emit('dashboard_warning','invalid_packet','Dashboard rejected a packet against the canonical v1 contract. It did not become an accepted observation.')
-    invalid=state.invalid
+    if (invalid!==undefined && state.invalid>invalid) emit('dashboard_warning','invalid_packet','Dashboard rejected a packet against the canonical v1 contract. It did not become an accepted observation.')
+    if(older!==undefined && state.outOfOrder>older)emit('dashboard_warning','out_of_order','Dashboard discarded an older sequence. The discarded packet did not change accepted hazards or measurements.')
+    if(gaps!==undefined && state.sequenceGaps>gaps)emit('dashboard_warning','sequence_gap','Accepted sequence numbers reveal a gap. This does not identify a radio failure or establish a calibration/tracking cause.')
+    invalid=state.invalid;older=state.outOfOrder;gaps=state.sequenceGaps
     return events
   }
 }

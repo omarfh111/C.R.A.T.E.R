@@ -9,6 +9,7 @@ export function IncidentDialogue({state,mode,now,staleThresholdMs}:Props) {
   const [url,setUrl]=useState('http://127.0.0.1:8767'),[connected,setConnected]=useState(false),[connecting,setConnecting]=useState(false),[sessions,setSessions]=useState<IncidentSession[]>([]),[sessionId,setSessionId]=useState(''),[incidents,setIncidents]=useState<Incident[]>([]),[message,setMessage]=useState('Optional persistent incident collection. No model is required to record events.'),[reviewId,setReviewId]=useState(''),[reviewNote,setReviewNote]=useState('')
   const generation=useRef(0)
   const client=useRef<ReturnType<typeof createIncidentClient>|null>(null), current=useRef({state,now}), outbox=useRef<IncidentEvent[]>([]), storageKey=useRef(''), enabled=useRef(false), pending=useRef(false), controller=useRef<AbortController|null>(null)
+  const sessionList=useRef(sessions);sessionList.current=sessions
   current.current={state,now}
   function disconnect() { generation.current++;setConnecting(false);enabled.current=false; controller.current?.abort(); setConnected(false); client.current=null; setMessage('Collector disconnected. Already persisted jobs continue; no telemetry is modified.') }
   useEffect(()=>()=>{generation.current++;enabled.current=false;controller.current?.abort()},[])
@@ -25,8 +26,7 @@ export function IncidentDialogue({state,mode,now,staleThresholdMs}:Props) {
   }
   useEffect(()=>{
     if (!connected||!sessionId||mode!=='LIVE') return
-    const session=sessions.find(s=>s.sessionId===sessionId)
-    if (!session) return
+    if (!sessionList.current.some(s=>s.sessionId===sessionId)) return
     const detect=createIncidentDetector(sessionId)
     storageKey.current=`crater-incident-outbox:${url}:${sessionId}`
     try {const raw=JSON.parse(localStorage.getItem(storageKey.current)??'[]');outbox.current=eventSchema.array().max(32).parse(raw);if(outbox.current.some(e=>e.sessionId!==sessionId))throw new Error("outbox session mismatch")} catch {outbox.current=[];setMessage('Local outbox could not be restored. Previously persisted server incidents remain available.')}
@@ -34,22 +34,24 @@ export function IncidentDialogue({state,mode,now,staleThresholdMs}:Props) {
     let disposed=false, ticks=0
     const tick=async()=>{
       if(disposed||!enabled.current||pending.current||!client.current)return
-      const snapshot=current.current
-      if(snapshot.state.latest && snapshot.state.latest.frame.roverId!==session.roverId){setMessage('Selected session rover differs from the accepted observation; collection paused.');return}
+      const snapshot=current.current, session=sessionList.current.find(s=>s.sessionId===sessionId)
+      if(!session)return
       const receipt=snapshot.state.latest
       const inSession=receipt && Date.parse(receipt.receivedAt)>=Date.parse(session.startedAt) && (!session.endedAt||Date.parse(receipt.receivedAt)<=Date.parse(session.endedAt))
-      const events=detect(inSession?snapshot.state:{...snapshot.state,latest:null},snapshot.now,staleThresholdMs)
+      const wrongRover=receipt && receipt.frame.roverId!==session.roverId
+      const afterSession=receipt && session.endedAt && Date.parse(receipt.receivedAt)>Date.parse(session.endedAt)
+      const events=wrongRover||afterSession?[]:detect(inSession?snapshot.state:{...snapshot.state,latest:null},snapshot.now,staleThresholdMs)
       if(events.length){const room=32-outbox.current.length;outbox.current.push(...events.slice(0,room));persist();if(events.length>room)setMessage('Browser outbox full. Some new incidents were not saved; telemetry continues.')}
       pending.current=true
       try {
         if(outbox.current.length){await client.current.record(outbox.current[0],controller.current?.signal);if(disposed)return;outbox.current.shift();persist()}
-        if(ticks++%3===0){const rows=await client.current.incidents(controller.current?.signal);if(!disposed)setIncidents(rows)}
-        if(!disposed)setMessage(`${outbox.current.length} pending browser events. Analyses require explicit producer completion and an idle guarded AI service.`)
+        if(ticks++%3===0){const rows=await client.current.incidents(controller.current?.signal);const available=await client.current.sessions(controller.current?.signal);if(!disposed){setIncidents(rows);setSessions(available)}}
+        if(!disposed)setMessage(wrongRover||afterSession?'Selected session does not match this new observation. Select the new producer session to resume collection.':`${outbox.current.length} pending browser events. Analyses require explicit producer completion and an idle guarded AI service.`)
       }catch {if(!disposed)setMessage('Collector unavailable or invalid response. Pending events are retained locally; bounded retry continues.')}finally{pending.current=false}
     }
     void tick();const timer=setInterval(()=>void tick(),1000)
     return()=>{disposed=true;clearInterval(timer)}
-  },[connected,sessionId,sessions,mode,url,staleThresholdMs])
+  },[connected,sessionId,mode,url,staleThresholdMs])
   async function action(id:string, name:'retry'|'cancel') {try{await client.current?.action(id,name);setIncidents(await client.current!.incidents())}catch{setMessage('Action rejected or collector unavailable; check queue/attempt limits.')}}
   async function review(verdict:'confirmed'|'rejected'|'inconclusive') {try{await client.current?.review(reviewId,verdict,reviewNote);setIncidents(await client.current!.incidents());setReviewId('');setReviewNote('');setMessage('Operator review stored separately. Generated text has not become a trusted observation.')}catch{setMessage('Review not saved. Supply a note and check collector availability.')}}
   return <details className="mi__science"><summary><span>ROBOT INCIDENT DIALOGUE</span><span className="mi__optional">POST-CAPTURE · OPTIONAL</span></summary><div className="mi__science-body">

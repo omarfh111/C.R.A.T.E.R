@@ -35,3 +35,16 @@ it('retains unsent events durably when collector becomes unavailable',async()=>{
  await waitFor(()=>expect(localStorage.getItem(`crater-incident-outbox:http://127.0.0.1:8767:${session.sessionId}`)).toContain('websocket_changed'))
  await screen.findByText(/Pending events are retained locally/)
 })
+
+it('never attaches a new observation to an ended producer session',async()=>{
+ const {buildMockTimeline,defaultMockConfig}=await import('../telemetry/mock')
+ const now=Date.now(),frame=buildMockTimeline(defaultMockConfig,now).deliveries[0].frame
+ const ended={...session,phase:'completed',endedAt:new Date(now-1000).toISOString()}
+ const fetch=vi.fn(async(url:string,_options?:RequestInit)=>new Response(JSON.stringify(url.endsWith('/sessions')?{sessions:[ended]}:{incidents:[]}),{headers:{'content-type':'application/json'}}));vi.stubGlobal('fetch',fetch)
+ const state={...initialTelemetryState,latest:{frame,receivedAt:new Date(now).toISOString()},accepted:1}
+ render(<IncidentDialogue state={state} mode="LIVE" now={now} staleThresholdMs={3000}/>)
+ fireEvent.click(screen.getByText('CONNECT JOURNAL'));await screen.findByLabelText('Producer session')
+ fireEvent.change(screen.getByLabelText('Producer session'),{target:{value:session.sessionId}})
+ await screen.findByText(/Selected session does not match this new observation/)
+ expect(fetch.mock.calls.some(call=>(call[1] as RequestInit|undefined)?.method==='POST')).toBe(false)
+})
