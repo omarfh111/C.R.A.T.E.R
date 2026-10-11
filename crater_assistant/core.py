@@ -337,7 +337,7 @@ class Assistant:
             sources.append({"sourceId": f"S{len(sources) + 1}", "path": str(Path(report).resolve()),
                             "lineStart": 1, "lineEnd": len(text.splitlines()),
                             "digest": digest, "score": None, "text": json.dumps(facts, ensure_ascii=False)})
-        result = {"status": "insufficient_evidence", "answer": "Les sources disponibles ne permettent pas de rÃ©pondre.",
+        result = {"status": "insufficient_evidence", "answer": "Les sources disponibles ne permettent pas de répondre.",
                   "sources": sources, "citedSourceIds": [], "facts": facts,
                   "models": {"embedding": self.backend.embedding_model, "llm": self.backend.chat_model},
                   "roles": ["retriever", "report_analyst", "explainer", "citation_identity_validator"],

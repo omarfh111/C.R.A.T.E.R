@@ -18,6 +18,7 @@ param(
     [string]$PythonPath,
     [string]$OllamaExecutable,
     [string]$GpuUuid,
+    [string]$JournalPath,
     [switch]$UseExistingOllama
 )
 
@@ -356,8 +357,10 @@ try {
     }
     Write-Host "Qwen reported GPU residency: $([math]::Round([long]$chatModel[0].size_vram / 1MB, 1)) MiB."
     Assert-AssistantNoCapture
+    $journalArguments = @()
+    if ($JournalPath) { $journalArguments = @('--journal', (Resolve-Path -LiteralPath $JournalPath).Path) }
     $assistantProcess = Start-AssistantChild $PythonPath ($serviceArguments + @('serve', '--index', $indexPath, '--port', [string]$AssistantPort,
-                                                                  '--allow-origin', $DashboardOrigin, '--block-live-m1')) 'assistant' @{ PYTHONUTF8 = '1'; PYTHONIOENCODING = 'utf-8' }
+                                                                  '--allow-origin', $DashboardOrigin, '--block-live-m1') + $journalArguments) 'assistant' @{ PYTHONUTF8 = '1'; PYTHONIOENCODING = 'utf-8' }
     Write-Host "Owned assistant sidecar PID: $($assistantProcess.Id)."
     $assistantReady = $false
     for ($attempt = 0; $attempt -lt 60; $attempt++) {
@@ -370,7 +373,7 @@ try {
     Write-Host "Mission Intelligence service: $assistantBase"
     Write-Host "Allowed dashboard origin: $DashboardOrigin"
     Write-Host 'In Mission Control, open Mission Intelligence, enter the service URL, and select CONNECT LOCAL AI.'
-    Write-Host 'Answers are operator-triggered, use three retrieved passages, and remain unverified scientific context.'
+    Write-Host 'Manual questions and optional post-capture incident jobs share one bounded inference slot. All generated explanations remain unverified.'
     Write-Host "Logs and local index: $assistantRun"
     Write-Host 'Use after GPU capture. Close this launcher with Ctrl+C before starting a new live capture.'
     if ($UseExistingOllama) { Write-Host 'Existing Ollama/model lifetime is operator-managed; this launcher stops only its own HTTP sidecar.' }
