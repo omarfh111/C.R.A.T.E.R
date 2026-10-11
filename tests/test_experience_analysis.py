@@ -286,3 +286,22 @@ def test_incident_capture_refusal_keeps_exact_dynamic_cors_and_collector_availab
         assert status == 200 and result["incidents"][0]["eventId"] == eid
         assert headers["Access-Control-Allow-Origin"] == origin
         assert assistant.calls == 0
+
+
+def test_due_unavailable_job_cannot_starve_untried_queued_incidents(tmp_path):
+    journal, session, _, remote = setup(tmp_path)
+    second = event(session); second["triggerKey"] = "different-stale-signal"
+    journal.record(second)
+    journal.finish(session["sessionId"])
+    remote.ready = False
+    worker = ExperienceWorker(journal, remote, capture_guard=lambda:False, start=False)
+    try:
+        at = time.time()
+        worker.tick(clock=at)
+        assert sorted(i["job"]["state"] for i in journal.list()) == ["queued", "waiting_service"]
+        # An older unavailable entry is due again while another entry has never been tried.
+        worker.tick(clock=at+11)
+        assert all(i["job"]["state"] == "waiting_service" for i in journal.list())
+        assert all(i["job"]["attempt"] == 0 for i in journal.list())
+    finally:
+        worker.close()

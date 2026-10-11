@@ -141,7 +141,9 @@ class ExperienceWorker:
         if self.capture_guard():
             return  # No health/model request, preloading or inference while capture is active.
         with self.journal.connect() as db:
-            row = db.execute("SELECT event_id,state,attempt,expires FROM jobs WHERE state IN ('queued','waiting_service') AND next_at<=? ORDER BY rowid LIMIT 1", (at,)).fetchone()
+            # Earliest eligible time first: an older unavailable job must not repeatedly
+            # preempt untouched queued incidents when health checks take most of the backoff.
+            row = db.execute("SELECT event_id,state,attempt,expires FROM jobs WHERE state IN ('queued','waiting_service') AND next_at<=? ORDER BY next_at,rowid LIMIT 1", (at,)).fetchone()
         if not row:
             return
         event_id, _, attempt, expires = row
