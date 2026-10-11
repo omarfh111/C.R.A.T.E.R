@@ -48,3 +48,17 @@ it('never attaches a new observation to an ended producer session',async()=>{
  await screen.findByText(/Selected session does not match this new observation/)
  expect(fetch.mock.calls.some(call=>(call[1] as RequestInit|undefined)?.method==='POST')).toBe(false)
 })
+
+it('pauses a rejected event without blocking session refresh',async()=>{
+ const fetch=vi.fn(async(url:string,options?:RequestInit)=>{
+  if(options?.method==='POST')return new Response(JSON.stringify({code:'invalid_request'}),{status:400,headers:{'content-type':'application/json'}})
+  return new Response(JSON.stringify(url.endsWith('/sessions')?{sessions:[session]}:{incidents:[]}),{headers:{'content-type':'application/json'}})
+ });vi.stubGlobal('fetch',fetch)
+ render(<IncidentDialogue state={initialTelemetryState} mode="LIVE" now={Date.now()} staleThresholdMs={3000}/>)
+ fireEvent.click(screen.getByText('CONNECT JOURNAL'));await screen.findByLabelText('Producer session')
+ fireEvent.change(screen.getByLabelText('Producer session'),{target:{value:session.sessionId}})
+ await screen.findByText('RETRY PENDING EVENTS')
+ expect(fetch.mock.calls.filter(call=>call[1]?.method==='POST')).toHaveLength(1)
+ expect(localStorage.getItem(`crater-incident-outbox:http://127.0.0.1:8767:${session.sessionId}`)).toContain('websocket_changed')
+ expect(fetch.mock.calls.filter(call=>call[0].endsWith('/sessions')).length).toBeGreaterThan(1)
+})

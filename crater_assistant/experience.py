@@ -185,6 +185,11 @@ class Journal:
             session = json.loads(row[0])
             if event.get("frame") and event["frame"]["roverId"] != session["roverId"]:
                 raise ValueError("observation rover differs from session")
+            if (not producer and session["endedAt"] and timestamp(event["eventAt"]) > timestamp(session["endedAt"])
+                    and kind == "websocket_changed" and event["triggerKey"] != "ws:disconnected"):
+                raise ValueError("new connection cannot belong to a finished capture")
+            if not producer and session["endedAt"] and (timestamp(event["eventAt"])-timestamp(session["endedAt"])).total_seconds() > 30:
+                raise ValueError("incident trigger is outside the producer session closing window")
             if not producer and event.get("frame") is not None:
                 if event.get("receivedAt") is None:
                     raise ValueError("dashboard observation requires receipt timestamp")

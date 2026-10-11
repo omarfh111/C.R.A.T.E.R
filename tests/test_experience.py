@@ -114,3 +114,17 @@ def test_storage_bounds_are_explicit(tmp_path):
         journal.record(event(session), clock=131)
     with pytest.raises(ValueError, match="capacity"):
         journal.begin("rover", "synthetic")
+
+
+def test_late_connection_cannot_be_attributed_to_finished_capture(journal):
+    from datetime import timedelta
+    from crater_m2.contract import timestamp,utc_iso
+    session=journal.begin("rover","synthetic")
+    closed=journal.finish(session["sessionId"])
+    raw=event(session);raw["kind"]="websocket_changed"
+    raw["eventAt"]=utc_iso(timestamp(closed["endedAt"])+timedelta(seconds=31))
+    raw["triggerKey"]="ws:disconnected"
+    with pytest.raises(ValueError,match="closing window"):journal.record(raw)
+    raw["eventAt"]=utc_iso(timestamp(closed["endedAt"])+timedelta(milliseconds=1))
+    raw["triggerKey"]="ws:connected"
+    with pytest.raises(ValueError,match="new connection"):journal.record(raw)

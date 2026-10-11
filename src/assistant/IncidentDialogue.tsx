@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { AssistantError } from '../../integrations/m3-assistant-client'
 import type { TelemetryState } from '../telemetry/state'
 import { createIncidentClient, eventSchema, type Incident, type IncidentEvent, type IncidentSession } from './incidentClient'
 import { createIncidentDetector } from './incidentTriggers'
@@ -6,8 +7,8 @@ import { createIncidentDetector } from './incidentTriggers'
 type Props={state:TelemetryState;mode:string;now:number;staleThresholdMs:number}
 const stateLabels:Record<Incident['job']['state'],string>={waiting_capture:'WAITING FOR PRODUCER CAPTURE END',queued:'QUEUED AFTER CAPTURE',waiting_service:'WAITING FOR LOCAL AI',running:'ANALYZING',completed:'ANALYSIS COMPLETE',failed:'FAILED',cancelled:'CANCELLED',cancelling:'CANCELLING · BACKEND MAY STILL RUN',interrupted:'INTERRUPTED · REVIEW BEFORE RETRY',saturated:'QUEUE FULL · INCIDENT SAVED',unavailable:'UNAVAILABLE · RETRY REQUIRED'}
 export function IncidentDialogue({state,mode,now,staleThresholdMs}:Props) {
-  const [url,setUrl]=useState('http://127.0.0.1:8767'),[connected,setConnected]=useState(false),[connecting,setConnecting]=useState(false),[sessions,setSessions]=useState<IncidentSession[]>([]),[sessionId,setSessionId]=useState(''),[incidents,setIncidents]=useState<Incident[]>([]),[message,setMessage]=useState('Optional persistent incident collection. No model is required to record events.'),[reviewId,setReviewId]=useState(''),[reviewNote,setReviewNote]=useState('')
-  const generation=useRef(0)
+  const [url,setUrl]=useState('http://127.0.0.1:8767'),[connected,setConnected]=useState(false),[connecting,setConnecting]=useState(false),[sessions,setSessions]=useState<IncidentSession[]>([]),[sessionId,setSessionId]=useState(''),[incidents,setIncidents]=useState<Incident[]>([]),[message,setMessage]=useState('Optional persistent incident collection. No model is required to record events.'),[reviewId,setReviewId]=useState(''),[reviewNote,setReviewNote]=useState(''),[paused,setPaused]=useState(false)
+  const generation=useRef(0), sendFailure=useRef({id:"",attempts:0,nextAt:0})
   const client=useRef<ReturnType<typeof createIncidentClient>|null>(null), current=useRef({state,now}), outbox=useRef<IncidentEvent[]>([]), storageKey=useRef(''), enabled=useRef(false), pending=useRef(false), controller=useRef<AbortController|null>(null)
   const sessionList=useRef(sessions);sessionList.current=sessions
   current.current={state,now}
@@ -28,6 +29,7 @@ export function IncidentDialogue({state,mode,now,staleThresholdMs}:Props) {
     if (!connected||!sessionId||mode!=='LIVE') return
     if (!sessionList.current.some(s=>s.sessionId===sessionId)) return
     const detect=createIncidentDetector(sessionId)
+    sendFailure.current={id:"",attempts:0,nextAt:0};setPaused(false)
     storageKey.current=`crater-incident-outbox:${url}:${sessionId}`
     try {const raw=JSON.parse(localStorage.getItem(storageKey.current)??'[]');outbox.current=eventSchema.array().max(32).parse(raw);if(outbox.current.some(e=>e.sessionId!==sessionId))throw new Error("outbox session mismatch")} catch {outbox.current=[];setMessage('Local outbox could not be restored. Previously persisted server incidents remain available.')}
     const persist=()=>{try {localStorage.setItem(storageKey.current,JSON.stringify(outbox.current))} catch {setMessage('Browser outbox storage unavailable. Keep this page open until events are persisted.')}}
@@ -39,14 +41,25 @@ export function IncidentDialogue({state,mode,now,staleThresholdMs}:Props) {
       const receipt=snapshot.state.latest
       const inSession=receipt && Date.parse(receipt.receivedAt)>=Date.parse(session.startedAt) && (!session.endedAt||Date.parse(receipt.receivedAt)<=Date.parse(session.endedAt))
       const wrongRover=receipt && receipt.frame.roverId!==session.roverId
-      const afterSession=receipt && session.endedAt && Date.parse(receipt.receivedAt)>Date.parse(session.endedAt)
-      const events=wrongRover||afterSession?[]:detect(inSession?snapshot.state:{...snapshot.state,latest:null},snapshot.now,staleThresholdMs)
+      const afterSession=session.endedAt && ((receipt && Date.parse(receipt.receivedAt)>Date.parse(session.endedAt)) || (snapshot.now>Date.parse(session.endedAt)&&snapshot.state.transportStatus==='connected'))
+      const closingExpired=session.endedAt && snapshot.now-Date.parse(session.endedAt)>Math.min(30000,staleThresholdMs+5000)
+      const events=wrongRover||afterSession||closingExpired?[]:detect(inSession?snapshot.state:{...snapshot.state,latest:null},snapshot.now,staleThresholdMs)
       if(events.length){const room=32-outbox.current.length;outbox.current.push(...events.slice(0,room));persist();if(events.length>room)setMessage('Browser outbox full. Some new incidents were not saved; telemetry continues.')}
       pending.current=true
       try {
-        if(outbox.current.length){await client.current.record(outbox.current[0],controller.current?.signal);if(disposed)return;outbox.current.shift();persist()}
-        if(ticks++%3===0){const rows=await client.current.incidents(controller.current?.signal);const available=await client.current.sessions(controller.current?.signal);if(!disposed){setIncidents(rows);setSessions(available)}}
-        if(!disposed)setMessage(wrongRover||afterSession?'Selected session does not match this new observation. Select the new producer session to resume collection.':`${outbox.current.length} pending browser events. Analyses require explicit producer completion and an idle guarded AI service.`)
+        // Session/job refresh must continue even if a permanently rejected outbox item is paused.
+        if(ticks++%3===0){const available=await client.current.sessions(controller.current?.signal);const rows=await client.current.incidents(controller.current?.signal);if(!disposed){setIncidents(rows);setSessions(available)}}
+        let deliveryError=''
+        const head=outbox.current[0]
+        if(head){
+          if(sendFailure.current.id!==head.eventId)sendFailure.current={id:head.eventId,attempts:0,nextAt:0}
+          if(sendFailure.current.attempts<3&&Date.now()>=sendFailure.current.nextAt){
+            try{await client.current.record(head,controller.current?.signal);if(disposed)return;outbox.current.shift();persist();setPaused(false)}
+            catch(error){sendFailure.current.attempts=error instanceof AssistantError&&error.code==='invalid_request'?3:sendFailure.current.attempts+1;sendFailure.current.nextAt=Date.now()+5000;setPaused(sendFailure.current.attempts>=3);deliveryError='Collector unavailable or event rejected. Pending events are retained locally; retry is bounded.'}
+          }
+          if(sendFailure.current.attempts>=3)deliveryError='Pending event delivery paused after rejection or three attempts. Events remain locally stored; inspect the session and retry explicitly.'
+        }
+        if(!disposed)setMessage(deliveryError||(wrongRover||afterSession||closingExpired?'Selected session does not match this new observation. Select the new producer session to resume collection.':`${outbox.current.length} pending browser events. Analyses require explicit producer completion and an idle guarded AI service.`))
       }catch {if(!disposed)setMessage('Collector unavailable or invalid response. Pending events are retained locally; bounded retry continues.')}finally{pending.current=false}
     }
     void tick();const timer=setInterval(()=>void tick(),1000)
@@ -58,6 +71,7 @@ export function IncidentDialogue({state,mode,now,staleThresholdMs}:Props) {
     <p className="mi__note">Automatic incident questions are separate from your science questions. No driving, hazard mutation or image understanding.</p>
     <label className="mi__field">Incident collector URL<input aria-label="Incident collector URL" value={url} disabled={connected||connecting} onChange={e=>setUrl(e.target.value)} /></label>
     <div className="mi__actions"><button onClick={()=>void connect()} disabled={connected||connecting}>CONNECT JOURNAL</button>{connected&&<button onClick={disconnect}>DISCONNECT JOURNAL</button>}</div>
+    {paused&&<div className="mi__actions"><button onClick={()=>{sendFailure.current.attempts=0;sendFailure.current.nextAt=0;setPaused(false)}}>RETRY PENDING EVENTS</button></div>}
     {connected&&<label className="mi__field">Producer session<select aria-label="Producer session" value={sessionId} onChange={e=>setSessionId(e.target.value)}><option value="">Select capture session</option>{sessions.map(s=><option value={s.sessionId} key={s.sessionId}>{s.roverId} · {s.provenance} · {s.sessionId.slice(0,8)} · {s.phase}</option>)}</select></label>}
     <p className="mi__note" role="status">{mode!=='LIVE'?'Automatic collection is available in LIVE mode only.':message}</p>
     {incidents.filter(i=>!sessionId||i.sessionId===sessionId).map(i=><details className="mi__source" key={i.eventId}><summary>{i.kind.replaceAll('_',' ')} · {stateLabels[i.job.state]}</summary>
