@@ -1,7 +1,7 @@
 // Tactical map renderer (Canvas 2D). World units: meters in LOCAL_ENU_V1 (x east, y north, origin = mission start marker).
 // Every marker is drawn at its accepted telemetry coordinate. The basemap (terrain.ts) is illustrative only.
 import { HAZARD_STYLE } from '../model/constants'
-import type { HazardType, MapModel } from '../model/types'
+import type { HazardType, MapModel, MapViewport } from '../model/types'
 import { CHUNK_M, renderTerrainChunk } from './terrain'
 
 const CYAN = '155,221,234'
@@ -17,7 +17,7 @@ export type TacticalMapCallbacks = {
   onSelect?: (key: string | null) => void
   onCursor?: (world: { x: number; y: number } | null) => void
   onFollowChange?: (follow: boolean) => void
-  onFrame?: (info: { scale: number }) => void
+  onFrame?: (info: { scale: number; viewport: MapViewport }) => void
 }
 export type TacticalMapApi = {
   setFollow: (v: boolean) => void
@@ -500,7 +500,7 @@ export function createTacticalMap(canvas: HTMLCanvasElement, getModel: () => Map
       ctx.beginPath(); ctx.moveTo(nx, ny + 12); ctx.lineTo(nx, ny - 8); ctx.moveTo(nx - 4, ny - 3); ctx.lineTo(nx, ny - 8); ctx.lineTo(nx + 4, ny - 3); ctx.stroke()
       ctx.textAlign = 'center'; ctx.fillText('N', nx, ny - 16)
     }
-    cb.onFrame?.({ scale: view.s })
+    cb.onFrame?.({ scale: view.s, viewport: { minX: view.cx - W / (2 * view.s), maxX: view.cx + W / (2 * view.s), minY: view.cy - H / (2 * view.s), maxY: view.cy + H / (2 * view.s) } })
   }
   schedule()
 

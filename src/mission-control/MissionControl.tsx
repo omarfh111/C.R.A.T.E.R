@@ -5,9 +5,10 @@ import { sgn } from './model/format'
 import {
   ageView, demoTickLabel, inspectorView, linkView, mapHazards, outageBanner, postureSubline, roverView, sortedInventory, typeCounts, type SortMode,
 } from './model/presenters'
-import type { HazardFilters, MapLayers, MapModel } from './model/types'
+import type { HazardFilters, MapLayers, MapModel, MapViewport } from './model/types'
 import type { MissionTelemetry } from './hooks/useMissionTelemetry'
 import { useNow, useViewportWidth } from './hooks/useNow'
+import { MiniMap } from './map/MiniMap'
 import { TacticalMap, type TacticalMapHandle } from './map/TacticalMapView'
 import { MissionHeader } from './components/MissionHeader'
 import { CommsPanel, PacketPanel, RoverPanel } from './components/StatusPanels'
@@ -43,6 +44,7 @@ export function MissionControl({
   const mapRef = useRef<TacticalMapHandle>(null)
   const cursorRef = useRef<{ x: number; y: number } | null>(null)
   const scaleRef = useRef(0)
+  const viewportRef = useRef<MapViewport | null>(null)
   const [selectedKey, setSelectedKey] = useState<string | null>(null)
   const [hoverKey, setHoverKey] = useState<string | null>(null)
   const [follow, setFollow] = useState(true)
@@ -120,8 +122,9 @@ export function MissionControl({
           onSelect={setSelectedKey}
           onCursor={(p) => { cursorRef.current = p }}
           onFollowChange={setFollow}
-          onFrame={({ scale }) => { scaleRef.current = scale }}
+          onFrame={({ scale, viewport }) => { scaleRef.current = scale; viewportRef.current = viewport }}
         />
+        <MiniMap model={model} viewport={viewportRef.current} compact={vw <= 700} onFit={() => mapRef.current?.fit([...j.trail, ...hazards])} />
         <MapBrackets />
         <MapTitle layers={layers} onToggle={(k) => setLayers((l) => ({ ...l, [k]: !l[k] }))} />
         <MapLegend zoomText={scaleRef.current ? `${scaleRef.current.toFixed(0)} px/m · drag to pan · scroll to zoom` : ''} />

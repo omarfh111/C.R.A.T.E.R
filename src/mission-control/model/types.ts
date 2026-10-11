@@ -24,6 +24,7 @@ export type MapHazard = {
   x: number; y: number; z: number; unc: number; confidence: number
   observedMs: number; ageMs: number; firstRxMs: number
 }
+export type MapViewport = { minX: number; maxX: number; minY: number; maxY: number }
 export type MapRover = { x: number; y: number; unc: number; seq: number; roverId: string; cog: number | null; latencyMs: number }
 
 /** Everything the canvas renderer reads each animation frame. Built from TelemetryState + Journal. */

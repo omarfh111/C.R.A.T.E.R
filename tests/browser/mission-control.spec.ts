@@ -173,6 +173,28 @@ test('hazard selection and inspection place actual M2 observations on the map', 
   const centred = await dashboard.cursorWorld()
   expect(centred!.east).toBeCloseTo(observed!.position.xM, 0)
 
+  // The overview uses the same accepted telemetry, including historical/stale fixes.
+  const minimap = page.getByRole('region', { name: 'Mission minimap', exact: true })
+  await expect(minimap).toBeVisible()
+  const last = delivered[delivered.length - 1]
+  await expect(minimap.locator('.mc-minimap__status')).toHaveText(`LAST KNOWN · ${last.sequence}`)
+  await expect(minimap.locator('.mc-minimap__rover title')).toHaveText(
+    `${last.roverId}: E ${last.roverPosition.xM} m, N ${last.roverPosition.yM} m; uncertainty radius ${last.positionUncertaintyRadiusM} m`,
+  )
+  await expect(minimap.locator('.mc-minimap__selection title')).toHaveText(`Selected hazard: ${target}`)
+  const viewport = minimap.locator('.mc-minimap__viewport')
+  await expect(viewport).toHaveAttribute('width', /[0-9]/)
+  const widthBefore = Number(await viewport.getAttribute('width'))
+  await page.getByRole('button', { name: 'Zoom in', exact: true }).click()
+  await expect.poll(async () => Number(await viewport.getAttribute('width'))).toBeLessThan(widthBefore * 0.9)
+  await minimap.getByRole('button', { name: 'FIT MISSION' }).click()
+  const acceptedHazards = new Map(delivered.flatMap(f => f.hazards.map(h => [h.id, h.position] as const)))
+  const fixes = [...delivered.map(f => f.roverPosition), ...acceptedHazards.values()]
+  const expectedEast = (Math.min(...fixes.map(p => p.xM)) + Math.max(...fixes.map(p => p.xM))) / 2
+  const expectedNorth = (Math.min(...fixes.map(p => p.yM)) + Math.max(...fixes.map(p => p.yM))) / 2
+  await expect.poll(async () => (await dashboard.cursorWorld())?.east ?? null).toBeCloseTo(expectedEast, 0)
+  await expect.poll(async () => (await dashboard.cursorWorld())?.north ?? null).toBeCloseTo(expectedNorth, 0)
+
   // ESC clears the selection, as the inspector advertises.
   await page.keyboard.press('Escape')
   await expect(dashboard.inspector).toContainText('No hazard selected')
@@ -200,6 +222,7 @@ test('renders without horizontal overflow on desktop and mobile viewports', asyn
     await expect(dashboard.roverPanel, viewport.name).toBeVisible()
     await expect(dashboard.packetPanel, viewport.name).toBeVisible()
     await expect(dashboard.inventory, viewport.name).toBeVisible()
+    await expect(page.getByRole('button', { name: 'Toggle mission minimap' })).toHaveAttribute('aria-expanded', viewport.name === 'mobile' ? 'false' : 'true')
     await expect(dashboard.mapCanvas, viewport.name).toBeVisible()
     const box = await dashboard.mapCanvas.boundingBox()
     expect(box!.width, `${viewport.name} map width`).toBeGreaterThan(200)
