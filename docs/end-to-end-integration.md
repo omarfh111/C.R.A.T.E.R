@@ -1,5 +1,7 @@
 # Windows end-to-end integration
 
+For a fresh clone, use the two-command [Quick Demo](../README.md#start-here) first. The fixed `D:\space_esb_m1` paths and cached model described below document the original hardware validation, not prerequisites for the new launchers.
+
 This guide is for `feat/end-to-end-integration`, based on M2 `0f1a53336a0123885494bad33082219f7441a013` with pinned M3 `46bb888282accfdd1e92517d76e442cb986d1ad2` and M1 `94bcf577e0aa5e8f9310d3fadc62757b26ce657b`. It uses local Grounding DINO Tiny ONNX through DirectML, M2 calibrated projection and binary radio, and the M3 LIVE dashboard. Later M2 branch changes are deliberately excluded.
 
 ## Prerequisites and local assets

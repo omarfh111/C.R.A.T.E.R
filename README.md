@@ -1,5 +1,32 @@
 # C.R.A.T.E.R.
 
+## Start Here
+
+**Windows prerequisites:** PowerShell, Python 3.12+, Node.js 24+ with npm, and a browser.
+
+```powershell
+git clone --branch feat/end-to-end-integration https://github.com/omarfh111/C.R.A.T.E.R.git
+cd C.R.A.T.E.R
+```
+
+**Quick Demo (recommended; no GPU, model download, secrets, or AI service):**
+
+```powershell
+.\scripts\setup.ps1
+.\scripts\start-demo.ps1
+```
+
+**Full Live AI Demo (optional; compatible Windows DirectML GPU):**
+
+```powershell
+.\scripts\setup-gpu.ps1
+.\scripts\start-live.ps1
+```
+
+The launcher opens Mission Control and prints its local `http://127.0.0.1:<port>/` URL. Each run uses fresh loopback ports to keep older tabs from triggering capture. Quick Demo is **RECORDED ONNX REPLAY**: its 30 predictions came from an earlier real ONNX run, while M2's binary radio simulation, WebSocket bridge, and M3's LIVE telemetry view run now. Radio loss and blackout are simulated; original capture times stay historical. Full Live AI runs fresh pixel-derived ONNX inference from the committed calibrated video. First-time GPU setup may require substantial downloads.
+
+If Windows blocks scripts, run `Set-ExecutionPolicy -Scope Process Bypass` in that PowerShell window, then retry; this does not change the permanent policy. See the [technical launch guide](docs/end-to-end-integration.md), [ONNX evidence bundle](examples/m1-onnx-calibrated/README.md), and [seven-minute demo guide](docs/seven-minute-demo.md).
+
 This integration branch combines local rover perception (M1), calibrated spatial
 telemetry (M2), and the Mission Control dashboard (M3). The Python modules and
 React frontend share one checkout. Model inference and the WebSocket bridge run
@@ -25,23 +52,20 @@ locally; the dashboard consumes canonical JSON frames in LOCAL_ENU_V1.
 
 ## Development checks
 
-Windows prerequisites: Python 3.11+ and Node.js 24. Reuse the validated local
-ONNX DirectML model cache when running inference. The Python test suite does not
+Use the setup scripts above for a fresh clone. The Python test suite does not
 download model weights; hardware validation is a separate local run.
 
 ```powershell
-Set-Location D:\space_esb_integration
-$py = 'D:\space_esb_m1\.venv\Scripts\python.exe'
-$env:CRATER_M2_SOURCE = (Get-Location).Path
-& $py -m pytest -q
-npm ci
+& .\.venv\Scripts\python.exe -m pip install -e '.[test,hosted,spaces]'
+& .\.venv\Scripts\python.exe -m pytest -q
 npm test
 npm run build
 ```
 
-M2 serves canonical JSON over `ws://127.0.0.1:8765/telemetry` on loopback.
-Copy `.env.example` to an ignored `.env.local`, set
-`VITE_TELEMETRY_MODE=LIVE` and the WebSocket URL, then run `npm run dev`.
+The launchers configure ignored `.env.local` for LIVE telemetry and print the
+selected local URL. For manual development, M2 defaults to
+`ws://127.0.0.1:8765/telemetry`; copy `.env.example` to `.env.local` and set
+`VITE_TELEMETRY_MODE=LIVE` before running `npm run dev`.
 The frontend defaults to deterministic MOCK mode until LIVE is selected.
 M3 validates every received frame and preserves the last accepted state
 through radio delays and WebSocket reconnects. Restart a browser telemetry

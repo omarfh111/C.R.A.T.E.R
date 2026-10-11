@@ -1,5 +1,7 @@
 # Seven-minute live demonstration
 
+For a fresh clone, begin with the [Start Here launchers](../README.md#start-here). The paths and timed commands below preserve the original DirectML rehearsal; the Quick Demo launcher replays its recorded ONNX observations with an explicit **RECORDED ONNX REPLAY** label.
+
 This presentation uses two **actual** Grounding DINO Tiny ONNX + DirectML passes over the same hash-checked 30-frame calibrated video. The first pass populates Mission Control. The second pass keeps its station WebSocket connected while a simulated rover radio blackout holds new pixel-derived observations, then retransmits them. In a separate fallback, M2 can replay previously recorded genuine ONNX observations. Neither path uses simulator boxes as detections. See the [Windows integration guide](end-to-end-integration.md) for environment setup.
 
 ## Prepare before the audience arrives
