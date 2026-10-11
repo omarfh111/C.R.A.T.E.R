@@ -42,7 +42,8 @@ function Install-DemoFrontend {
 
 function Set-LiveEnvironment {
     $path = Join-Path $script:Repo '.env.local'
-    $lines = if (Test-Path -LiteralPath $path) { @([IO.File]::ReadAllLines($path)) } else { @() }
+    [string[]]$lines = @()
+    if (Test-Path -LiteralPath $path) { $lines = [IO.File]::ReadAllLines($path) }
     foreach ($setting in @(@('VITE_TELEMETRY_MODE', 'LIVE'), @('VITE_TELEMETRY_WS_URL', 'ws://127.0.0.1:8765/telemetry'))) {
         $key, $value = $setting
         $matches = @($lines | Where-Object { $_ -match "^\s*$key\s*=" })
