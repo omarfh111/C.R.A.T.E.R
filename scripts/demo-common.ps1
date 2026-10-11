@@ -41,6 +41,22 @@ function Get-DemoPorts {
     return @{ Web = [int]$web; Ws = [int]$ws }
 }
 
+function Get-FreeDemoPort {
+    $listener = [Net.Sockets.TcpListener]::new([Net.IPAddress]::Loopback, 0)
+    $listener.Start()
+    try { return ([Net.IPEndPoint]$listener.LocalEndpoint).Port }
+    finally { $listener.Stop() }
+}
+
+function Initialize-DemoRunPorts {
+    # Fresh ports keep tabs from earlier runs from triggering M2's wait-for-client gate.
+    if (-not $env:CRATER_DEMO_WEB_PORT) { $env:CRATER_DEMO_WEB_PORT = [string](Get-FreeDemoPort) }
+    if (-not $env:CRATER_DEMO_WS_PORT) {
+        do { $env:CRATER_DEMO_WS_PORT = [string](Get-FreeDemoPort) } while ($env:CRATER_DEMO_WS_PORT -eq $env:CRATER_DEMO_WEB_PORT)
+    }
+    return Get-DemoPorts
+}
+
 function Install-DemoFrontend {
     $previous = $env:NODE_USE_SYSTEM_CA
     try {

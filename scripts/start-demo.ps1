@@ -2,12 +2,14 @@ param([switch]$NoBrowser)
 $ErrorActionPreference = 'Stop'
 . (Join-Path $PSScriptRoot 'demo-common.ps1')
 $frontend = $null
+$previousWebPort = $env:CRATER_DEMO_WEB_PORT
+$previousWsPort = $env:CRATER_DEMO_WS_PORT
 try {
     $python = Join-Path $script:Repo '.venv/Scripts/python.exe'
     $observations = Join-Path $script:Repo 'examples/m1-onnx-calibrated/observations.jsonl'
     if (-not (Test-Path $python)) { throw 'Model-free environment missing. Run .\scripts\setup.ps1 first.' }
     if (-not (Test-Path $observations)) { throw 'Committed ONNX observations are missing. Restore examples/m1-onnx-calibrated/.' }
-    $ports = Get-DemoPorts
+    $ports = Initialize-DemoRunPorts
     Set-LiveEnvironment
     $frontend = Start-DemoFrontend
     $url = "http://127.0.0.1:$($ports.Web)/"
@@ -32,4 +34,8 @@ try {
     Write-Host "Replay complete. Historical capture timestamps were preserved. Report: $run"
     Write-Host 'M2 delivered 30/30. Confirm M3 shows ACCEPTED 30 in the browser.'
 } catch { Write-Error "Demo failed: $_"; exit 1 }
-finally { Stop-DemoFrontend $frontend }
+finally {
+    Stop-DemoFrontend $frontend
+    $env:CRATER_DEMO_WEB_PORT = $previousWebPort
+    $env:CRATER_DEMO_WS_PORT = $previousWsPort
+}
