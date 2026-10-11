@@ -155,8 +155,11 @@ def make_server(assistant, port=8766, report=None, *, allowed_origins=DEFAULT_OR
                 self.send_header("Cache-Control", "no-store")
                 self.send_header("X-Content-Type-Options", "nosniff")
                 self.send_header("Content-Security-Policy", "default-src 'none'; frame-ancestors 'none'")
-                origin = self.headers.get("Origin")
-                if origin and allowed_origin(origin, origins):
+                # Echo the configured origin, never the request's own bytes. allowed_origin()
+                # already demands an exact match, so this is the same value; selecting it from
+                # `origins` keeps request text out of the response headers by construction.
+                origin = next((allowed for allowed in origins if allowed == self.headers.get("Origin")), None)
+                if origin:
                     self.send_header("Access-Control-Allow-Origin", origin)
                     self.send_header("Vary", "Origin")
                     self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")

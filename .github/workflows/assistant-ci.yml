@@ -2,7 +2,7 @@ name: Mission Intelligence validation
 
 on:
   push:
-    branches: [main, 'feat/**', 'codex/**']
+    branches: [main, 'feat/**', 'codex/**', ci/security-e2e]
   pull_request:
     paths:
       - 'pyproject.toml'

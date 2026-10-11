@@ -1,7 +1,7 @@
 name: M1 perception validation
 on:
   push:
-    branches: [feat/ai-perception, feat/end-to-end-integration, main]
+    branches: [feat/ai-perception, feat/end-to-end-integration, ci/security-e2e, codex/mission-incident-dialogue, main]
   pull_request:
     paths:
       - 'crater_m1/**'

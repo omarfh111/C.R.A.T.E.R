@@ -2,7 +2,7 @@ name: M2 spatial telemetry
 
 on:
   push:
-    branches: [feat/spatial-telemetry, feat/end-to-end-integration, main]
+    branches: [feat/spatial-telemetry, feat/end-to-end-integration, ci/security-e2e, codex/mission-incident-dialogue, main]
   pull_request:
 
 permissions:

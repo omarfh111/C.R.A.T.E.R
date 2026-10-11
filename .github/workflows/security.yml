@@ -1,0 +1,277 @@
+name: Security
+
+# Secret scanning, dependency auditing and supply-chain review.
+#
+# Like the other workflows here, this one reads no repository secret, calls no application
+# service and installs neither GPU packages nor model weights. The heavy opt-in groups
+# (PyTorch, Transformers, ONNX Runtime, the DirectML provider) are audited from their declared
+# pins without being installed.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [ci/security-e2e, codex/mission-incident-dialogue, main]
+  # Weekly, so a newly published advisory or a newly recognised secret format surfaces even
+  # when nothing is pushed.
+  schedule:
+    - cron: '41 5 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
+env:
+  # Pinned by tag and digest: a third-party image is a mutable dependency otherwise.
+  TRUFFLEHOG_IMAGE: ghcr.io/trufflesecurity/trufflehog:3.99.2@sha256:47a84bc18a0d04a165498bbbd3bacfd84176661cbc91f8e0f85467f6a771e99a
+
+jobs:
+  secrets:
+    name: Secret scan (history and shipped bundle)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      # Full history, not a shallow clone: a credential committed and later deleted is still in
+      # the repository.
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      # The official action only scans a pushed commit range, so the CLI is run over every
+      # commit reachable from this ref.
+      - name: Scan every commit (TruffleHog)
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$PWD:/repo:ro" "$TRUFFLEHOG_IMAGE" \
+            git file:///repo --no-update --results=verified,unknown,unverified --json \
+            > "$RUNNER_TEMP/history.jsonl"
+
+      # Verified and unverifiable matches block; provider-rejected pattern hits are reported.
+      # Git history is never rewritten from CI.
+      - name: Classify and gate history findings
+        run: python scripts/summarize-trufflehog.py "$RUNNER_TEMP/history.jsonl" --label "full git history" --summary "$GITHUB_STEP_SUMMARY"
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install frontend dependencies
+        run: npm ci --no-audit --no-fund --ignore-scripts
+
+      # The browser bundle is where a mistyped VITE_* variable would publish a credential to
+      # every visitor, so the built output is scanned as well as the sources it came from.
+      - name: Build the production bundle
+        run: npm run build
+
+      - name: Scan the shipped bundle (TruffleHog)
+        run: |
+          set -euo pipefail
+          docker run --rm -v "$PWD/dist:/dist:ro" "$TRUFFLEHOG_IMAGE" \
+            filesystem /dist --no-update --results=verified,unknown,unverified --json \
+            > "$RUNNER_TEMP/bundle.jsonl"
+
+      - name: Classify and gate bundle findings
+        run: python scripts/summarize-trufflehog.py "$RUNNER_TEMP/bundle.jsonl" --label "built Vite bundle" --summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload secret-scan metadata
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: security-secret-scan
+          path: ${{ runner.temp }}/*.jsonl
+          if-no-files-found: ignore
+          retention-days: 14
+
+  npm-audit:
+    name: Dependency audit (npm)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+
+      # Installed so the signature check can read node_modules. No dependency lifecycle script
+      # runs in this job.
+      - name: Install dependencies (no lifecycle scripts)
+        run: npm ci --no-audit --no-fund --ignore-scripts
+
+      - name: Registry signatures and provenance attestations (blocking)
+        run: npm audit signatures
+
+      # What actually reaches the browser: React, three.js, zod and the fonts.
+      - name: Production dependencies, high or critical advisories (blocking)
+        run: npm audit --omit=dev --audit-level=high
+
+      # Vite, Vitest, Playwright and the TypeScript toolchain never reach the shipped bundle,
+      # and an advisory whose only fix is a breaking major upgrade of a validated test runner
+      # would otherwise keep this workflow red with nothing safe to act on. Reported at every
+      # severity, and recorded in docs/ci-security.md, rather than hidden.
+      - name: Full dependency tree, all severities (advisory)
+        if: ${{ !cancelled() }}
+        run: |
+          set -uo pipefail
+          if npm audit > "$RUNNER_TEMP/audit.txt" 2>&1; then
+            result='no known vulnerabilities'
+          else
+            result='advisories found'
+            echo "::warning title=npm audit (advisory)::Advisories in the full dependency tree, including dev tooling. See the job summary."
+          fi
+          {
+            echo "### npm audit, full tree including dev dependencies: $result (advisory)"
+            echo
+            echo '```'
+            cat "$RUNNER_TEMP/audit.txt"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  python-installed-audit:
+    name: Python audit, ${{ matrix.label }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # What `scripts/setup.ps1`, the judge Quick Demo and every existing CI job install.
+          - label: core runtime
+            install: '.'
+            gate: fixable
+          # Opt-in groups that carry no model weights: the PDF assistant and the hosted or
+          # Space-backed M1 experiments, plus the test runner.
+          - label: optional model-free extras
+            install: '.[assistant,hosted,spaces,test]'
+            gate: advisory
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      # Current pip and auditing tool first, so the audit reflects this project's dependencies
+      # rather than the runner's bootstrap tooling.
+      - name: Install the auditing tool
+        run: python -m pip install --upgrade pip pip-audit
+
+      - name: Install the dependency set under audit
+        run: python -m pip install -e "${{ matrix.install }}"
+
+      # The resolved environment, so transitive dependencies are covered too.
+      #
+      # pip-audit exits non-zero both when it finds advisories and when it fails, so the two are
+      # separated here: a missing or empty report means the tool failed and that must not be
+      # reported as "no advisories".
+      - name: Audit the installed environment
+        run: |
+          set -uo pipefail
+          pip-audit --format json --progress-spinner off --output "$RUNNER_TEMP/audit.json"             2> "$RUNNER_TEMP/audit.err" || true
+          cat "$RUNNER_TEMP/audit.err"
+          if [ ! -s "$RUNNER_TEMP/audit.json" ]; then
+            # Annotate the tool's own diagnosis so the failure is legible without the job log.
+            while IFS= read -r line; do echo "::error title=pip-audit::${line}"; done < "$RUNNER_TEMP/audit.err"
+            echo "::error title=pip-audit::pip-audit produced no report."
+            exit 1
+          fi
+
+      - name: Report and gate
+        run: python scripts/summarize-pip-audit.py "$RUNNER_TEMP/audit.json" --label "${{ matrix.label }}" --gate "${{ matrix.gate }}" --summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload audit JSON
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: security-pip-audit-${{ matrix.gate }}-${{ strategy.job-index }}
+          path: ${{ runner.temp }}/audit.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+  python-model-pins-audit:
+    name: Python audit, local ONNX pins (${{ matrix.platform }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        # Both halves of the `onnx-local` extra's environment markers: the portable CPU runtime
+        # and the Windows DirectML provider. Neither is installed here.
+        platform: [linux, win32]
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install the pinning helper's dependency
+        run: python -m pip install --upgrade pip packaging
+
+      # PyTorch, Transformers, ONNX and the ONNX Runtime providers are resolved from PyPI
+      # metadata and audited at those versions. Nothing is downloaded, built or installed, and
+      # this project does not upgrade them speculatively.
+      - name: Pin the declared local ONNX group without installing it
+        run: python scripts/pin-python-deps.py --group onnx-local --platform "${{ matrix.platform }}" --output "$RUNNER_TEMP/onnx-pins.txt"
+
+      # Queried against OSV by name and version rather than with pip-audit, which even under
+      # `--no-deps` resolves requirements through `pip install --dry-run`: onnxruntime-directml
+      # publishes Windows wheels only, so that resolution fails on a Linux runner and produces
+      # no report at all. OSV needs no resolver and no compatible wheel, so the Windows DirectML
+      # provider is audited here too. pip-audit still audits every set this project installs.
+      - name: Audit the pinned local ONNX group against OSV
+        run: python scripts/audit-pinned-deps.py --requirement "$RUNNER_TEMP/onnx-pins.txt" --output "$RUNNER_TEMP/audit.json"
+
+      - name: Report (advisory)
+        run: python scripts/summarize-pip-audit.py "$RUNNER_TEMP/audit.json" --label "local ONNX group (${{ matrix.platform }})" --gate advisory --summary "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload pins and audit JSON
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v7
+        with:
+          name: security-onnx-pins-${{ matrix.platform }}
+          path: |
+            ${{ runner.temp }}/onnx-pins.txt
+            ${{ runner.temp }}/audit.json
+          if-no-files-found: ignore
+          retention-days: 14
+
+  supply-chain:
+    name: Workflow supply-chain review
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Install the review tool's dependency
+        run: python -m pip install --upgrade pip pyyaml
+
+      # Privileged pull-request triggers, missing or over-broad permissions, event data
+      # interpolated into shell scripts, and unpinned third-party actions.
+      - name: Review every workflow definition
+        run: python scripts/check-workflow-supply-chain.py

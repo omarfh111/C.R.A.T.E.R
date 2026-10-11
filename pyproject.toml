@@ -14,7 +14,8 @@ ai = ["torch>=2.6,<3", "torchvision>=0.21,<1", "transformers==4.57.1"]
 hosted = ["requests>=2.32,<3", "python-dotenv>=1.0,<2"]
 spaces = ["requests>=2.32,<3", "python-dotenv>=1.0,<2", "gradio-client==1.13.3", "huggingface-hub==0.36.2"]
 onnx-local = ["torch>=2.6,<3", "transformers==4.57.1", "onnx==1.20.1", "onnxruntime-directml==1.24.4; sys_platform == 'win32'", "onnxruntime==1.24.4; sys_platform != 'win32'"]
-test = ["pytest>=8,<9"]
+# pytest 9.0.3 fixes CVE-2025-71176 (PYSEC-2026-1845); requirements-m1.txt already allows 9.x.
+test = ["pytest>=8,<10"]
 assistant = ["pypdf>=6,<7"]
 
 [project.scripts]
