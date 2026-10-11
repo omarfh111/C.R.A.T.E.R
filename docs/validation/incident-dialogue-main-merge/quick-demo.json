@@ -1,0 +1,9 @@
+{
+  "frames": 30,
+  "historicalTimestampsPreserved": true,
+  "canonicalValidation": "30 decoded frames accepted by M3's actual Zod parser; ordered per rover.",
+  "webSocket": "ws://127.0.0.1:53989/telemetry",
+  "assistantRequired": false,
+  "launcherExitCode": 0,
+  "gitHead": "b6e74efbb4f7ba705debf8e9254f67ce8e7d0f38"
+}
