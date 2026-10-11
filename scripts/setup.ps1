@@ -14,8 +14,7 @@ try {
     Write-Host 'Installing local M2 and model-free Python dependencies...'
     Invoke-DemoCommand $localPython @('-m', 'pip', 'install', '-e', $script:Repo)
     Write-Host 'Installing M3 frontend dependencies with npm ci...'
-    Push-Location $script:Repo
-    try { Invoke-DemoCommand 'npm.cmd' @('ci') } finally { Pop-Location }
+    Install-DemoFrontend
     Set-LiveEnvironment
     Write-Host 'Setup complete. LIVE telemetry is configured in .env.local.'
     Write-Host 'Run .\scripts\start-demo.ps1 for RECORDED ONNX REPLAY (no model or GPU).'

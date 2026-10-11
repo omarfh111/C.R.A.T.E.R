@@ -30,13 +30,23 @@ function Invoke-DemoCommand([string]$Executable, [string[]]$Arguments) {
     if ($LASTEXITCODE -ne 0) { throw "$Executable failed with exit code $LASTEXITCODE. See the error above." }
 }
 
+function Install-DemoFrontend {
+    $previous = $env:NODE_USE_SYSTEM_CA
+    try {
+        # Node 24 can use the Windows trust store while keeping TLS verification on.
+        $env:NODE_USE_SYSTEM_CA = '1'
+        Push-Location $script:Repo
+        try { Invoke-DemoCommand 'npm.cmd' @('ci') } finally { Pop-Location }
+    } finally { $env:NODE_USE_SYSTEM_CA = $previous }
+}
+
 function Set-LiveEnvironment {
     $path = Join-Path $script:Repo '.env.local'
-    $lines = if (Test-Path -LiteralPath $path) { [Collections.Generic.List[string]]::new([string[]][IO.File]::ReadAllLines($path)) } else { [Collections.Generic.List[string]]::new() }
+    $lines = if (Test-Path -LiteralPath $path) { @([IO.File]::ReadAllLines($path)) } else { @() }
     foreach ($setting in @(@('VITE_TELEMETRY_MODE', 'LIVE'), @('VITE_TELEMETRY_WS_URL', 'ws://127.0.0.1:8765/telemetry'))) {
         $key, $value = $setting
         $matches = @($lines | Where-Object { $_ -match "^\s*$key\s*=" })
-        if ($matches.Count -eq 0) { $lines.Add("$key=$value") }
+        if ($matches.Count -eq 0) { $lines += "$key=$value" }
         else {
             for ($i = 0; $i -lt $lines.Count; $i++) {
                 if ($lines[$i] -match "^\s*$key\s*=") { $lines[$i] = "$key=$value" }
