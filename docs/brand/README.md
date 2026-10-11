@@ -12,7 +12,7 @@ and they do not affect the favicon, the UI, or any runtime behaviour.
 | [`crater-mark.svg`](crater-mark.svg) | 64×64 | Primary icon. Works on dark and light backgrounds. |
 | [`crater-mark-mono.svg`](crater-mark-mono.svg) | 64×64 | Single-colour icon drawn in `currentColor`. |
 | [`crater-logo.svg`](crater-logo.svg) | 460×132 | Horizontal lockup — mark, wordmark and descriptor on a dark panel. |
-| [`crater-readme-hero.svg`](crater-readme-hero.svg) | 1280×640 | Animated README hero. |
+| [`crater-readme-hero.svg`](crater-readme-hero.svg) | 1280×640 | Animated README hero — the automatic incident dialogue, end to end. |
 | [`crater-hero-static.svg`](crater-hero-static.svg) | 1280×640 | Motion-free variant of the hero, for slides, print and PDF export. |
 
 `crater-mark-mono.svg` inherits the surrounding `color` when it is inlined in HTML or imported as a
@@ -58,22 +58,39 @@ README cannot load one, so the fallback is the normal rendering path outside the
 
 ## The hero
 
-`crater-readme-hero.svg` tells the actual product story in one frame: camera capture → local ONNX
-detection → calibrated projection into `LOCAL_ENU_V1` → binary encoding → lossy radio with a
-simulated blackout → Mission Control. Every figure shown in it is drawn from
-[integration validation](../integration-validation.md), and the honest qualifiers (recorded replay,
-simulated radio, synthetic scene) are rendered into the artwork rather than left to the caption.
+`crater-readme-hero.svg` tells the newest product story in one frame, over a single 24-second
+cycle: **rover detects → radio blackout → incident recorded → robot asks AI → post-capture AI
+analysis → Mission Control displays the answer.** Three panels carry it — the rover field view, the
+`ROBOT INCIDENT DIALOGUE` journal, and the Mission Control reply — above a six-stage rail with a
+playhead that lands on each beat as it happens.
+
+Every label and figure is drawn from the shipped implementation and its
+[target-PC evidence](../validation/incident-dialogue/evidence.md): the incident kind
+`telemetry_stale` and trigger `capture_stale` are real detector outputs, the question is the exact
+server-chosen text for that kind, the job states are the real UI strings, and the measured
+post-capture analysis time and warm generation throughput are the recorded ones.
+
+Four honest constraints are rendered into the artwork rather than left to the caption. The dialogue
+is **text**, never voice. The rail's `CAPTURE ENDS · AI ADMITTED` gate sits between the robot's
+question and the analysis, because generation is admitted only once capture has finished. Every
+generated answer carries `UNVERIFIED GENERATED EXPLANATION` with its `[S1]` citation. And
+`NO ROVER COMMAND` states that nothing here drives the rover.
 
 **Motion.** All animation is CSS inside the SVG — no SMIL, no script. Every animated property is
 translation, opacity, circle radius or dash offset, so nothing depends on `transform-origin`
-resolution and the file stays about 24 KB.
+resolution and the file stays about 37 KB. One 24-second cycle drives every element, so the beats
+stay in step with each other and with the rail playhead instead of drifting on separate loops.
+Each state swap — `LIVE`/`STALE`, the job-state chips, the narration band — is authored as a clean
+hand-off, with the outgoing element fully faded before the incoming one begins.
 
 **Accessibility.** The hero carries `role="img"` with `<title>` and `<desc>` through
 `aria-labelledby`, and honours `prefers-reduced-motion: reduce` by disabling every animation.
 
 **Static fallback.** The artwork is authored so that its *unanimated* state is already a complete
-composition: the rover sits mid-traverse, all three rocks are marked, every readout is populated and
-telemetry frames are spread along the signal path. Animation only adds motion on top. If a renderer
+composition — the resolved end of the story, not an empty stage. The rover sits mid-traverse with
+all three rocks marked, the incident record is fully written, the question is fully typed, the job
+reads `ANALYSIS COMPLETE`, the cited reply and its source line are shown, and the rail is fully
+wiped with the playhead resting on the final beat. Animation only adds motion on top. If a renderer
 strips the `<style>` block, or the reader prefers reduced motion, the hero degrades to that
 composition rather than to a broken or empty frame.
 

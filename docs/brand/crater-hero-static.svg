@@ -1,13 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="heroTitle heroDesc">
-  <title id="heroTitle">C.R.A.T.E.R. — lunar hazard reconnaissance, from rover camera to Mission Control</title>
-  <desc id="heroDesc">Motion-free variant of the C.R.A.T.E.R. hero, generated from crater-readme-hero.svg. A dark mission-control panel. On the left a rover drives across lunar terrain, a sensor bar sweeps the scene and three tracked rocks are marked. On the right the Mission Control dashboard shows the same rocks on a LOCAL_ENU_V1 map beside frame sequence, delivery and spatial-error readouts. Along the bottom a signal path carries binary telemetry frames through six stages — capture, ONNX detection, tracking, projection, binary radio and Mission Control — including a simulated radio blackout where frames queue and are then retransmitted.</desc>
+  <title id="heroTitle">C.R.A.T.E.R. — a rover records an incident, asks its local AI after capture, and Mission Control reads the cited answer</title>
+  <desc id="heroDesc">Motion-free variant of the C.R.A.T.E.R. hero, generated from crater-readme-hero.svg. A dark mission-control panel in three parts. Left: a rover drives across lunar terrain while a sensor bar sweeps the scene and three tracked rocks are marked, ending in capture complete, thirty of thirty frames. Centre: the ROBOT INCIDENT DIALOGUE panel holds a persisted incident with a UUID, the kind telemetry_stale, the trigger capture_stale, provenance historical_replay, certifiedMeasurement false and a stored validated v1 snapshot, followed by one server-chosen text question asking for the evidence limitations of delayed observations, and a job state that moves from waiting for producer capture end, to waiting for local AI, to analyzing, to analysis complete. Right: Mission Control shows the same hazards on a LOCAL_ENU_V1 map above a cited local AI reply about delay-tolerant relays, labelled UNVERIFIED GENERATED EXPLANATION with source S1, and a note that operator review is separate and no rover command is generated. Along the bottom a six-stage rail runs from detect, through a simulated radio blackout where frames queue and are resent, to the recorded incident, to the robot question, across a capture-ends gate that admits the local model only once capture has finished, to the post-capture analysis and the displayed answer.</desc>
 
   <defs>
-    <radialGradient id="glowA" cx="78%" cy="4%" r="62%">
+    <radialGradient id="glowA" cx="74%" cy="2%" r="64%">
       <stop offset="0" stop-color="#9bddea" stop-opacity=".10"/><stop offset="1" stop-color="#9bddea" stop-opacity="0"/>
     </radialGradient>
-    <radialGradient id="glowB" cx="10%" cy="88%" r="55%">
+    <radialGradient id="glowB" cx="8%" cy="90%" r="56%">
       <stop offset="0" stop-color="#f2b54a" stop-opacity=".055"/><stop offset="1" stop-color="#f2b54a" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowC" cx="52%" cy="46%" r="34%">
+      <stop offset="0" stop-color="#9bddea" stop-opacity=".055"/><stop offset="1" stop-color="#9bddea" stop-opacity="0"/>
     </radialGradient>
     <linearGradient id="ground" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0" stop-color="#9bddea" stop-opacity=".07"/><stop offset="1" stop-color="#9bddea" stop-opacity="0"/>
@@ -21,8 +24,8 @@
     <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
       <path d="M32 0 V32 M0 32 H32" fill="none" stroke="#9bddea" stroke-opacity=".035" stroke-width="1"/>
     </pattern>
-    <clipPath id="clipA"><rect x="45" y="157" width="654" height="298"/></clipPath>
-    <clipPath id="clipMap"><rect x="740" y="212" width="240" height="220"/></clipPath>
+    <clipPath id="clipA"><rect x="45" y="187" width="470" height="248"/></clipPath>
+    <clipPath id="clipMap"><rect x="924" y="196" width="296" height="92"/></clipPath>
 
     <style>
       .d { font-family: 'Space Grotesk', -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
@@ -37,6 +40,7 @@
   <rect width="1280" height="640" fill="url(#grid)"/>
   <rect width="1280" height="640" fill="url(#glowA)"/>
   <rect width="1280" height="640" fill="url(#glowB)"/>
+  <rect width="1280" height="640" fill="url(#glowC)"/>
 
   <!-- ============ header ============ -->
   <g transform="translate(44,26) scale(.625)">
@@ -55,89 +59,88 @@
   <text class="m" x="106" y="73" font-size="9.5" font-weight="500" letter-spacing="2.9" fill="#86c9d7">LUNAR HAZARD RECONNAISSANCE</text>
 
   <g class="m" font-size="9.5" letter-spacing="1.6">
-    <rect x="937" y="34" width="177" height="26" fill="none" stroke="#9bddea" stroke-opacity=".34"/>
-    <text x="1025" y="51" text-anchor="middle" fill="#9bddea">LOCAL ONNX · DIRECTML</text>
-    <rect x="1124" y="34" width="112" height="26" fill="none" stroke="#9bddea" stroke-opacity=".16"/>
-    <text x="1180" y="51" text-anchor="middle" fill="#a5b9c4">LOCAL_ENU_V1</text>
+    <rect x="737" y="34" width="177" height="26" fill="none" stroke="#9bddea" stroke-opacity=".34"/>
+    <text x="825" y="51" text-anchor="middle" fill="#9bddea">LOCAL ONNX · DIRECTML</text>
+    <rect x="924" y="34" width="200" height="26" fill="none" stroke="#9bddea" stroke-opacity=".34"/>
+    <text x="1024" y="51" text-anchor="middle" fill="#9bddea">POST-CAPTURE LOCAL AI</text>
+    <rect x="1134" y="34" width="102" height="26" fill="none" stroke="#9bddea" stroke-opacity=".16"/>
+    <text x="1185" y="51" text-anchor="middle" fill="#a5b9c4">LOCAL_ENU_V1</text>
   </g>
   <path d="M44 92 H1236" stroke="#9bddea" stroke-opacity=".14"/>
 
   <!-- ============ tagline ============ -->
-  <text class="d" x="44" y="130" font-size="17" fill="#c2dce3">Hazards found on the rover. Fixed in metres. Delivered through a lossy radio.</text>
+  <text class="d" x="44" y="124" font-size="18.5" fill="#c2dce3">A blackout becomes a recorded incident. The rover asks its local AI after capture. Mission Control reads the cited answer.</text>
 
   <!-- ============ panel A — rover field view ============ -->
-  <rect x="44" y="156" width="656" height="300" fill="#060f16" fill-opacity=".78" stroke="#9bddea" stroke-opacity=".16"/>
+  <rect x="44" y="146" width="472" height="290" fill="#060f16" fill-opacity=".78" stroke="#9bddea" stroke-opacity=".16"/>
   <g stroke="#9bddea" stroke-opacity=".38" fill="none">
-    <path d="M44 174 V156 H62"/><path d="M682 156 H700 V174"/><path d="M700 438 V456 H682"/><path d="M62 456 H44 V438"/>
+    <path d="M44 164 V146 H62"/><path d="M498 146 H516 V164"/><path d="M516 418 V436 H498"/><path d="M62 436 H44 V418"/>
   </g>
-  <text class="m" x="64" y="183" font-size="9.5" letter-spacing="2.6" fill="#86c9d7">ROVER FIELD VIEW</text>
-  <text class="m" x="680" y="183" font-size="9" letter-spacing="1.4" text-anchor="end" fill="#5f7581">TRAVERSE 01 · 30 FRAMES</text>
-  <path d="M60 196 H684" stroke="#9bddea" stroke-opacity=".12"/>
+  <text class="m" x="64" y="173" font-size="10.5" letter-spacing="2.6" fill="#86c9d7">ROVER FIELD VIEW</text>
+  <text class="m" x="498" y="173" font-size="8.5" letter-spacing="1.2" text-anchor="end" fill="#5f7581">RECORDED ONNX REPLAY</text>
+  <path d="M60 186 H500" stroke="#9bddea" stroke-opacity=".12"/>
 
   <g clip-path="url(#clipA)">
     <g fill="#c9f3fa">
-      <circle cx="96" cy="232" r="1.1" opacity=".30"/><circle cx="148" cy="268" r=".8" opacity=".18"/>
-      <circle cx="193" cy="216" r="1.3" opacity=".38"/><circle cx="238" cy="252" r=".9" opacity=".22"/>
-      <circle cx="286" cy="226" r=".8" opacity=".16"/><circle cx="331" cy="275" r="1.1" opacity=".28"/>
-      <circle cx="372" cy="212" r=".9" opacity=".24"/><circle cx="418" cy="244" r="1.3" opacity=".34"/>
-      <circle cx="462" cy="220" r=".8" opacity=".17"/><circle cx="504" cy="262" r="1" opacity=".26"/>
-      <circle cx="548" cy="228" r="1.2" opacity=".33"/><circle cx="586" cy="252" r=".8" opacity=".19"/>
-      <circle cx="626" cy="218" r="1" opacity=".27"/><circle cx="664" cy="246" r=".9" opacity=".21"/>
-      <circle cx="120" cy="288" r=".8" opacity=".15"/><circle cx="258" cy="292" r=".9" opacity=".20"/>
-      <circle cx="396" cy="284" r=".8" opacity=".16"/><circle cx="532" cy="290" r="1" opacity=".23"/>
-      <circle cx="678" cy="286" r=".8" opacity=".15"/><circle cx="212" cy="196" r=".9" opacity=".20"/>
+      <circle cx="92" cy="216" r="1.1" opacity=".30"/><circle cx="140" cy="244" r=".8" opacity=".18"/>
+      <circle cx="186" cy="204" r="1.3" opacity=".38"/><circle cx="232" cy="238" r=".9" opacity=".22"/>
+      <circle cx="276" cy="212" r=".8" opacity=".16"/><circle cx="322" cy="250" r="1.1" opacity=".28"/>
+      <circle cx="362" cy="200" r=".9" opacity=".24"/><circle cx="408" cy="232" r="1.3" opacity=".34"/>
+      <circle cx="450" cy="210" r=".8" opacity=".17"/><circle cx="492" cy="246" r="1" opacity=".26"/>
+      <circle cx="116" cy="272" r=".8" opacity=".15"/><circle cx="252" cy="276" r=".9" opacity=".20"/>
+      <circle cx="388" cy="268" r=".8" opacity=".16"/><circle cx="478" cy="274" r="1" opacity=".23"/>
+      <circle cx="206" cy="194" r=".9" opacity=".20"/><circle cx="432" cy="194" r=".8" opacity=".15"/>
     </g>
     <g fill="none" stroke="#9bddea" stroke-width="1">
-      <path d="M44 254 C170 240 250 264 370 250 C470 239 600 232 700 244" stroke-opacity=".09"/>
-      <path d="M44 284 C180 272 300 298 430 282 C540 270 630 272 700 282" stroke-opacity=".11"/>
+      <path d="M44 240 C150 228 220 250 320 238 C390 229 460 226 516 234" stroke-opacity=".09"/>
+      <path d="M44 268 C160 258 270 282 370 268 C440 258 480 260 516 268" stroke-opacity=".11"/>
     </g>
-    <path d="M44 318 C120 300 190 316 262 302 C330 289 398 304 462 294 C540 282 620 296 700 288 L700 456 L44 456 Z" fill="#050d14" fill-opacity=".9"/>
-    <path d="M44 318 C120 300 190 316 262 302 C330 289 398 304 462 294 C540 282 620 296 700 288" fill="none" stroke="#9bddea" stroke-opacity=".16"/>
-    <path d="M44 356 C130 344 196 358 268 348 C344 337 420 352 492 344 C566 336 640 348 700 342 L700 456 L44 456 Z" fill="#03080e" fill-opacity=".92"/>
-    <path d="M44 356 C130 344 196 358 268 348 C344 337 420 352 492 344 C566 336 640 348 700 342" fill="none" stroke="#9bddea" stroke-opacity=".22"/>
-    <rect x="44" y="380" width="656" height="76" fill="url(#ground)"/>
+    <path d="M44 300 C110 284 174 298 236 286 C296 274 352 288 406 280 C460 272 486 286 516 280 L516 436 L44 436 Z" fill="#050d14" fill-opacity=".9"/>
+    <path d="M44 300 C110 284 174 298 236 286 C296 274 352 288 406 280 C460 272 486 286 516 280" fill="none" stroke="#9bddea" stroke-opacity=".16"/>
+    <path d="M44 334 C118 324 176 336 238 328 C300 320 364 332 424 326 C472 321 500 330 516 326 L516 436 L44 436 Z" fill="#03080e" fill-opacity=".92"/>
+    <path d="M44 334 C118 324 176 336 238 328 C300 320 364 332 424 326 C472 321 500 330 516 326" fill="none" stroke="#9bddea" stroke-opacity=".22"/>
+    <rect x="45" y="352" width="470" height="83" fill="url(#ground)"/>
     <g fill="#9bddea" fill-opacity=".16">
-      <path d="M118 428 l4 -4 4 4 z"/><path d="M196 440 l5 -4.5 5 4.5 z"/><path d="M312 434 l3.5 -3 3.5 3 z"/>
-      <path d="M368 420 l4.5 -4 4.5 4 z"/><path d="M506 430 l4 -3.5 4 3.5 z"/><path d="M558 442 l5 -4 5 4 z"/>
-      <path d="M636 424 l3.5 -3 3.5 3 z"/><path d="M272 414 l3 -2.6 3 2.6 z"/>
+      <path d="M100 412 l4 -4 4 4 z"/><path d="M164 424 l5 -4.5 5 4.5 z"/><path d="M252 418 l3.5 -3 3.5 3 z"/>
+      <path d="M300 404 l4.5 -4 4.5 4 z"/><path d="M382 414 l4 -3.5 4 3.5 z"/><path d="M442 426 l5 -4 5 4 z"/>
+      <path d="M484 408 l3.5 -3 3.5 3 z"/><path d="M216 400 l3 -2.6 3 2.6 z"/>
     </g>
     <g fill="none" stroke="#9bddea">
-      <ellipse cx="452" cy="392" rx="182" ry="31" stroke-opacity=".16"/>
-      <ellipse cx="452" cy="392" rx="126" ry="21" stroke-opacity=".12"/>
-      <ellipse cx="452" cy="392" rx="72" ry="12" stroke-opacity=".09"/>
-      <ellipse cx="168" cy="412" rx="76" ry="12" stroke-opacity=".11"/>
-      <ellipse cx="168" cy="412" rx="42" ry="7" stroke-opacity=".08"/>
+      <ellipse cx="300" cy="372" rx="160" ry="28" stroke-opacity=".16"/>
+      <ellipse cx="300" cy="372" rx="110" ry="19" stroke-opacity=".12"/>
+      <ellipse cx="300" cy="372" rx="62" ry="11" stroke-opacity=".09"/>
+      <ellipse cx="136" cy="394" rx="66" ry="11" stroke-opacity=".11"/>
     </g>
-    <path d="M84 404 C200 396 300 392 420 396 C520 399 600 394 664 390" fill="none" stroke="#9bddea" stroke-opacity=".32" stroke-width="1.3" stroke-dasharray="6 5"/>
+    <path d="M70 388 C160 380 240 376 332 380 C404 383 470 378 500 374" fill="none" stroke="#9bddea" stroke-opacity=".32" stroke-width="1.3" stroke-dasharray="6 5"/>
 
-    <g transform="translate(242,384)">
-      <circle class="ping ping-1" cx="0" cy="0" r="13" fill="none" stroke="#f2b54a" stroke-width="1.2" opacity=".28"/>
-      <g class="marker marker-1">
+    <g transform="translate(176,372)">
+      <circle class="ping p1" cx="0" cy="0" r="13" fill="none" stroke="#f2b54a" stroke-width="1.2" opacity=".28"/>
+      <g class="mk m1">
         <path d="M0 -7 L7 0 L0 7 L-7 0 Z" fill="#f2b54a" fill-opacity=".16" stroke="#f2b54a" stroke-width="1.3"/>
-        <path d="M0 -11 V-23" stroke="#f2b54a" stroke-opacity=".45"/>
-        <text class="m" x="0" y="-29" font-size="9" letter-spacing="1.3" text-anchor="middle" fill="#f2b54a">ROCK-01</text>
+        <path d="M0 -11 V-22" stroke="#f2b54a" stroke-opacity=".45"/>
+        <text class="m" x="0" y="-28" font-size="9" letter-spacing="1.3" text-anchor="middle" fill="#f2b54a">ROCK-01</text>
       </g>
     </g>
-    <g transform="translate(436,366)">
-      <circle class="ping ping-2" cx="0" cy="0" r="13" fill="none" stroke="#f2b54a" stroke-width="1.2" opacity=".28"/>
-      <g class="marker marker-2">
+    <g transform="translate(300,354)">
+      <circle class="ping p2" cx="0" cy="0" r="13" fill="none" stroke="#f2b54a" stroke-width="1.2" opacity=".28"/>
+      <g class="mk m2">
         <path d="M0 -7 L7 0 L0 7 L-7 0 Z" fill="#f2b54a" fill-opacity=".16" stroke="#f2b54a" stroke-width="1.3"/>
-        <path d="M0 -11 V-23" stroke="#f2b54a" stroke-opacity=".45"/>
-        <text class="m" x="0" y="-29" font-size="9" letter-spacing="1.3" text-anchor="middle" fill="#f2b54a">ROCK-02</text>
+        <path d="M0 -11 V-22" stroke="#f2b54a" stroke-opacity=".45"/>
+        <text class="m" x="0" y="-28" font-size="9" letter-spacing="1.3" text-anchor="middle" fill="#f2b54a">ROCK-02</text>
       </g>
     </g>
-    <g transform="translate(596,390)">
-      <circle class="ping ping-3" cx="0" cy="0" r="13" fill="none" stroke="#f2b54a" stroke-width="1.2" opacity=".28"/>
-      <g class="marker marker-3">
+    <g transform="translate(424,378)">
+      <circle class="ping p3" cx="0" cy="0" r="13" fill="none" stroke="#f2b54a" stroke-width="1.2" opacity=".28"/>
+      <g class="mk m3">
         <path d="M0 -7 L7 0 L0 7 L-7 0 Z" fill="#f2b54a" fill-opacity=".16" stroke="#f2b54a" stroke-width="1.3"/>
-        <path d="M0 -11 V-23" stroke="#f2b54a" stroke-opacity=".45"/>
-        <text class="m" x="0" y="-29" font-size="9" letter-spacing="1.3" text-anchor="middle" fill="#f2b54a">ROCK-03</text>
+        <path d="M0 -11 V-22" stroke="#f2b54a" stroke-opacity=".45"/>
+        <text class="m" x="0" y="-28" font-size="9" letter-spacing="1.3" text-anchor="middle" fill="#f2b54a">ROCK-03</text>
       </g>
     </g>
 
-    <g transform="translate(360,394)">
+    <g transform="translate(250,384)">
       <g class="rover">
-        <path d="M12 -38.5 L280 -69 L280 -2 Z" fill="url(#fov)"/>
+        <path d="M12 -38.5 L196 -64 L196 -2 Z" fill="url(#fov)"/>
         <ellipse cx="0" cy="-2" rx="26" ry="4" fill="#9bddea" fill-opacity=".10"/>
         <rect x="-18" y="-24" width="38" height="3" fill="#9bddea" fill-opacity=".30"/>
         <path d="M-16 -12 L-16 -21 L12 -21 L17 -12 Z" fill="#0a1821" stroke="#9bddea" stroke-width="1.3" stroke-opacity=".85"/>
@@ -152,117 +155,217 @@
       </g>
     </g>
 
-    <g transform="translate(240,0)">
-      <rect class="scan" x="-1" y="200" width="2" height="236" fill="url(#scanline)"/>
+    <g transform="translate(212,0)">
+      <rect class="scan" x="-1" y="190" width="2" height="245" fill="url(#scanline)" opacity=".55"/>
     </g>
   </g>
-  <text class="m" x="64" y="444" font-size="8.5" letter-spacing="1.2" fill="#5f7581">3 PERSISTENT TRACK IDS · 0 ID SWITCHES · GROUNDING DINO TINY ONNX</text>
+  <text class="m" x="64" y="424" font-size="8.5" letter-spacing="1.2" fill="#5f7581">3 TRACK IDS · 0 SWITCHES</text>
+  <text class="m" x="498" y="424" font-size="8.5" letter-spacing="1.2" text-anchor="end" fill="#86c9d7">CAPTURE COMPLETE · 30/30</text>
 
-  <!-- ============ inter-panel link ============ -->
-  <g stroke="#9bddea" stroke-opacity=".3" fill="none">
-    <path d="M700 306 H716"/><path d="M712 302 L717 306 L712 310"/>
+  <!-- ============ A to B hand-off ============ -->
+  <g class="ch3" stroke="#9bddea" fill="none" opacity=".4">
+    <path d="M518 300 H536"/><path d="M531 296 L536 300 L531 304"/>
   </g>
 
-  <!-- ============ panel B — Mission Control ============ -->
-  <rect x="724" y="156" width="512" height="300" fill="#060f16" fill-opacity=".78" stroke="#9bddea" stroke-opacity=".16"/>
+  <!-- ============ panel B — robot incident dialogue ============ -->
+  <rect x="540" y="146" width="344" height="290" fill="#060f16" fill-opacity=".78" stroke="#9bddea" stroke-opacity=".16"/>
   <g stroke="#9bddea" stroke-opacity=".38" fill="none">
-    <path d="M724 174 V156 H742"/><path d="M1218 156 H1236 V174"/><path d="M1236 438 V456 H1218"/><path d="M742 456 H724 V438"/>
+    <path d="M540 164 V146 H558"/><path d="M866 146 H884 V164"/><path d="M884 418 V436 H866"/><path d="M558 436 H540 V418"/>
   </g>
-  <text class="m" x="744" y="183" font-size="9.5" letter-spacing="2.6" fill="#86c9d7">MISSION CONTROL</text>
+  <text class="m" x="560" y="173" font-size="10.5" letter-spacing="2.2" fill="#86c9d7">ROBOT INCIDENT DIALOGUE</text>
+  <text class="m" x="864" y="173" font-size="8" letter-spacing="1" text-anchor="end" fill="#5f7581">TEXT DIALOGUE</text>
+  <path d="M556 186 H868" stroke="#9bddea" stroke-opacity=".12"/>
+
+  <!-- the persisted incident record -->
+  <g class="inc">
+    <rect x="552" y="196" width="2" height="64" fill="#f2b54a" fill-opacity=".75"/>
+    <text class="m" x="562" y="209" font-size="10" letter-spacing=".8" fill="#c9f3fa">INCIDENT 7f3c8e2a-5b41-4c7e</text>
+    <text class="m" x="562" y="225" font-size="8.5" letter-spacing=".6" fill="#f2b54a">KIND telemetry_stale · TRIGGER capture_stale</text>
+    <text class="m" x="562" y="240" font-size="8.5" letter-spacing=".5" fill="#8fa6b2">PROVENANCE historical_replay · ROVER-01</text>
+    <text class="m" x="562" y="255" font-size="8.5" letter-spacing=".5" fill="#5f7581">certifiedMeasurement: false · v1 SNAPSHOT STORED</text>
+  </g>
+  <path d="M560 272 H864" stroke="#9bddea" stroke-opacity=".10"/>
+
+  <!-- the robot's one server-chosen question -->
+  <g transform="translate(568,286)">
+    <rect x="-6" y="-5.5" width="12" height="9.5" rx="1.5" fill="#0a1821" stroke="#9bddea" stroke-width="1.1" stroke-opacity=".85"/>
+    <circle cx="-2.6" cy="-1" r="1.1" fill="#c9f3fa"/><circle cx="2.6" cy="-1" r="1.1" fill="#c9f3fa"/>
+    <path d="M0 -5.5 V-9" stroke="#9bddea" stroke-width="1" stroke-opacity=".8"/>
+    <circle cx="0" cy="-10.2" r="1.3" fill="#f2b54a"/>
+    <path d="M-4 4 V6 M4 4 V6" stroke="#9bddea" stroke-width="1" stroke-opacity=".55"/>
+  </g>
+  <text class="m" x="582" y="290" font-size="9" letter-spacing="1.6" fill="#86c9d7">AUTOMATIC QUESTION</text>
+  <text class="m" x="864" y="290" font-size="8" letter-spacing="1" text-anchor="end" fill="#5f7581">SERVER-CHOSEN</text>
+
+  <rect x="560" y="298" width="304" height="60" fill="#03070c" fill-opacity=".55" stroke="#9bddea" stroke-opacity=".14"/>
+  <rect x="560" y="298" width="2" height="60" fill="#9bddea" fill-opacity=".55"/>
+  <g class="m" font-size="10" letter-spacing=".2" fill="#c2dce3">
+    <text class="q1" x="572" y="316">Explain evidence limitations when</text>
+    <text class="q2" x="572" y="330">observations are delayed. Do not infer</text>
+    <text class="q3" x="572" y="344">the cause or estimate mission measurements.</text>
+  </g>
+  <rect class="car" x="572" y="307" width="1.6" height="11" fill="#c9f3fa" opacity="0"/>
+
+  <!-- job state: queued during capture, admitted only once capture has ended -->
+  <text class="m" x="560" y="378" font-size="8.5" letter-spacing="1.6" fill="#5f7581">JOB STATE</text>
+  <g class="st1" opacity="0">
+    <rect x="636" y="366" width="212" height="17" fill="#f2b54a" fill-opacity=".08" stroke="#f2b54a" stroke-opacity=".45"/>
+    <text class="m" x="742" y="378" font-size="8.5" letter-spacing="1.1" text-anchor="middle" fill="#f2b54a">WAITING FOR PRODUCER CAPTURE END</text>
+  </g>
+  <g class="st2" opacity="0">
+    <rect x="636" y="366" width="142" height="17" fill="#f2b54a" fill-opacity=".08" stroke="#f2b54a" stroke-opacity=".45"/>
+    <text class="m" x="707" y="378" font-size="8.5" letter-spacing="1.1" text-anchor="middle" fill="#f2b54a">WAITING FOR LOCAL AI</text>
+  </g>
+  <g class="st3" opacity="0">
+    <rect x="636" y="366" width="86" height="17" fill="#9bddea" fill-opacity=".10" stroke="#9bddea" stroke-opacity=".45"/>
+    <circle class="spin" cx="650" cy="374.5" r="5" fill="none" stroke="#c9f3fa" stroke-width="1.4" stroke-dasharray="10 28"/>
+    <text class="m" x="663" y="378" font-size="8.5" letter-spacing="1.1" fill="#c9f3fa">ANALYZING</text>
+  </g>
+  <g class="st4">
+    <rect x="636" y="366" width="126" height="17" fill="#9bddea" fill-opacity=".12" stroke="#9bddea" stroke-opacity=".5"/>
+    <circle cx="648" cy="374.5" r="3" fill="#c9f3fa"/>
+    <text class="m" x="658" y="378" font-size="8.5" letter-spacing="1.1" fill="#c9f3fa">ANALYSIS COMPLETE</text>
+  </g>
+  <text class="m" x="560" y="398" font-size="8.5" letter-spacing=".8" fill="#5f7581">ATTEMPT 1 OF 3 · ADMITTED AFTER CAPTURE ENDED</text>
+
+  <path d="M560 410 H864" stroke="#9bddea" stroke-opacity=".10"/>
+  <text class="m" x="560" y="426" font-size="8.5" letter-spacing=".7" fill="#5f7581">SQLITE WAL · 5 INCIDENTS · 5 ATTEMPTS · 30 S COOLDOWN</text>
+
+  <!-- ============ B to C hand-off ============ -->
+  <g class="ch6" stroke="#9bddea" fill="none" opacity=".4">
+    <path d="M886 300 H904"/><path d="M899 296 L904 300 L899 304"/>
+  </g>
+
+  <!-- ============ panel C — Mission Control ============ -->
+  <rect x="908" y="146" width="328" height="290" fill="#060f16" fill-opacity=".78" stroke="#9bddea" stroke-opacity=".16"/>
+  <rect class="cglow" x="908" y="146" width="328" height="290" fill="none" stroke="#9bddea" stroke-width="1.6" opacity="0"/>
+  <g stroke="#9bddea" stroke-opacity=".38" fill="none">
+    <path d="M908 164 V146 H926"/><path d="M1218 146 H1236 V164"/><path d="M1236 418 V436 H1218"/><path d="M926 436 H908 V418"/>
+  </g>
+  <text class="m" x="928" y="173" font-size="10.5" letter-spacing="2.6" fill="#86c9d7">MISSION CONTROL</text>
   <g class="pill-live">
-    <rect x="1162" y="172" width="54" height="16" fill="#9bddea" fill-opacity=".10" stroke="#9bddea" stroke-opacity=".45"/>
-    <circle cx="1172" cy="180" r="3" fill="#9bddea"/>
-    <text class="m" x="1180" y="184" font-size="8.5" letter-spacing="1.4" fill="#9bddea">LIVE</text>
+    <rect x="1162" y="164" width="54" height="16" fill="#9bddea" fill-opacity=".10" stroke="#9bddea" stroke-opacity=".45"/>
+    <circle cx="1172" cy="172" r="3" fill="#9bddea"/>
+    <text class="m" x="1180" y="176" font-size="8.5" letter-spacing="1.4" fill="#9bddea">LIVE</text>
   </g>
   <g class="pill-stale" opacity="0">
-    <rect x="1148" y="172" width="68" height="16" fill="#f2b54a" fill-opacity=".10" stroke="#f2b54a" stroke-opacity=".5"/>
-    <circle cx="1158" cy="180" r="3" fill="#f2b54a"/>
-    <text class="m" x="1166" y="184" font-size="8.5" letter-spacing="1.4" fill="#f2b54a">STALE</text>
+    <rect x="1148" y="164" width="68" height="16" fill="#f2b54a" fill-opacity=".10" stroke="#f2b54a" stroke-opacity=".5"/>
+    <circle cx="1158" cy="172" r="3" fill="#f2b54a"/>
+    <text class="m" x="1166" y="176" font-size="8.5" letter-spacing="1.4" fill="#f2b54a">STALE</text>
   </g>
-  <path d="M740 196 H1220" stroke="#9bddea" stroke-opacity=".12"/>
+  <path d="M924 186 H1220" stroke="#9bddea" stroke-opacity=".12"/>
 
-  <rect x="740" y="212" width="240" height="220" fill="#03070c" fill-opacity=".55" stroke="#9bddea" stroke-opacity=".14"/>
+  <rect x="924" y="196" width="296" height="92" fill="#03070c" fill-opacity=".55" stroke="#9bddea" stroke-opacity=".14"/>
   <g clip-path="url(#clipMap)" fill="none" stroke="#9bddea" stroke-opacity=".07">
-    <path d="M770 212 V432 M800 212 V432 M830 212 V432 M860 212 V432 M890 212 V432 M920 212 V432 M950 212 V432"/>
-    <path d="M740 242 H980 M740 272 H980 M740 302 H980 M740 332 H980 M740 362 H980 M740 392 H980"/>
+    <path d="M954 196 V288 M984 196 V288 M1014 196 V288 M1044 196 V288 M1074 196 V288 M1104 196 V288 M1134 196 V288 M1164 196 V288 M1194 196 V288"/>
+    <path d="M924 226 H1220 M924 256 H1220"/>
   </g>
   <g clip-path="url(#clipMap)">
-    <path d="M764 400 C820 384 860 358 904 330" fill="none" stroke="#9bddea" stroke-opacity=".40" stroke-width="1.2" stroke-dasharray="5 4"/>
-    <circle class="dot-pulse" cx="812" cy="374" r="11" fill="#f2b54a" fill-opacity=".06" stroke="#f2b54a" stroke-opacity=".30"/>
-    <circle cx="812" cy="374" r="3" fill="#f2b54a"/>
-    <circle class="dot-pulse" cx="884" cy="300" r="11" fill="#f2b54a" fill-opacity=".06" stroke="#f2b54a" stroke-opacity=".30"/>
-    <circle cx="884" cy="300" r="3" fill="#f2b54a"/>
-    <circle class="dot-pulse" cx="938" cy="352" r="11" fill="#f2b54a" fill-opacity=".06" stroke="#f2b54a" stroke-opacity=".30"/>
-    <circle cx="938" cy="352" r="3" fill="#f2b54a"/>
-    <g transform="translate(904,330)">
+    <path d="M948 274 C1000 258 1060 240 1124 220" fill="none" stroke="#9bddea" stroke-opacity=".40" stroke-width="1.2" stroke-dasharray="5 4"/>
+    <circle class="dp" cx="972" cy="266" r="10" fill="#f2b54a" fill-opacity=".06" stroke="#f2b54a" stroke-opacity=".30"/>
+    <circle cx="972" cy="266" r="3" fill="#f2b54a"/>
+    <circle class="dp dp2" cx="1040" cy="234" r="10" fill="#f2b54a" fill-opacity=".06" stroke="#f2b54a" stroke-opacity=".30"/>
+    <circle cx="1040" cy="234" r="3" fill="#f2b54a"/>
+    <circle class="dp dp3" cx="1098" cy="258" r="10" fill="#f2b54a" fill-opacity=".06" stroke="#f2b54a" stroke-opacity=".30"/>
+    <circle cx="1098" cy="258" r="3" fill="#f2b54a"/>
+    <g transform="translate(1124,220)">
       <path d="M0 -6 L6 0 L0 6 L-6 0 Z" fill="#c9f3fa" fill-opacity=".30" stroke="#c9f3fa" stroke-width="1.2"/>
-      <path d="M0 -13 V-8 M0 8 V13 M-13 0 H-8 M8 0 H13" stroke="#9bddea" stroke-opacity=".5"/>
+      <path d="M0 -12 V-8 M0 8 V12 M-12 0 H-8 M8 0 H12" stroke="#9bddea" stroke-opacity=".5"/>
     </g>
   </g>
-  <text class="m" x="746" y="226" font-size="8" letter-spacing="1.2" fill="#5f7581">+N</text>
-  <text class="m" x="974" y="426" font-size="8" letter-spacing="1.2" text-anchor="end" fill="#5f7581">+E · LOCAL_ENU_V1</text>
+  <text class="m" x="930" y="209" font-size="8" letter-spacing="1.2" fill="#5f7581">+N</text>
+  <text class="m" x="1214" y="282" font-size="8" letter-spacing="1.2" text-anchor="end" fill="#5f7581">+E · LOCAL_ENU_V1</text>
 
-  <path d="M1000 267 H1220 M1000 322 H1220 M1000 377 H1220" stroke="#9bddea" stroke-opacity=".10"/>
-  <text class="m" x="1000" y="226" font-size="8.5" letter-spacing="2" fill="#5f7581">FRAME SEQUENCE</text>
-  <g class="m" font-size="21" fill="#c9f3fa">
-    <text class="seq" x="1000" y="252" opacity="0">11</text>
-    <text class="seq seq-2" x="1000" y="252" opacity="0">17</text>
-    <text class="seq seq-3" x="1000" y="252" opacity="0">23</text>
-    <text class="seq-last" x="1000" y="252">29</text>
+  <!-- the cited reply -->
+  <g transform="translate(932,307)">
+    <path d="M0 -8 L8 0 L0 8 L-8 0 Z" fill="none" stroke="#9bddea" stroke-width="1.2"/>
+    <circle cx="0" cy="0" r="4" fill="none" stroke="#9bddea" stroke-width="1" opacity=".6"/>
+    <circle cx="0" cy="0" r="1.5" fill="#c9f3fa"/>
   </g>
-  <text class="m" x="1000" y="281" font-size="8.5" letter-spacing="2" fill="#5f7581">DELIVERED · ACKNOWLEDGED</text>
-  <text class="m" x="1000" y="307" font-size="21" fill="#c9f3fa">30 / 30</text>
-  <text class="m" x="1000" y="336" font-size="8.5" letter-spacing="2" fill="#5f7581">BINARY FRAME SIZE</text>
-  <text class="m" x="1000" y="362" font-size="21" fill="#c9f3fa">177 B</text>
-  <text class="m" x="1090" y="362" font-size="8.5" letter-spacing="1.2" fill="#5f7581">35.7% OF JSON</text>
-  <text class="m" x="1000" y="391" font-size="8.5" letter-spacing="2" fill="#5f7581">MEAN SPATIAL ERROR</text>
-  <text class="m" x="1000" y="417" font-size="21" fill="#c9f3fa">0.097 m</text>
-  <text class="m" x="1108" y="417" font-size="8.5" letter-spacing="1.2" fill="#5f7581">SYNTHETIC SCENE</text>
+  <text class="m" x="948" y="311" font-size="9" letter-spacing="1.6" fill="#86c9d7">LOCAL AI REPLY</text>
+  <text class="m" x="1220" y="311" font-size="8" letter-spacing="1" text-anchor="end" fill="#5f7581">AFTER CAPTURE</text>
 
-  <!-- ============ signal path ============ -->
-  <path d="M44 484 H1236" stroke="#9bddea" stroke-opacity=".14"/>
-  <text class="m" x="44" y="508" font-size="9.5" letter-spacing="2.6" fill="#86c9d7">SIGNAL PATH</text>
-  <text class="m" x="1236" y="508" font-size="8.5" letter-spacing="1.4" text-anchor="end" fill="#5f7581">RADIO LOSS AND BLACKOUT ARE SIMULATED</text>
+  <g class="m" font-size="10" letter-spacing=".2" fill="#e9f0f3">
+    <text class="a1" x="924" y="332">Delay-tolerant relays store and forward</text>
+    <text class="a2" x="924" y="346">frames, so a late receipt bounds what the</text>
+    <text class="a3" x="924" y="360">record supports and is not a measurement</text>
+    <text class="a4" x="924" y="374">of range or of perception health [S1].</text>
+  </g>
+  <g class="a5">
+    <text class="m" x="924" y="392" font-size="8.5" letter-spacing="1.1" fill="#f2b54a">UNVERIFIED GENERATED EXPLANATION</text>
+    <text class="m" x="924" y="406" font-size="8.5" letter-spacing=".7" fill="#86c9d7">[S1] NASA · DELAY TOLERANT NETWORKING · PINNED</text>
+  </g>
+  <text class="m" x="924" y="426" font-size="8.5" letter-spacing=".7" fill="#5f7581">OPERATOR REVIEW SEPARATE · NO ROVER COMMAND</text>
 
-  <g class="m" font-size="9.5" letter-spacing="2.2" fill="#c2dce3" text-anchor="middle">
-    <text x="140" y="538">CAPTURE</text><text x="345" y="538">ONNX DETECT</text><text x="550" y="538">TRACK</text>
-    <text x="755" y="538">PROJECT</text><text x="960" y="538">BINARY RADIO</text><text x="1165" y="538">MISSION CONTROL</text>
+  <!-- ============ sequence rail ============ -->
+  <path d="M44 456 H1236" stroke="#9bddea" stroke-opacity=".14"/>
+  <text class="m" x="44" y="478" font-size="10.5" letter-spacing="2.6" fill="#86c9d7">AUTOMATIC INCIDENT DIALOGUE</text>
+  <text class="m" x="1236" y="478" font-size="8.5" letter-spacing="1.3" text-anchor="end" fill="#5f7581">TEXT ONLY · NO VOICE · NO AUTONOMOUS ROVER CONTROL</text>
+
+  <g class="m" font-size="11.5" letter-spacing="1.6" fill="#c2dce3" text-anchor="middle">
+    <text x="140" y="506">DETECT</text><text x="345" y="506">BLACKOUT</text><text x="550" y="506">INCIDENT RECORDED</text>
+    <text x="755" y="506">ROBOT ASKS AI</text><text x="960" y="506">POST-CAPTURE AI</text><text x="1165" y="506">ANSWER DISPLAYED</text>
   </g>
 
-  <path d="M140 556 H1165" stroke="#9bddea" stroke-opacity=".2"/>
-  <path class="flow" d="M140 556 H1165" fill="none" stroke="#9bddea" stroke-opacity=".3" stroke-dasharray="4 10"/>
-  <path class="blackout" d="M960 556 H1165" fill="none" stroke="#f2b54a" stroke-width="1.6" stroke-dasharray="6 6" opacity="0"/>
+  <path d="M140 526 H1165" stroke="#9bddea" stroke-opacity=".18"/>
+  <path class="flow" d="M140 526 H1165" fill="none" stroke="#9bddea" stroke-opacity=".28" stroke-dasharray="4 10"/>
+  <path class="wipe" d="M140 526 H1165" fill="none" stroke="#9bddea" stroke-opacity=".55" stroke-width="1.6" stroke-dasharray="1025"/>
+  <path class="bo" d="M345 526 H550" fill="none" stroke="#f2b54a" stroke-width="1.8" stroke-dasharray="6 6" opacity="0"/>
+
+  <!-- the capture gate: the local model is admitted only once capture has ended -->
+  <g class="gate" opacity=".45">
+    <path d="M857 500 V552" stroke="#86c9d7" stroke-dasharray="4 4"/>
+    <path d="M853 500 H861 M853 552 H861" stroke="#86c9d7"/>
+  </g>
+  <text class="m gate-l" x="857" y="568" font-size="9" letter-spacing="1.4" text-anchor="middle" fill="#86c9d7" opacity=".7">CAPTURE ENDS · AI ADMITTED</text>
 
   <g fill="#03070c" stroke="#9bddea" stroke-width="1.4">
-    <path d="M140 549 L147 556 L140 563 L133 556 Z"/><path d="M345 549 L352 556 L345 563 L338 556 Z"/>
-    <path d="M550 549 L557 556 L550 563 L543 556 Z"/><path d="M755 549 L762 556 L755 563 L748 556 Z"/>
-    <path d="M960 549 L967 556 L960 563 L953 556 Z"/><path d="M1165 549 L1172 556 L1165 563 L1158 556 Z"/>
+    <path d="M140 519 L147 526 L140 533 L133 526 Z"/><path d="M345 519 L352 526 L345 533 L338 526 Z"/>
+    <path d="M550 519 L557 526 L550 533 L543 526 Z"/><path d="M755 519 L762 526 L755 533 L748 526 Z"/>
+    <path d="M960 519 L967 526 L960 533 L953 526 Z"/><path d="M1165 519 L1172 526 L1165 533 L1158 526 Z"/>
+  </g>
+  <g fill="none" stroke="#9bddea" stroke-width="1.2">
+    <circle class="nd n1" cx="140" cy="526" r="6" opacity="0"/><circle class="nd n2" cx="345" cy="526" r="6" opacity="0"/>
+    <circle class="nd n3" cx="550" cy="526" r="6" opacity="0"/><circle class="nd n4" cx="755" cy="526" r="6" opacity="0"/>
+    <circle class="nd n5" cx="960" cy="526" r="6" opacity="0"/><circle class="nd n6" cx="1165" cy="526" r="6" opacity="0"/>
   </g>
 
-  <g transform="translate(1050,556)"><g class="pkt pkt-a">
+  <g class="head">
+    <path d="M1165 513 V518 M1165 534 V539" stroke="#c9f3fa" stroke-width="1.4"/>
+    <circle cx="1165" cy="526" r="3.4" fill="#c9f3fa"/>
+  </g>
+
+  <g transform="translate(270,526)"><g class="pk pk-a">
     <rect x="-6" y="-5" width="12" height="10" fill="#061119" stroke="#9bddea" stroke-width="1"/>
     <path d="M-3.5 -2 H3.5 M-3.5 0.5 H1 M-3.5 3 H2.5" fill="none" stroke="#9bddea" stroke-opacity=".75" stroke-width="1"/>
   </g></g>
-  <g transform="translate(870,556)"><g class="pkt pkt-b">
+  <g transform="translate(420,526)"><g class="pk pk-b">
     <rect x="-6" y="-5" width="12" height="10" fill="#061119" stroke="#9bddea" stroke-width="1"/>
     <path d="M-3.5 -2 H2 M-3.5 0.5 H3.5 M-3.5 3 H1" fill="none" stroke="#9bddea" stroke-opacity=".75" stroke-width="1"/>
   </g></g>
-  <g transform="translate(640,556)"><g class="pkt pkt-c">
+  <g transform="translate(550,526)"><g class="pk pk-c">
     <rect x="-6" y="-5" width="12" height="10" fill="#061119" stroke="#9bddea" stroke-width="1"/>
     <path d="M-3.5 -2 H1 M-3.5 0.5 H3.5 M-3.5 3 H2" fill="none" stroke="#9bddea" stroke-opacity=".75" stroke-width="1"/>
   </g></g>
-  <g transform="translate(400,556)"><g class="pkt pkt-d">
-    <rect x="-6" y="-5" width="12" height="10" fill="#061119" stroke="#9bddea" stroke-width="1"/>
-    <path d="M-3.5 -2 H3 M-3.5 0.5 H1.5 M-3.5 3 H3.5" fill="none" stroke="#9bddea" stroke-opacity=".75" stroke-width="1"/>
-  </g></g>
 
-  <g class="m" font-size="8.5" letter-spacing="1.1" fill="#5f7581" text-anchor="middle">
-    <text x="140" y="580">30 CALIBRATED FRAMES</text><text x="345" y="580">90 OBSERVATIONS</text><text x="550" y="580">3 IDS · 0 SWITCHES</text>
-    <text x="755" y="580">LOCAL_ENU_V1</text><text x="960" y="580">177 B · 25% LOSS</text><text x="1165" y="580">30 / 30 ACKNOWLEDGED</text>
+  <g class="m" font-size="9" letter-spacing="1" fill="#5f7581" text-anchor="middle">
+    <text x="140" y="548">30 ONNX FRAMES · 3 IDS</text><text x="345" y="548">25% LOSS · QUEUED, RESENT</text>
+    <text x="550" y="548">UUID · v1 SNAPSHOT · WAL</text><text x="755" y="548">ONE TEXT QUESTION</text>
+    <text x="960" y="548">3 PASSAGES · 2.03 S · 74 TOK/S</text><text x="1165" y="548">CITED · FOR REVIEW</text>
   </g>
-  <text class="m blackout" x="1062" y="601" font-size="9" letter-spacing="1.6" text-anchor="middle" fill="#f2b54a" opacity="0">RADIO BLACKOUT · FRAMES QUEUED</text>
-  <text class="m recovered" x="1062" y="601" font-size="9" letter-spacing="1.6" text-anchor="middle" fill="#9bddea" opacity="0">LINK RECOVERED · 28 RETRANSMISSIONS</text>
+  <text class="m bo" x="447" y="568" font-size="9" letter-spacing="1.4" text-anchor="middle" fill="#f2b54a" opacity="0">RADIO BLACKOUT · FRAMES QUEUED</text>
+  <text class="m rec" x="447" y="568" font-size="9" letter-spacing="1.4" text-anchor="middle" fill="#9bddea" opacity="0">LINK RECOVERED · 28 RETRANSMISSIONS</text>
+
+  <!-- ============ narration band ============ -->
+  <g class="m" font-size="12" letter-spacing="1.2" text-anchor="middle">
+    <text class="c1" x="640" y="594" fill="#c2dce3" opacity="0">ROVER DETECTS · THREE PERSISTENT ROCK TRACKS ON A RECORDED ONNX REPLAY</text>
+    <text class="c2" x="640" y="594" fill="#f2b54a" opacity="0">SIMULATED RADIO BLACKOUT · ACCEPTED FRAMES QUEUE, THEN RETRANSMIT</text>
+    <text class="c3" x="640" y="594" fill="#f2b54a" opacity="0">INCIDENT RECORDED · UUID, PROVENANCE AND A VALIDATED v1 SNAPSHOT PERSIST</text>
+    <text class="c4" x="640" y="594" fill="#c2dce3" opacity="0">ROBOT ASKS ITS LOCAL AI · ONE SERVER-CHOSEN TEXT QUESTION, NEVER VOICE</text>
+    <text class="c5" x="640" y="594" fill="#c2dce3" opacity="0">ONLY AFTER CAPTURE ENDS · LOCAL QWEN3 READS THREE CITED PASSAGES</text>
+    <text class="c6" x="640" y="594" fill="#c9f3fa">MISSION CONTROL DISPLAYS A CITED, UNVERIFIED EXPLANATION FOR REVIEW</text>
+  </g>
 
   <!-- ============ footer ============ -->
-  <text class="m" x="44" y="626" font-size="8.5" letter-spacing="1.1" fill="#46555f">QUICK DEMO REPLAYS RECORDED ONNX PREDICTIONS · SPATIAL ACCURACY MEASURED ON A CONTROLLED CALIBRATED SCENE, NOT LUNAR FOOTAGE</text>
+  <text class="m" x="44" y="620" font-size="8.5" letter-spacing="1.1" fill="#46555f">QUICK DEMO REMAINS TWO COMMANDS AND MODEL-FREE · RADIO LOSS AND BLACKOUT ARE SIMULATED · GENERATION RUNS AFTER CAPTURE, NEVER DURING LIVE PERCEPTION</text>
 </svg>

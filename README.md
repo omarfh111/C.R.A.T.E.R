@@ -6,7 +6,9 @@
 
 **Lunar hazard reconnaissance — from rover camera to Mission Control**
 
-<img src="docs/brand/crater-readme-hero.svg" alt="C.R.A.T.E.R. pipeline: a rover detects rocks with local ONNX inference, projects them into the LOCAL_ENU_V1 frame, and delivers compact binary frames through a simulated lossy radio to the Mission Control dashboard." width="100%">
+<img src="docs/brand/crater-readme-hero.svg" alt="C.R.A.T.E.R. mission dialogue: a rover detects rocks with local ONNX inference and delivers binary frames through a simulated lossy radio; a radio blackout is recorded as a persistent incident with its provenance and a validated v1 snapshot; the robot asks its local AI one automatic text question; and after capture ends the local model returns a cited, explicitly unverified explanation to Mission Control for operator review." width="100%">
+
+<sub>**ROVER DETECTS → RADIO BLACKOUT → INCIDENT RECORDED → ROBOT ASKS AI → POST-CAPTURE AI ANALYSIS → MISSION CONTROL DISPLAYS THE ANSWER.** The dialogue is automatic, text-based and event-driven. Generation runs **after** capture, never during live perception, and never issues a rover command. Motion-free variant: [`crater-hero-static.svg`](docs/brand/crater-hero-static.svg).</sub>
 
 [![perception](https://img.shields.io/github/actions/workflow/status/omarfh111/C.R.A.T.E.R/m1-tests.yml?branch=main&label=perception&style=flat-square&labelColor=0d1117)](https://github.com/omarfh111/C.R.A.T.E.R/actions/workflows/m1-tests.yml) [![spatial telemetry](https://img.shields.io/github/actions/workflow/status/omarfh111/C.R.A.T.E.R/m2-tests.yml?branch=main&label=spatial%20telemetry&style=flat-square&labelColor=0d1117)](https://github.com/omarfh111/C.R.A.T.E.R/actions/workflows/m2-tests.yml) [![mission control](https://img.shields.io/github/actions/workflow/status/omarfh111/C.R.A.T.E.R/mission-control-ci.yml?branch=main&label=mission%20control&style=flat-square&labelColor=0d1117)](https://github.com/omarfh111/C.R.A.T.E.R/actions/workflows/mission-control-ci.yml) [![License Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-9bddea?style=flat-square&labelColor=0d1117)](LICENSE)
 
