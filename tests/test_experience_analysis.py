@@ -159,6 +159,8 @@ def test_context_cannot_be_cited_or_validate_fabricated_numbers(tmp_path):
     assert assistant.ask("Explain calibration limitations", context=context)["reason"] == "contradicts_observation_availability"
     backend.chat = lambda question, sources: {"answer":"This does not make the capture timestamps unavailable [S1]", "sourceIds":["S1"], "insufficientEvidence":False}
     assert assistant.ask("Explain calibration limitations", context=context)["status"] == "answered"
+    backend.chat = lambda question, sources: {"answer":"We analyzed the incident images [S1]", "sourceIds":["S1"], "insufficientEvidence":False}
+    assert assistant.ask("Explain calibration limitations", context=context)["reason"] == "unsupported_image_interpretation"
 
 
 def test_incident_http_capture_gate_and_shared_inference_lock(tmp_path):

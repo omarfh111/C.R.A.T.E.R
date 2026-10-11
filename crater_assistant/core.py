@@ -371,6 +371,7 @@ class Assistant:
                          "A missing frame cannot establish a calibration/tracking failure. "
                          "Use the explicit availability flags: do not assert that available timestamps are missing or uncertain. "
                          "Their presence is shown deterministically; discuss clock synchronization limits instead. "
+                         "No images are supplied to you; do not claim image inspection or interpretation. "
                          "Descriptions of a NASA video apply only to that source video, never to this incident. "
                          "Abstain if evidence is insufficient.")
         answer = self.backend.chat(prompt, sources)
@@ -398,6 +399,12 @@ class Assistant:
             if (re.search(r"\b(?:absence|lack|missing|without|no|absent|manquant|sans)\b.{0,30}\b(?:timestamps?|horodatages?|acquisition times?)\b", plain)
                     or re.search(r"\bavailability of (?:\w+ ){0,3}timestamps?\b.{0,100}\b(?:not established|unknown|unavailable)\b", plain)):
                 result["reason"] = "contradicts_observation_availability"
+                return result
+        if context is not None and not context["observationEvidence"]["imageInterpretationPerformed"]:
+            # Conservative text guard: image references never imply vision inference.
+            plain = _plain_text(answer["answer"])
+            if re.search(r"\b(?:analy[sz]\w*|interpret\w*|examined|inspected)\b.{0,40}\b(?:images?|pixels?|photos?)\b|\b(?:images?|pixels?|photos?)\b.{0,40}\b(?:analy[sz]\w*|interpret\w*|examined|inspected)\b", plain):
+                result["reason"] = "unsupported_image_interpretation"
                 return result
         cited_sources = [source for source in sources if source["sourceId"] in mentions]
         if _unsupported_numeric_claim(answer["answer"], cited_sources):
