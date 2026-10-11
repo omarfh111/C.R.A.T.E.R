@@ -10,6 +10,8 @@ const READY_TIMEOUT_MS = 60_000
 export type StationOptions = {
   /** Directory-safe name; also used in failure messages and uploaded log paths. */
   label: string
+  /** Optional durable incident side channel; canonical telemetry remains unchanged. */
+  journalPath?: string
   /** Mission capture window, seconds. */
   durationS: number
   /** Extra seconds M2 may spend draining its retransmission queue. */
@@ -84,6 +86,7 @@ export async function startStation(options: StationOptions): Promise<M2Station> 
   const argv = [
     '-m', 'crater_m2',
     '--input', OBSERVATIONS,
+    ...(options.journalPath ? ['--incident-journal', options.journalPath] : []),
     '--input-ground-z', '0',
     '--duration', String(options.durationS),
     '--drain', String(options.drainS ?? 60),
