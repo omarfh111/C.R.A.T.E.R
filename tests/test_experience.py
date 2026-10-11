@@ -80,3 +80,22 @@ def test_only_reviewed_facts_export_not_model_answers(tmp_path):
         journal.review(saved["eventId"], "Omar", "confirmed", "Unverified", [])
     journal.review(saved["eventId"], "Omar", "rejected", "Test invalidé après relecture.", [])
     assert journal.export_reviewed() == ""
+
+
+
+def test_long_review_keeps_provenance_with_every_retrievable_fact(tmp_path):
+    from crater_assistant.core import chunks_from_files
+    journal = Journal(tmp_path / "j.sqlite")
+    saved = journal.add_event(event())
+    evidence = tmp_path / "proof.json"
+    evidence.write_text('{"simulated":true}', encoding="utf-8")
+    journal.review(saved["eventId"], "Test operator", "confirmed", "Fait observé " * 140, [evidence])
+    exported = tmp_path / "facts.md"
+    exported.write_text(journal.export_reviewed(), encoding="utf-8")
+    chunks = chunks_from_files([exported])
+    assert len(chunks) > 1
+    for chunk in chunks:
+        assert "Fait retenu" in chunk["text"]
+        assert "simulated" in chunk["text"]
+        assert saved["eventId"] in chunk["text"]
+        assert "Limite" in chunk["text"]

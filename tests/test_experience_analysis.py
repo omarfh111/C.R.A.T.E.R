@@ -118,3 +118,24 @@ def test_dead_worker_rejects_new_jobs(tmp_path):
     service.close()
     with pytest.raises(ValueError, match="stopped"):
         service.analyze(saved["eventId"])
+
+
+def test_sqlite_failure_stops_worker_and_restart_exposes_interrupted_job(tmp_path):
+    import sqlite3
+    j = Journal(tmp_path / "j.sqlite")
+    saved = j.add_event(event())
+    service = ExperienceService(assistant(), j)
+    original = service._save
+    def fail_on_completion(job):
+        if job["state"] == "completed":
+            raise sqlite3.OperationalError("simulated write failure")
+        original(job)
+    service._save = fail_on_completion
+    job = service.analyze(saved["eventId"])
+    service.thread.join(timeout=2)
+    assert not service.thread.is_alive()
+    with pytest.raises(ValueError, match="stopped"):
+        service.analyze(saved["eventId"])
+    service.close()
+    with ExperienceService(assistant(), j) as recovered:
+        assert recovered.job(job["analysisId"])["state"] == "failed"

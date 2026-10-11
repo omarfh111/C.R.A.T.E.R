@@ -1,4 +1,4 @@
-"""Loopback-only, serialized, bounded HTTP sidecar for a future M3 panel."""
+"""Loopback assistant HTTP sidecar with opt-in asynchronous experience journal."""
 
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer, ThreadingHTTPServer
@@ -157,5 +157,5 @@ def serve(assistant, port=8766, report=None, *, experiences=None):
     if not 1 <= port <= 65535:
         raise ValueError("port must be 1..65535")
     with make_server(assistant, port, report, experiences=experiences) as server:
-        print(f"Assistant: http://127.0.0.1:{port} (read-only, separate from telemetry)", flush=True)
+        print(f"Assistant: http://127.0.0.1:{port} (no rover control, separate from telemetry)", flush=True)
         server.serve_forever()

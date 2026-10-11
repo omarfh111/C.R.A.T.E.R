@@ -27,6 +27,67 @@ export interface AssistantHealth {
   indexedChunks: number;
   llm: string;
   embedding: string;
+  experience?: { enabled: true; workerAlive: boolean; imageInference: false; capacity: number };
+}
+
+export interface ExperienceEvent {
+  eventId: string;
+  roverId: string;
+  capturedAt: string;
+  kind: 'telemetry_stale' | 'link_changed' | 'tracking_warning' | 'calibration_missing' | 'operator_note';
+  provenance: 'measured' | 'simulated' | 'operator';
+  summary: string;
+  question?: string;
+  decision?: { action: string; reason: string };
+  frame?: Record<string, unknown>;
+  images?: { relativePath: string; mediaType: 'image/png' | 'image/jpeg'; sha256: string }[];
+}
+
+export interface RecordedEvent extends ExperienceEvent {
+  recordedAt: string;
+  imageAnalysis: 'not_performed';
+}
+
+export interface ExperienceAnalysis {
+  analysisId: string;
+  eventId: string;
+  state: 'queued' | 'running' | 'completed' | 'failed';
+  question: string;
+  submittedAt: string;
+  startedAt?: string;
+  finishedAt?: string;
+  attempt: number;
+  result: AssistantAnswer | null;
+  error: string | null;
+}
+
+function identifier(value: unknown): value is string {
+  return typeof value === 'string' && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(value);
+}
+
+function parseEvent(value: unknown): RecordedEvent {
+  if (!record(value) || !identifier(value.eventId) || typeof value.roverId !== 'string'
+      || typeof value.capturedAt !== 'string' || typeof value.recordedAt !== 'string'
+      || typeof value.summary !== 'string' || value.imageAnalysis !== 'not_performed'
+      || typeof value.kind !== 'string' || typeof value.provenance !== 'string'
+      || !['telemetry_stale', 'link_changed', 'tracking_warning', 'calibration_missing', 'operator_note'].includes(String(value.kind))
+      || !['measured', 'simulated', 'operator'].includes(String(value.provenance))) {
+    throw new Error('Invalid recorded experience event');
+  }
+  return value as unknown as RecordedEvent;
+}
+
+function parseAnalysis(value: unknown): ExperienceAnalysis {
+  if (!record(value) || !identifier(value.analysisId) || !identifier(value.eventId)
+      || typeof value.state !== 'string' || !['queued', 'running', 'completed', 'failed'].includes(value.state)
+      || typeof value.question !== 'string' || typeof value.submittedAt !== 'string'
+      || !Number.isInteger(value.attempt) || Number(value.attempt) < 1 || Number(value.attempt) > 5
+      || !(value.error === null || typeof value.error === 'string')) {
+    throw new Error('Invalid experience analysis');
+  }
+  if (value.state === 'completed') parseAnswer(value.result);
+  else if (value.result !== null) throw new Error('Invalid unfinished analysis result');
+  return value as unknown as ExperienceAnalysis;
 }
 
 function record(value: unknown): value is Record<string, unknown> {
@@ -99,12 +160,50 @@ export function createAssistantClient(options: { baseUrl?: string; timeoutMs?: n
           || typeof value.llm !== 'string' || typeof value.embedding !== 'string') {
         throw new Error('Invalid assistant health response');
       }
+      if (value.experience !== undefined && (!record(value.experience)
+          || value.experience.enabled !== true || typeof value.experience.workerAlive !== 'boolean'
+          || value.experience.imageInference !== false || !Number.isInteger(value.experience.capacity)
+          || Number(value.experience.capacity) < 1 || Number(value.experience.capacity) > 16)) {
+        throw new Error('Invalid experience health response');
+      }
       return value as unknown as AssistantHealth;
     },
     async ask(question: string, topK = 4): Promise<AssistantAnswer> {
       if (typeof question !== 'string' || !question.trim() || question.length > 2000) throw new Error('Invalid question');
       if (!Number.isInteger(topK) || topK < 1 || topK > 8) throw new Error('Invalid topK');
       return parseAnswer(await request('/ask', { question, topK }));
+    },
+    async recordEvent(event: ExperienceEvent, analyze = false): Promise<{event: RecordedEvent; analysis: ExperienceAnalysis | null}> {
+      if (!identifier(event.eventId) || typeof analyze !== 'boolean') throw new Error('Invalid event identifier or analyze flag');
+      const value = await request('/experience/events', {event, analyze});
+      if (!record(value)) throw new Error('Invalid experience response');
+      const saved = parseEvent(value.event);
+      const job = value.analysis === null ? null : parseAnalysis(value.analysis);
+      if (saved.eventId !== event.eventId || (job && job.eventId !== saved.eventId)) throw new Error('Experience identifier mismatch');
+      return {event: saved, analysis: job};
+    },
+    async events(): Promise<RecordedEvent[]> {
+      const value = await request('/experience/events');
+      if (!record(value) || !Array.isArray(value.events)) throw new Error('Invalid events response');
+      return value.events.map(parseEvent);
+    },
+    async event(eventId: string): Promise<RecordedEvent> {
+      if (!identifier(eventId)) throw new Error('Invalid event identifier');
+      const saved = parseEvent(await request('/experience/events/' + eventId));
+      if (saved.eventId !== eventId) throw new Error('Experience identifier mismatch');
+      return saved;
+    },
+    async analyzeEvent(eventId: string, retry = false): Promise<ExperienceAnalysis> {
+      if (!identifier(eventId) || typeof retry !== 'boolean') throw new Error('Invalid event identifier or retry flag');
+      const job = parseAnalysis(await request('/experience/analyses', {eventId, retry}));
+      if (job.eventId !== eventId) throw new Error('Experience identifier mismatch');
+      return job;
+    },
+    async analysis(analysisId: string): Promise<ExperienceAnalysis> {
+      if (!identifier(analysisId)) throw new Error('Invalid analysis identifier');
+      const job = parseAnalysis(await request('/experience/analyses/' + analysisId));
+      if (job.analysisId !== analysisId) throw new Error('Analysis identifier mismatch');
+      return job;
     },
   };
 }

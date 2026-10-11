@@ -1,5 +1,6 @@
 """Local experience records. Observations, generated analyses and reviews stay separate."""
 import hashlib
+import io
 import json
 import sqlite3
 from contextlib import contextmanager
@@ -10,7 +11,7 @@ from uuid import UUID, uuid4
 from PIL import Image
 
 from crater_m2.contract import timestamp, utc_iso, validate_frame
-from .core import _read
+from .core import CHUNK_CHARS, _read
 
 KINDS = {"telemetry_stale", "link_changed", "tracking_warning", "calibration_missing", "operator_note"}
 QUESTIONS = {
@@ -78,7 +79,7 @@ class Journal:
             raw = target.read_bytes()
             if len(raw) > 5 * 1024 * 1024 or hashlib.sha256(raw).hexdigest() != ref["sha256"]:
                 raise ValueError("Image digest mismatch or oversized file")
-            with Image.open(target) as image:
+            with Image.open(io.BytesIO(raw)) as image:
                 if ref["mediaType"] != {"PNG": "image/png", "JPEG": "image/jpeg"}.get(image.format):
                     raise ValueError("Image media type mismatch")
                 if image.width * image.height > 20_000_000:
@@ -173,10 +174,21 @@ class Journal:
         latest = {}
         for row in reversed(rows):
             latest.setdefault(row["eventId"], row)
-        return "\n\n".join(f"## Expérience {row['eventId']}\nRelecture humaine : {row['reviewer']} ; {row['reviewedAt']}\n"
-                          f"Provenance déclarée : {row['provenance']}\nFait retenu : {row['statement']}\n"
-                          f"Preuves : {_json(row['evidence'])}\nLimite : résultat de cet essai, pas garantie générale."
-                          for row in list(latest.values())[:100] if row["outcome"] == "confirmed")
+        lines = []
+        for row in list(latest.values())[:100]:
+            if row["outcome"] != "confirmed":
+                continue
+            reviewer = " ".join(row["reviewer"].splitlines())
+            prefix = (f"Expérience {row['eventId']} ; relecture {row['reviewId']} par {reviewer}, "
+                      f"{row['reviewedAt']} ; provenance déclarée : {row['provenance']} ; "
+                      f"preuves SHA256 : {','.join(item['sha256'] for item in row['evidence'])} ; "
+                      "Limite : résultat de cet essai, pas garantie générale. ; Fait retenu : ")
+            # Each line is one indivisible retrieval unit, including provenance and limits.
+            statement = " ".join(row["statement"].splitlines())
+            budget = CHUNK_CHARS - len(prefix) - 1
+            lines.extend(prefix + statement[offset:offset + budget]
+                         for offset in range(0, len(statement), budget))
+        return "\n".join(lines)
 
     def records(self):
         """Snapshot export includes raw events, current jobs, terminal attempts and human reviews."""

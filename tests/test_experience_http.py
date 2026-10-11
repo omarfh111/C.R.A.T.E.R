@@ -8,6 +8,7 @@ from crater_assistant.experience_analysis import ExperienceService
 from crater_assistant.server import make_server
 from test_experience import event
 from test_experience_analysis import assistant, done
+from test_experience_analysis import Backend
 
 
 def test_real_http_records_then_polls_background_analysis_and_keeps_ask(tmp_path):
@@ -38,5 +39,43 @@ def test_real_http_records_then_polls_background_analysis_and_keeps_ask(tmp_path
                 except HTTPError as exc:
                     assert exc.code == 400
             finally:
+                server.shutdown()
+                thread.join(timeout=2)
+
+
+def test_busy_model_keeps_ingestion_and_polling_available_and_rejects_overflow(tmp_path):
+    release, started = threading.Event(), threading.Event()
+    class Slow(Backend):
+        def chat(self, *args):
+            started.set()
+            assert release.wait(10)
+            return super().chat(*args)
+    a = assistant(Slow())
+    j = Journal(tmp_path / "j.sqlite")
+    with ExperienceService(a, j, capacity=1) as experiences:
+        with make_server(a, port=0, experiences=experiences) as server:
+            thread = threading.Thread(target=server.serve_forever, daemon=True)
+            thread.start()
+            base = f"http://127.0.0.1:{server.server_port}"
+            def post(path, body):
+                return urlopen(Request(base + path, data=json.dumps(body).encode(),
+                                       headers={"Content-Type": "application/json"}), timeout=2)
+            try:
+                with post('/experience/events', {"event": event(), "analyze": True}) as response:
+                    first = json.load(response)
+                assert started.wait(1)
+                second = event(eventId="12345678-1234-4234-8234-123456789abe")
+                for path, body in [('/ask', {"question": "test"}),
+                                   ('/experience/events', {"event": second, "analyze": True})]:
+                    try:
+                        post(path, body)
+                        assert False
+                    except HTTPError as exc:
+                        assert exc.code == 429
+                assert j.get_event(second['eventId'])['summary'] == second['summary']
+                assert json.load(urlopen(base + '/experience/analyses/' + first['analysis']['analysisId']))['state'] == 'running'
+                assert json.load(urlopen(base + '/health'))['experience']['workerAlive'] is True
+            finally:
+                release.set()
                 server.shutdown()
                 thread.join(timeout=2)

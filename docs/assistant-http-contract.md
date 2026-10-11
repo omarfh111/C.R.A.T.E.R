@@ -1,5 +1,9 @@
 # Assistant local : composant prêt pour M3
 
+Le [journal d'expérience et diagnostic asynchrone](experience-integration.md)
+ajoute des endpoints facultatifs quand `serve --journal` est utilisé. Il prépare
+les références d'images ; l'analyse des pixels reste différée.
+
 Ce composant explique les documents sélectionnés et un rapport M2 choisi par
 l'opérateur. Il est indépendant du WebSocket de télémétrie v1 : aucune trame
 M1/M2/M3 n'est modifiée. Le panneau React reste à intégrer par M3 ; le client

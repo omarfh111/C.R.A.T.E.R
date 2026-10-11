@@ -221,3 +221,8 @@ Partage des petits artefacts ONNX existants :
 Assistant local pour M3 :
 [contrat HTTP, client TypeScript et tests](docs/assistant-http-contract.md),
 [corpus scientifique relu et fonctionnement hors ligne](docs/knowledge/README.md).
+
+Le [journal d'expérience et guide M3](docs/experience-integration.md) permet
+d'enregistrer les incidents, lancer un diagnostic local en arrière-plan et
+exporter les essais relus. Les références d'images sont préparées pour une
+future analyse multimodale ; le modèle texte actuel n'interprète pas les pixels.

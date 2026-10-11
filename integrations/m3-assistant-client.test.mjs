@@ -64,3 +64,29 @@ test('cloud endpoint and invalid questions are rejected before fetch', async () 
   await assert.rejects(client.ask(''), /question/);
   await assert.rejects(client.ask('x', 9), /topK/);
 });
+
+const event = {eventId: '12345678-1234-4234-8234-123456789abc', roverId: 'r-test',
+  capturedAt: '2026-10-11T00:00:00Z', kind: 'telemetry_stale', provenance: 'simulated', summary: 'Test event'};
+const savedEvent = {...event, recordedAt: event.capturedAt, imageAnalysis: 'not_performed'};
+const job = {analysisId: '12345678-1234-4234-8234-123456789abd', eventId: event.eventId,
+  state: 'completed', question: 'Pourquoi ?', submittedAt: event.capturedAt, result: answer, error: null, attempt: 1};
+
+test('experience client records, requests and polls analysis without changing telemetry', async () => {
+  const calls = [];
+  const client = createAssistantClient({fetch: async (url, options) => {
+    calls.push([url, options]);
+    const value = url.endsWith('/experience/events') ? {event: savedEvent, analysis: job} : job;
+    return new Response(JSON.stringify(value));
+  }});
+  assert.equal((await client.recordEvent(event, true)).event.imageAnalysis, 'not_performed');
+  assert.deepEqual(JSON.parse(calls[0][1].body), {event, analyze: true});
+  assert.equal((await client.analyzeEvent(event.eventId)).result.status, 'answered');
+  assert.equal((await client.analysis(job.analysisId)).state, 'completed');
+  assert.equal(calls[2][1].method, 'GET');
+});
+
+test('experience client rejects invalid IDs and malformed jobs', async () => {
+  const client = createAssistantClient({fetch: async () => new Response(JSON.stringify({...job, state: 'drive_motor'}))});
+  await assert.rejects(client.analysis('../file'), /identifier/);
+  await assert.rejects(client.analysis(job.analysisId), /analysis/);
+});
