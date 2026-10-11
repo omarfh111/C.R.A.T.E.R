@@ -5,6 +5,7 @@ import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import math
 import socket
+import sqlite3
 from socketserver import ThreadingMixIn
 import threading
 from urllib.parse import urlsplit
@@ -116,13 +117,13 @@ class _BoundedHTTPServer(ThreadingMixIn, HTTPServer):
 
 
 def make_server(assistant, port=8766, report=None, *, allowed_origins=DEFAULT_ORIGINS,
-                request_timeout=None, max_connections=8, capture_guard=None):
+                request_timeout=None, max_connections=8, capture_guard=None, journal=None, worker=None):
     if type(port) is not int or not 0 <= port <= 65535:
         raise ValueError("port must be 0..65535")
     origins = frozenset(allowed_origins)
     if any(not validate_origin(origin) for origin in origins):
         raise ValueError("Every allowed origin must be an exact HTTP loopback origin with a port")
-    budget = request_timeout if request_timeout is not None else getattr(assistant.backend, "timeout", 180)
+    budget = request_timeout if request_timeout is not None else getattr(getattr(assistant, "backend", None), "timeout", 180)
     if type(budget) not in (int, float) or not 0 < budget <= 600 or not math.isfinite(budget):
         raise ValueError("request_timeout must be >0..600 seconds")
     if type(max_connections) is not int or not 2 <= max_connections <= 32:
@@ -183,7 +184,7 @@ def make_server(assistant, port=8766, report=None, *, allowed_origins=DEFAULT_OR
         def do_OPTIONS(self):
             requested_method = self.headers.get("Access-Control-Request-Method", "POST")
             requested_headers = self.headers.get("Access-Control-Request-Headers", "content-type")
-            if (self._trusted() and self.path in {"/ask", "/health"} and requested_method in {"GET", "POST"}
+            if (self._trusted() and self.path in {"/ask", "/health", "/incidents", "/sessions", "/jobs/retry", "/jobs/cancel", "/reviews", "/analyze-incident"} and requested_method in {"GET", "POST"}
                     and all(h.strip().lower() == "content-type" for h in requested_headers.split(","))):
                 self._send(200, {})
             else:
@@ -192,6 +193,14 @@ def make_server(assistant, port=8766, report=None, *, allowed_origins=DEFAULT_OR
         def do_GET(self):
             if not self._trusted():
                 self._error(403, "forbidden", "Untrusted Host or Origin")
+            elif journal is not None and self.path in {"/incidents", "/sessions"}:
+                try:
+                    self._send(200, {"incidents": journal.list()} if self.path == "/incidents" else {"sessions": journal.sessions()})
+                except (OSError, sqlite3.Error):
+                    self._error(503, "unavailable", "Journal unavailable")
+            elif self.path == "/health" and assistant is None:
+                self._send(200, {"httpReady": True, "collectorReady": True, "workerError": getattr(worker, "error", None),
+                                 "limitations": "Collection does not require Ollama. Analysis requires explicit producer capture completion."})
             elif self.path == "/health":
                 capture_blocked = capture_guard is not None and capture_guard()
                 self._send(200, {"status": "ready", "httpReady": True,
@@ -208,7 +217,7 @@ def make_server(assistant, port=8766, report=None, *, allowed_origins=DEFAULT_OR
             if not self._trusted():
                 self._error(403, "forbidden", "Untrusted Host or Origin")
                 return
-            if self.path != "/ask":
+            if self.path not in {"/ask", "/incidents", "/jobs/retry", "/jobs/cancel", "/reviews", "/analyze-incident"}:
                 self._error(404, "not_found", "Unknown endpoint")
                 return
             try:
@@ -224,10 +233,37 @@ def make_server(assistant, port=8766, report=None, *, allowed_origins=DEFAULT_OR
                 self._body_consumed = True
                 if len(body) != length:
                     raise ValueError("Incomplete request body")
-                question, top_k = parse_question(body)
-            except (ValueError, UnicodeError, OSError):
+                incident = None
+                if self.path == "/ask":
+                    question, top_k = parse_question(body)
+                else:
+                    data = json.loads(body)
+                    if journal is None or not isinstance(data, dict):
+                        raise ValueError("Journal not configured")
+                    if self.path == "/incidents":
+                        self._send(200, journal.record(data)); return
+                    if self.path in {"/jobs/retry", "/jobs/cancel", "/analyze-incident"}:
+                        if set(data) != {"eventId"}:
+                            raise ValueError("Only eventId allowed")
+                        incident = journal.get(data["eventId"])
+                        if self.path != "/analyze-incident":
+                            (journal.retry if self.path == "/jobs/retry" else journal.cancel)(data["eventId"])
+                            self._send(200, {"ok": True}); return
+                        session = journal.session(incident["sessionId"])
+                        if session is None or session["phase"] == "capturing":
+                            self._error(429, "busy", "Explicit producer capture completion required"); return
+                        question, top_k = incident["question"], 3
+                    elif self.path == "/reviews":
+                        if set(data) != {"eventId", "verdict", "note"}:
+                            raise ValueError("Expected review fields")
+                        self._send(200, journal.review(**dict(event_id=data["eventId"], verdict=data["verdict"], note=data["note"]))); return
+            except sqlite3.Error:
+                self._error(503, "unavailable", "Journal busy or unavailable"); return
+            except (ValueError, UnicodeError, OSError, KeyError, TypeError):
                 self._error(400, "invalid_request", "Expected bounded JSON question and optional topK")
                 return
+            if assistant is None:
+                self._error(503, "unavailable", "Collector has no model engine"); return
             if capture_guard is not None and capture_guard():
                 self._error(429, "busy", "Live M1 capture is active or cannot be excluded; ask after capture finishes")
                 return
@@ -240,7 +276,11 @@ def make_server(assistant, port=8766, report=None, *, allowed_origins=DEFAULT_OR
             try:
                 request_budget = getattr(assistant.backend, "request_budget", None)
                 with request_budget(budget) if request_budget else nullcontext():
-                    result = assistant.ask(question, top_k, report)
+                    if incident is None:
+                        result = assistant.ask(question, top_k, report)
+                    else:
+                        context = {key: incident[key] for key in ("kind", "summary", "provenance")}
+                        result = assistant.ask(question, top_k, context=context)
                 if result.get("reason") == "invalid_model_response":
                     raise AssistantInvalidResponse("Generated answer failed citation or response validation")
                 self._send(200, result)
@@ -263,10 +303,10 @@ def make_server(assistant, port=8766, report=None, *, allowed_origins=DEFAULT_OR
     return server
 
 
-def serve(assistant, port=8766, report=None, *, allowed_origins=DEFAULT_ORIGINS, request_timeout=None, capture_guard=None):
+def serve(assistant, port=8766, report=None, *, allowed_origins=DEFAULT_ORIGINS, request_timeout=None, capture_guard=None, journal=None):
     if type(port) is not int or not 1 <= port <= 65535:
         raise ValueError("port must be 1..65535")
-    with make_server(assistant, port, report, allowed_origins=allowed_origins, request_timeout=request_timeout, capture_guard=capture_guard) as server:
+    with make_server(assistant, port, report, allowed_origins=allowed_origins, request_timeout=request_timeout, capture_guard=capture_guard, journal=journal) as server:
         print(f"Assistant: http://127.0.0.1:{port} (read-only, separate from telemetry)", flush=True)
         print("Only operator-triggered inference; client cancellation does not guarantee model termination.", flush=True)
         server.serve_forever()

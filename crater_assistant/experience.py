@@ -64,11 +64,13 @@ class Journal:
                 CREATE INDEX IF NOT EXISTS incident_dedup ON incidents(session,kind,trigger_key,recorded);
                 CREATE TABLE IF NOT EXISTS jobs (event_id TEXT PRIMARY KEY, state TEXT NOT NULL,
                     attempt INTEGER NOT NULL DEFAULT 0, next_at REAL NOT NULL DEFAULT 0,
-                    result TEXT, error TEXT, updated TEXT NOT NULL);
+                    result TEXT, error TEXT, updated TEXT NOT NULL, expires REAL NOT NULL DEFAULT 0);
                 CREATE TABLE IF NOT EXISTS attempts (id INTEGER PRIMARY KEY, event_id TEXT NOT NULL,
                     attempt INTEGER NOT NULL, payload TEXT NOT NULL);
                 CREATE TABLE IF NOT EXISTS reviews (id TEXT PRIMARY KEY, event_id TEXT NOT NULL, payload TEXT NOT NULL);
             """)
+            if "expires" not in {row[1] for row in db.execute("PRAGMA table_info(jobs)")}:
+                db.execute("ALTER TABLE jobs ADD COLUMN expires REAL NOT NULL DEFAULT 0")
 
     @contextmanager
     def connect(self):
@@ -102,11 +104,20 @@ class Journal:
             if not row:
                 raise ValueError("unknown session")
             session = json.loads(row[0])
+            if session["phase"] != "capturing":
+                return session
             session.update(phase="interrupted" if interrupted else "completed", endedAt=now())
             db.execute("UPDATE sessions SET payload=? WHERE id=?", (dump(session), session_id))
             db.execute("UPDATE jobs SET state='queued',updated=? WHERE state='waiting_capture' AND event_id IN "
                        "(SELECT id FROM incidents WHERE session=?)", (now(), session_id))
         return session
+
+    def session(self, session_id):
+        with self.connect() as db:
+            row = db.execute("SELECT payload FROM sessions WHERE id=?", (identifier(session_id),)).fetchone()
+            if not row:
+                raise ValueError("unknown session")
+            return json.loads(row[0])
 
     def sessions(self):
         with self.connect() as db:
@@ -187,7 +198,7 @@ class Journal:
             db.execute("INSERT INTO incidents VALUES (?,?,?,?,?,?)", (event_id, session_id, kind, event["triggerKey"], at, dump(saved)))
             count = db.execute("SELECT COUNT(*) FROM jobs WHERE state IN (?,?,?,?)", ACTIVE).fetchone()[0]
             state = "saturated" if count >= self.capacity else ("waiting_capture" if session["phase"] == "capturing" else "queued")
-            db.execute("INSERT INTO jobs(event_id,state,updated) VALUES (?,?,?)", (event_id, state, now()))
+            db.execute("INSERT INTO jobs(event_id,state,updated,expires) VALUES (?,?,?,?)", (event_id, state, now(), at+3600))
         return saved
 
     def get(self, event_id):
@@ -208,20 +219,23 @@ class Journal:
                        (state, dump(result) if result else None, error, now(), next_at, attempt, event_id))
 
     def retry(self, event_id):
+        import time
         event = self.get(event_id)
         with self.connect() as db:
             row = db.execute("SELECT state,attempt FROM jobs WHERE event_id=?", (event_id,)).fetchone()
-            if row[0] in ACTIVE or row[1] >= 3:
+            if row[0] not in {"failed", "cancelled", "interrupted", "saturated", "unavailable"} or row[1] >= 3:
                 raise ValueError("job active or attempt limit reached")
             if db.execute("SELECT COUNT(*) FROM jobs WHERE state IN (?,?,?,?)", ACTIVE).fetchone()[0] >= self.capacity:
                 raise ValueError("analysis queue saturated")
             session = json.loads(db.execute("SELECT payload FROM sessions WHERE id=?", (event["sessionId"],)).fetchone()[0])
-            db.execute("UPDATE jobs SET state=?,error=NULL,updated=?,next_at=0 WHERE event_id=?",
-                       ("waiting_capture" if session["phase"] == "capturing" else "queued", now(), event_id))
+            db.execute("UPDATE jobs SET state=?,error=NULL,updated=?,next_at=0,expires=? WHERE event_id=?",
+                       ("waiting_capture" if session["phase"] == "capturing" else "queued", now(), time.time()+3600, event_id))
 
     def cancel(self, event_id):
         self.get(event_id)
-        self.update_job(event_id, "cancelled", error="Operator cancelled; an admitted backend inference may continue until its deadline")
+        with self.connect() as db:
+            db.execute("UPDATE jobs SET state='cancelled',error=?,updated=? WHERE event_id=? AND state IN (?,?,?,?)",
+                       ("Operator cancelled; backend inference may continue until deadline", now(), event_id, *ACTIVE))
 
     def review(self, event_id, verdict, note):
         self.get(event_id)
@@ -238,7 +252,7 @@ class Journal:
         with self.connect() as db:
             return dict(schemaVersion=1, sessions=[json.loads(r[0]) for r in db.execute("SELECT payload FROM sessions")],
                         incidents=[json.loads(r[0]) for r in db.execute("SELECT payload FROM incidents")],
-                        jobs=[dict(zip(("eventId", "state", "attempt", "nextAt", "result", "error", "updatedAt"), r)) for r in db.execute("SELECT * FROM jobs")],
+                        jobs=[dict(zip(("eventId", "state", "attempt", "nextAt", "result", "error", "updatedAt", "expiresAt"), r)) for r in db.execute("SELECT * FROM jobs")],
                         attempts=[json.loads(r[0]) for r in db.execute("SELECT payload FROM attempts")],
                         reviews=[json.loads(r[0]) for r in db.execute("SELECT payload FROM reviews")],
                         limitations="No automatic promotion into RAG or trusted telemetry; image interpretation not performed")
