@@ -176,8 +176,19 @@ jobs:
         run: python -m pip install -e "${{ matrix.install }}"
 
       # The resolved environment, so transitive dependencies are covered too.
+      #
+      # pip-audit exits non-zero both when it finds advisories and when it fails, so the two are
+      # separated here: a missing or empty report means the tool failed and that must not be
+      # reported as "no advisories".
       - name: Audit the installed environment
-        run: pip-audit --format json --progress-spinner off --output "$RUNNER_TEMP/audit.json" || true
+        run: |
+          set -uo pipefail
+          pip-audit --format json --progress-spinner off --output "$RUNNER_TEMP/audit.json"             2> "$RUNNER_TEMP/audit.err" || true
+          cat "$RUNNER_TEMP/audit.err"
+          if [ ! -s "$RUNNER_TEMP/audit.json" ]; then
+            echo "::error title=pip-audit::pip-audit produced no report; see the stderr above."
+            exit 1
+          fi
 
       - name: Report and gate
         run: python scripts/summarize-pip-audit.py "$RUNNER_TEMP/audit.json" --label "${{ matrix.label }}" --gate "${{ matrix.gate }}" --summary "$GITHUB_STEP_SUMMARY"
@@ -221,7 +232,14 @@ jobs:
         run: python scripts/pin-python-deps.py --group onnx-local --platform "${{ matrix.platform }}" --output "$RUNNER_TEMP/onnx-pins.txt"
 
       - name: Audit the pinned local ONNX group
-        run: pip-audit --no-deps --requirement "$RUNNER_TEMP/onnx-pins.txt" --format json --progress-spinner off --output "$RUNNER_TEMP/audit.json" || true
+        run: |
+          set -uo pipefail
+          pip-audit --no-deps --requirement "$RUNNER_TEMP/onnx-pins.txt" --format json             --progress-spinner off --output "$RUNNER_TEMP/audit.json"             2> "$RUNNER_TEMP/audit.err" || true
+          cat "$RUNNER_TEMP/audit.err"
+          if [ ! -s "$RUNNER_TEMP/audit.json" ]; then
+            echo "::error title=pip-audit::pip-audit produced no report; see the stderr above."
+            exit 1
+          fi
 
       - name: Report (advisory)
         run: python scripts/summarize-pip-audit.py "$RUNNER_TEMP/audit.json" --label "local ONNX group (${{ matrix.platform }})" --gate advisory --summary "$GITHUB_STEP_SUMMARY"
