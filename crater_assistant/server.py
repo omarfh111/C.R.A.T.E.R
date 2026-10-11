@@ -2,17 +2,30 @@
 
 import json
 from http.server import BaseHTTPRequestHandler, HTTPServer
-from urllib.parse import urlsplit
+
+# Every origin the local M3 dev server or its preview can present, as exact literals.
+ALLOWED_ORIGINS = ("http://localhost:5173", "http://127.0.0.1:5173", "http://[::1]:5173",
+                   "http://localhost:4173", "http://127.0.0.1:4173", "http://[::1]:4173")
 
 
 def allowed_origin(origin):
-    try:
-        url = urlsplit(origin)
-        return (url.scheme == "http" and url.hostname in {"localhost", "127.0.0.1", "::1"}
-                and not url.username and not url.password and not url.path and not url.query
-                and not url.fragment and url.port in {5173, 4173})
-    except ValueError:
-        return False
+    """True only for an exact local dev-server origin.
+
+    Compared as whole strings rather than parsed and inspected: urlsplit() removes ASCII tabs
+    and newlines before parsing, so a folded Origin header carrying CR, LF or TAB inside the
+    port satisfied every parsed check and was then echoed verbatim into
+    Access-Control-Allow-Origin, putting attacker-controlled CRLF in the response headers.
+    """
+    return origin in ALLOWED_ORIGINS
+
+
+def echoable_origin(origin):
+    """The matching literal from ALLOWED_ORIGINS, or None.
+
+    Returns a value from this module, never the request's own bytes, so no header the client
+    sent can reach a response header even if the comparison above is later loosened.
+    """
+    return next((allowed for allowed in ALLOWED_ORIGINS if allowed == origin), None)
 
 
 def parse_question(raw):
@@ -49,8 +62,8 @@ def make_server(assistant, port=8766, report=None):
             self.send_header("Content-Type", "application/json; charset=utf-8")
             self.send_header("Content-Length", str(len(body)))
             self.send_header("Cache-Control", "no-store")
-            origin = self.headers.get("Origin")
-            if origin and allowed_origin(origin):
+            origin = echoable_origin(self.headers.get("Origin"))
+            if origin:
                 self.send_header("Access-Control-Allow-Origin", origin)
                 self.send_header("Vary", "Origin")
                 self.send_header("Access-Control-Allow-Methods", "GET, POST, OPTIONS")

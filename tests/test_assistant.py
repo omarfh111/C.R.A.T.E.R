@@ -5,7 +5,7 @@ import pytest
 
 from crater_assistant.core import Assistant, Index, chunks_from_files, report_facts
 from crater_assistant.ollama import Ollama
-from crater_assistant.server import allowed_origin, parse_question
+from crater_assistant.server import allowed_origin, echoable_origin, parse_question
 from crater_assistant.pdf import export_pdf
 
 
@@ -366,3 +366,64 @@ def test_real_http_contract_and_origin(tmp_path):
         server.shutdown()
         server.server_close()
         worker.join(timeout=5)
+
+
+@pytest.mark.parametrize("origin", [
+    "http://127.0.0.1:51\r73",
+    "http://127.0.0.1:51\r\n\t73",
+    "http://127.0.0.1:51\n\t73",
+    "http://localhost:51\r\t73",
+    "http://localhost:5173\rX-Injected: 1",
+    "http://localhost\t:5173",
+    "http://localhost:5173 ",
+])
+def test_http_origin_with_control_characters_refused(origin):
+    # urlsplit() removes ASCII tabs and newlines before parsing, so most of these satisfied
+    # every parsed check and were then echoed verbatim into Access-Control-Allow-Origin.
+    assert not allowed_origin(origin)
+    assert echoable_origin(origin) is None
+
+
+@pytest.mark.parametrize("origin", [
+    "http://localhost:5173", "http://127.0.0.1:5173", "http://[::1]:5173",
+    "http://localhost:4173", "http://127.0.0.1:4173", "http://[::1]:4173",
+])
+def test_local_dev_origins_still_accepted(origin):
+    assert allowed_origin(origin)
+    assert echoable_origin(origin) == origin
+
+
+def test_http_response_headers_cannot_be_injected_through_the_origin(tmp_path):
+    """A folded Origin header must not put CR, LF or TAB in the response header block.
+
+    `Origin: http://127.0.0.1:51<CRLF><TAB>73` is one folded header value, so
+    `self.headers.get("Origin")` returns it with the line break still inside. urllib refuses to
+    send such a header, so the request goes over a raw socket.
+    """
+    import socket
+    import threading
+    from crater_assistant.server import make_server
+    doc = tmp_path / "doc.md"
+    doc.write_text("calibration", encoding="utf-8")
+    backend = Backend()
+    server = make_server(Assistant(Index.build([doc], backend), backend), 0)
+    worker = threading.Thread(target=server.serve_forever, daemon=True)
+    worker.start()
+    try:
+        request = (b"GET /health HTTP/1.1\r\nHost: 127.0.0.1:" + str(server.server_port).encode()
+                   + b"\r\nOrigin: http://127.0.0.1:51\r\n\t73\r\nConnection: close\r\n\r\n")
+        with socket.create_connection(("127.0.0.1", server.server_port), timeout=5) as client:
+            client.sendall(request)
+            raw = b""
+            while True:
+                chunk = client.recv(4096)
+                if not chunk:
+                    break
+                raw += chunk
+    finally:
+        server.shutdown()
+        server.server_close()
+        worker.join(timeout=5)
+    head = raw.split(b"\r\n\r\n", 1)[0]
+    assert b"Access-Control-Allow-Origin" not in head
+    assert b"73" not in head and b"X-Injected" not in head
