@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" fill="none" stroke="currentColor" role="img" aria-labelledby="crater-mark-mono-title">
+  <title id="crater-mark-mono-title">C.R.A.T.E.R. single-colour mark</title>
+  <path d="M32 3.5 L60.5 32 L32 60.5 L3.5 32 Z" stroke-width="2" stroke-linejoin="miter"/>
+  <g stroke-width="1.7" opacity=".75">
+    <path d="M32 8 V12.5"/><path d="M32 51.5 V56"/><path d="M8 32 H12.5"/><path d="M51.5 32 H56"/>
+  </g>
+  <circle cx="32" cy="32" r="17" stroke-width="2"/>
+  <circle cx="32" cy="32" r="9.5" stroke-width="1.1" opacity=".4"/>
+  <circle cx="32" cy="32" r="3.2" fill="currentColor" stroke="none" opacity=".55"/>
+  <path d="M14.5 42 C21.5 40.5 28.5 36.5 40 28.8" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="4.6 3.2"/>
+  <circle cx="41" cy="28" r="5" stroke-width="1" opacity=".55"/>
+  <circle cx="41" cy="28" r="2.4" fill="currentColor" stroke="none"/>
+</svg>

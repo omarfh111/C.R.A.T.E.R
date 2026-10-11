@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64" role="img" aria-labelledby="crater-mark-title">
+  <title id="crater-mark-title">C.R.A.T.E.R. mark: a rover traverse ending at an acquired hazard on crater rings, inside a navigation reticle</title>
+  <!-- Navigation reticle, echoing the Mission Control header symbol. -->
+  <path d="M32 3.5 L60.5 32 L32 60.5 L3.5 32 Z" fill="none" stroke="#9bddea" stroke-width="2" stroke-linejoin="miter"/>
+  <!-- Bearing ticks on the cardinal axes. -->
+  <g stroke="#86c9d7" stroke-width="1.7" stroke-linecap="butt" opacity=".9">
+    <path d="M32 8 V12.5"/><path d="M32 51.5 V56"/><path d="M8 32 H12.5"/><path d="M51.5 32 H56"/>
+  </g>
+  <!-- Crater topography: concentric rim rings seen from above. -->
+  <circle cx="32" cy="32" r="17" fill="none" stroke="#9bddea" stroke-width="2"/>
+  <circle cx="32" cy="32" r="9.5" fill="none" stroke="#9bddea" stroke-width="1.1" opacity=".4"/>
+  <circle cx="32" cy="32" r="3.2" fill="#9bddea" opacity=".55"/>
+  <!-- Rover traverse terminating at the acquired hazard fix. -->
+  <path d="M14.5 42 C21.5 40.5 28.5 36.5 40 28.8" fill="none" stroke="#f2b54a" stroke-width="1.8" stroke-linecap="round" stroke-dasharray="4.6 3.2"/>
+  <circle cx="41" cy="28" r="5" fill="none" stroke="#f2b54a" stroke-width="1" opacity=".55"/>
+  <circle cx="41" cy="28" r="2.4" fill="#f2b54a"/>
+</svg>
