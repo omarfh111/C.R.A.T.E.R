@@ -12,7 +12,7 @@
 
 </div>
 
-C.R.A.T.E.R. runs object detection **on the rover itself**, turns each detection into a metric position in a local East-North-Up frame, and ships it to Mission Control in **binary frames averaging 177 bytes** that survive packet loss and a radio blackout.
+C.R.A.T.E.R. runs object detection **locally in the emulated rover pipeline**, turns each detection into a metric position in a local East-North-Up frame, and ships it to Mission Control in **binary frames averaging 177 bytes** that survive packet loss and a radio blackout.
 
 ---
 
@@ -57,7 +57,7 @@ The launcher opens Mission Control and prints its local `http://127.0.0.1:<port>
 
 ## Why this matters
 
-**A rover cannot stream raw video home.** Every stage of C.R.A.T.E.R. exists because the link is the scarce resource, not the compute.
+**Continuous raw-video transmission is costly over a constrained space communication link.** Every stage of C.R.A.T.E.R. exists because the link is the scarce resource, not the compute.
 
 - **Detection stays on the rover.** Grounding DINO Tiny runs locally through ONNX Runtime and DirectML, offline from a pinned model cache. No cloud, no API key, no network at inference time.
 - **Hazards leave as geometry, not pixels.** Each detected ground-contact point is projected through known camera intrinsics and pose into `LOCAL_ENU_V1` metres with an uncertainty radius — so Mission Control receives a position it can act on, not a bounding box it must re-interpret.
