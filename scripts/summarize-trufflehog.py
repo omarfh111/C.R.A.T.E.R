@@ -26,11 +26,12 @@ from pathlib import Path
 
 # Generic detectors whose `unknown` results are advisory rather than blocking.
 #
-# `URI` matches any `scheme://userinfo@host` shape, so it fires on hostile URLs used as negative
-# test fixtures (for example the assistant's assertion that `http://127.0.0.1:11434@evil.org` is
-# refused) and it can never identify a provider-specific credential, which is what makes it the
-# one detector whose unverifiable hits are not treated as live. Every other detector still
-# blocks on `unknown`, and `URI` hits are still listed below, so nothing is hidden.
+# `URI` matches any `scheme://userinfo@host` shape, so it fires on the hostile URLs the test
+# suites feed in on purpose to assert they are refused, and it can never identify a
+# provider-specific credential. That is what makes it the one detector whose unverifiable hits
+# are not treated as live. Every other detector still blocks on `unknown`, and `URI` hits are
+# still listed below, so nothing is hidden. The shapes themselves are not reproduced here,
+# which would only add another match for this scanner to report.
 UNKNOWN_ADVISORY_DETECTORS = frozenset({"URI"})
 
 

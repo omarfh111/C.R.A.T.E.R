@@ -224,8 +224,8 @@ jobs:
           python-version: '3.12'
           cache: pip
 
-      - name: Install the auditing tool
-        run: python -m pip install --upgrade pip pip-audit
+      - name: Install the pinning helper's dependency
+        run: python -m pip install --upgrade pip packaging
 
       # PyTorch, Transformers, ONNX and the ONNX Runtime providers are resolved from PyPI
       # metadata and audited at those versions. Nothing is downloaded, built or installed, and
@@ -233,17 +233,13 @@ jobs:
       - name: Pin the declared local ONNX group without installing it
         run: python scripts/pin-python-deps.py --group onnx-local --platform "${{ matrix.platform }}" --output "$RUNNER_TEMP/onnx-pins.txt"
 
-      - name: Audit the pinned local ONNX group
-        run: |
-          set -uo pipefail
-          pip-audit --no-deps --requirement "$RUNNER_TEMP/onnx-pins.txt" --format json             --progress-spinner off --output "$RUNNER_TEMP/audit.json"             2> "$RUNNER_TEMP/audit.err" || true
-          cat "$RUNNER_TEMP/audit.err"
-          if [ ! -s "$RUNNER_TEMP/audit.json" ]; then
-            # Annotate the tool's own diagnosis so the failure is legible without the job log.
-            while IFS= read -r line; do echo "::error title=pip-audit::${line}"; done < "$RUNNER_TEMP/audit.err"
-            echo "::error title=pip-audit::pip-audit produced no report."
-            exit 1
-          fi
+      # Queried against OSV by name and version rather than with pip-audit, which even under
+      # `--no-deps` resolves requirements through `pip install --dry-run`: onnxruntime-directml
+      # publishes Windows wheels only, so that resolution fails on a Linux runner and produces
+      # no report at all. OSV needs no resolver and no compatible wheel, so the Windows DirectML
+      # provider is audited here too. pip-audit still audits every set this project installs.
+      - name: Audit the pinned local ONNX group against OSV
+        run: python scripts/audit-pinned-deps.py --requirement "$RUNNER_TEMP/onnx-pins.txt" --output "$RUNNER_TEMP/audit.json"
 
       - name: Report (advisory)
         run: python scripts/summarize-pip-audit.py "$RUNNER_TEMP/audit.json" --label "local ONNX group (${{ matrix.platform }})" --gate advisory --summary "$GITHUB_STEP_SUMMARY"
