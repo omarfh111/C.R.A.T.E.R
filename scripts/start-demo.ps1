@@ -6,9 +6,10 @@ try {
     $observations = Join-Path $script:Repo 'examples/m1-onnx-calibrated/observations.jsonl'
     if (-not (Test-Path $python)) { throw 'Model-free environment missing. Run .\scripts\setup.ps1 first.' }
     if (-not (Test-Path $observations)) { throw 'Committed ONNX observations are missing. Restore examples/m1-onnx-calibrated/.' }
+    $ports = Get-DemoPorts
     Set-LiveEnvironment
     $frontend = Start-DemoFrontend
-    $url = 'http://127.0.0.1:5173/'
+    $url = "http://127.0.0.1:$($ports.Web)/"
     Write-Host 'RECORDED ONNX REPLAY — genuine historical predictions; no live AI inference.'
     Write-Host "M3 LIVE dashboard: $url"
     Write-Host 'Opening the dashboard; M2 will wait for a WebSocket receiver before replaying frames.'
@@ -18,7 +19,7 @@ try {
     $env:HF_HUB_OFFLINE = '1'; $env:TRANSFORMERS_OFFLINE = '1'; $env:HF_HUB_DISABLE_TELEMETRY = '1'
     Push-Location $script:Repo
     try {
-        Invoke-DemoCommand $python @('-m', 'crater_m2', '--input', $observations, '--input-ground-z', '0', '--duration', '10', '--drain', '60', '--fps', '10', '--bandwidth', '4096', '--latency', '.005', '--jitter', '0', '--loss', '.25', '--blackout', '.5:5', '--queue', '128', '--attempts', '20', '--seed', '7', '--wait-for-client', '120', '--report', (Join-Path $run 'm2-report.json'), '--received-jsonl', (Join-Path $run 'm2-received.jsonl'))
+        Invoke-DemoCommand $python @('-m', 'crater_m2', '--input', $observations, '--input-ground-z', '0', '--duration', '10', '--drain', '60', '--fps', '10', '--bandwidth', '4096', '--latency', '.005', '--jitter', '0', '--loss', '.25', '--blackout', '.5:5', '--queue', '128', '--attempts', '20', '--seed', '7', '--port', "$($ports.Ws)", '--wait-for-client', '120', '--report', (Join-Path $run 'm2-report.json'), '--received-jsonl', (Join-Path $run 'm2-received.jsonl'))
     } finally { Pop-Location }
     $report = Get-Content (Join-Path $run 'm2-report.json') -Raw | ConvertFrom-Json
     $source = @(Get-Content $observations | ForEach-Object { $_ | ConvertFrom-Json })

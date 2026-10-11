@@ -30,6 +30,17 @@ function Invoke-DemoCommand([string]$Executable, [string[]]$Arguments) {
     if ($LASTEXITCODE -ne 0) { throw "$Executable failed with exit code $LASTEXITCODE. See the error above." }
 }
 
+function Get-DemoPorts {
+    $web = if ($env:CRATER_DEMO_WEB_PORT) { $env:CRATER_DEMO_WEB_PORT } else { '5173' }
+    $ws = if ($env:CRATER_DEMO_WS_PORT) { $env:CRATER_DEMO_WS_PORT } else { '8765' }
+    foreach ($value in @($web, $ws)) {
+        $number = 0
+        if (-not [int]::TryParse($value, [ref]$number) -or $number -lt 1024 -or $number -gt 65535) { throw 'Demo port overrides must be integers from 1024 to 65535.' }
+    }
+    if ($web -eq $ws) { throw 'Frontend and WebSocket ports must differ.' }
+    return @{ Web = [int]$web; Ws = [int]$ws }
+}
+
 function Install-DemoFrontend {
     $previous = $env:NODE_USE_SYSTEM_CA
     try {
@@ -42,9 +53,10 @@ function Install-DemoFrontend {
 
 function Set-LiveEnvironment {
     $path = Join-Path $script:Repo '.env.local'
+    $ports = Get-DemoPorts
     [string[]]$lines = @()
     if (Test-Path -LiteralPath $path) { $lines = [IO.File]::ReadAllLines($path) }
-    foreach ($setting in @(@('VITE_TELEMETRY_MODE', 'LIVE'), @('VITE_TELEMETRY_WS_URL', 'ws://127.0.0.1:8765/telemetry'))) {
+    foreach ($setting in @(@('VITE_TELEMETRY_MODE', 'LIVE'), @('VITE_TELEMETRY_WS_URL', "ws://127.0.0.1:$($ports.Ws)/telemetry"))) {
         $key, $value = $setting
         $matches = @($lines | Where-Object { $_ -match "^\s*$key\s*=" })
         if ($matches.Count -eq 0) { $lines += "$key=$value" }
@@ -70,16 +82,17 @@ function Assert-DemoPort([int]$Port) {
 
 function Start-DemoFrontend {
     Assert-DemoNode
+    $ports = Get-DemoPorts
     if (-not (Test-Path (Join-Path $script:Repo 'node_modules/vite/bin/vite.js'))) { throw 'Frontend packages missing. Run the matching setup script first.' }
-    Assert-DemoPort 5173
-    Assert-DemoPort 8765
+    Assert-DemoPort $ports.Web
+    Assert-DemoPort $ports.Ws
     $vite = Join-Path $script:Repo 'node_modules/vite/bin/vite.js'
-    $process = Start-Process -FilePath (Get-Command node).Source -ArgumentList @("`"$vite`"", '--host', '127.0.0.1', '--port', '5173', '--strictPort') -WorkingDirectory $script:Repo -PassThru -WindowStyle Hidden
+    $process = Start-Process -FilePath (Get-Command node).Source -ArgumentList @("`"$vite`"", '--host', '127.0.0.1', '--port', "$($ports.Web)", '--strictPort') -WorkingDirectory $script:Repo -PassThru -WindowStyle Hidden
     for ($i = 0; $i -lt 100; $i++) {
         if ($process.HasExited) { throw "M3 exited during startup (code $($process.ExitCode)). Run npm run dev for details." }
         $client = [Net.Sockets.TcpClient]::new()
         try {
-            $attempt = $client.BeginConnect('127.0.0.1', 5173, $null, $null)
+            $attempt = $client.BeginConnect('127.0.0.1', $ports.Web, $null, $null)
             if ($attempt.AsyncWaitHandle.WaitOne(200)) {
                 try { $client.EndConnect($attempt); return $process }
                 catch [Net.Sockets.SocketException] { }
@@ -88,7 +101,7 @@ function Start-DemoFrontend {
         Start-Sleep -Milliseconds 100
     }
     Stop-DemoFrontend $process
-    throw 'M3 did not become ready at http://127.0.0.1:5173/ within 30 seconds.'
+    throw "M3 did not become ready at http://127.0.0.1:$($ports.Web)/ within 30 seconds."
 }
 
 function Stop-DemoFrontend($Process) {
